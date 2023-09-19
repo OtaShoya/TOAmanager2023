@@ -19,6 +19,7 @@ function App() {
         >
           Learn React
         </a>
+        <button>送信</button>
       </header>
     </div>
   );
