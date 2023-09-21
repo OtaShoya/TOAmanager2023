@@ -9,7 +9,7 @@ var shinyaJi:Date = new Date();
 shinyaJi.setUTCHours(22);
 shinyaJi.setUTCMinutes(30);
 
-function format(toFormat){
+function format(toFormat:number){
     return toFormat>9?toFormat:"0"+toFormat;
 }
 
@@ -34,13 +34,15 @@ function getWeekDay(day:Number){
     }
 }
 
-function SelectInput( {options, defaultOption} ){
+
+
+function SelectInput( {options, defaultOption}:any ){
 
     let def = 0;
 
     return(
         <select defaultValue={defaultOption}>
-            { options.map((option, index)=>{
+            { options.map((option:any, index:any)=>{
                 if (option.id == defaultOption) {
                     def
                 }
@@ -53,22 +55,27 @@ function SelectInput( {options, defaultOption} ){
 }
 
 class OptionElement{
-    name:string;
-    id:number;
+    name!:string;
+    id!:number;
 }
 
-function PopulatedTable({ beginingDate}){
 
+
+async function fetchData(setDataf:any) {
+    const res = await fetch("/api/test/1");
+    const d = await res.json();
+    setDataf(d);
+}
+
+function PopulatedTable({ beginingDate}:any ){
+
+   
     const [data, setData]:any = useState([]);
-
+   
     useEffect(()=>{
         if(!loaded){
-            async function fectchData() {
-                const res = await fetch("/api/test/1");
-                const d = await res.json();
-                setData(d);
-            }
-            fectchData();
+            
+            fetchData(setData);
             loaded = true;
         }
     });
@@ -84,7 +91,7 @@ function PopulatedTable({ beginingDate}){
     }
     for(let date = new Date(beginingDate.toString());  date.getTime() < endDate.getTime(); date.setDate( date.getDate() + 1) ){
         
-        let foundEl = data.test.find((el)=> {
+        let foundEl = data.test.find((el:any)=> {
             var fDate = new Date( el.hidsuke);
 
             return ( fDate.getDate() == date.getDate() && fDate.getMonth() == date.getMonth() && fDate.getFullYear() == date.getFullYear())
@@ -169,7 +176,7 @@ function PopulatedTable({ beginingDate}){
 
 let loaded = false;
 
-export default function Page({data}){
+export default function Page(){
    
     return (
         <body>

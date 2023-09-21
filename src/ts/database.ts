@@ -2,47 +2,42 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const fs = require("fs");
 
-var db 
+var db:any;
 class Kinmu{
-    id;
-    shainId;
-    hidsuke; //date
-    // youbi; //day of the week
-    kinmuKubun;
-    kinmuKeitai;//form
-    shusshaJikoku;//momment of arrival
-    taishaJikoku;//momment of departure
-    koujyoJikan;
-    // kinmuJikan;
-    // zangyouJikan;
-    // zangyouJikanShinya;
-    kyuushutsuJikan;
-    // sagyouJikanGoukei;
-    memo;
+    id!: number|string|null;
+    shainId!:number|string|null;
+    hidsuke!:string|Date|null ; //date
+    kinmuKubun!: number|string|null;
+    kinmuKeitai!: number|string|null;//form
+    shusshaJikoku!: string|Date|null;//momment of arrival
+    taishaJikoku!: string|Date|null;//momment of departure
+    koujyoJikan!: number|string|null;
+    kyuushutsuJikan!: number|string|null;
+    memo!:string|null;
 }
 
 class Shain{
-    id;
-    bango;
-    password;
-    shimei;
-    furigana;
-    ryakushyou; //abreviation
-    bushoId; //post //Select
-    shainKubunId; //employee devision //Select
-    yakushokuId; //manegerial position //Select
-    kyujitsuGroupId; //day off group //Select
-    shayouKeitaiBango; //Company's cellphone number
-    shayouKeitaiNaisenBango; //Company's cellphone extension number
-    nyuushaNichi; //day entering the company
-    taishaNichi; //day of resignation
-    account;
-    mailAddress;
-    yubinBango; //mailNumber
-    jyuusho; //address
-    denwaBango; //phone Number
-    keitaiBango; //cellphone number
-    inkan; //stamp // data/image
+    id!: number|string|null;
+    bango!: number|string|null;
+    password!: number|string|null;
+    shimei!: string|null;
+    furigana!: string|null;
+    ryakushou!: string|null;//abreviation
+    bushoId!: number|string|null; //post //Select
+    shainKubunId!: number|string|null; //employee devision //Select
+    yakushokuId!: number|string|null; //manegerial position //Select
+    kyujitsuGroupId!: number|string|null; //day off group //Select
+    shayouKeitaiBango!: string|null; //Company's cellphone number
+    shayouKeitaiNaisenBango!: string|null; //Company's cellphone extension number
+    nyuushaNichi!: Date|string|null; //day entering the company
+    taishaNichi!: Date|string|null; //day of resignation
+    account!: string|null;
+    mailAddress!: string|null;
+    yubinBango!: string|null; //mailNumber
+    jyuusho!: string|null; //address
+    denwaBango!: string|null; //phone Number
+    keitaiBango!: string|null; //cellphone number
+    inkan!: string|null; //stamp // data/image
 }
 
 var bushoList = {};
@@ -143,7 +138,7 @@ const createDb = ()=>{
    })
 }
 
-const loadDb = (dbLocation)=>{
+const loadDb = (dbLocation:string)=>{
     databaseLocation = path.join(__dirname, "../" + dbLocation)
     if(!fs.existsSync(databaseLocation)){
         fs.writeFileSync(databaseLocation, "");
@@ -158,7 +153,7 @@ const closeDb = ()=>{
     db.close();
 }
 
-const addKinmu = function(nKinmu){
+const addKinmu = function(nKinmu:Kinmu){
     db.serialize(()=>{
         let stm = db.prepare(
             "INSERT INTO"
@@ -200,24 +195,19 @@ const addKinmu = function(nKinmu){
         stm.run({
             $shain_id: nKinmu.shainId
             ,$hidsuke: nKinmu.hidsuke
-            ,$youbi: nKinmu.youbi
             ,$kinmu_kubun: nKinmu.kinmuKubun
             ,$kinmu_keitai: nKinmu.kinmuKeitai
             ,$shussha_jikoku: nKinmu.shusshaJikoku
             ,$taisha_jikoku: nKinmu.taishaJikoku
             ,$koujyo_jikan: nKinmu.koujyoJikan
-            // ,$kinmu_jikan: nKinmu.kinmuJikan
-            // ,$gingyou_jikan: nKinmu.zangyouJikan
-            // ,$gingyou_jikan_shinya: nKinmu.zangyouJikanShinya
             ,$kyuushutsu_jikan: nKinmu.kyuushutsuJikan
-            // ,$sagyou_jikan_goukyou: nKinmu.sagyouJikanGoukei
             ,$memo: nKinmu.memo
         })
         stm.finalize();
     });
 }
 
-const deleteKinmu = function(id){
+const deleteKinmu = function(id:Number){
     db.serialize(()=>{
         db.run(
             "DELETE"
@@ -232,7 +222,7 @@ const deleteKinmu = function(id){
     })
 }
 
-function convertDate(date, utc = 9){
+function convertDate(date:any, utc = 9){
     let respDate:Date|null = null;
     if(date){
         respDate = new Date( date );
@@ -241,7 +231,7 @@ function convertDate(date, utc = 9){
     return respDate;
 }
 
-const getKinmuList = function(id){
+const getKinmuList = function(id:number){
     return new Promise((resolve, reject)=>{
         db.serialize(()=>{
             db.all( 
@@ -267,11 +257,11 @@ const getKinmuList = function(id){
                 //parameter
                 {$id: id},
                 //callbacks
-                (err, rows)=>{
+                (err:any, rows:any)=>{
                     var e:Array<Kinmu> = [];
                     if(rows){
                         let dt = new Date();
-                        rows.forEach(element => {
+                        rows.forEach( (element:any) => {
                             let shussha_jikoku_dt =  convertDate(element.shussha_jikoku);
                             let taisha_jikoku_dt =  convertDate(element.taisha_jikoku);
 
@@ -299,7 +289,7 @@ const getKinmuList = function(id){
     })
 }
 
-const updateKinmu = function(kinmu){
+const updateKinmu = function(kinmu:Kinmu){
     // console.log(kinmu.id)
     db.serialize(()=>{
         
@@ -307,26 +297,18 @@ const updateKinmu = function(kinmu){
             "UPDATE" 
         + " kinmu"
         +" SET"
-        //+"("
-        // +" hidsuke = date( $hidsuke )"
-        //+",$youbi "
         +" kinmu_kubun = $kinmu_kubun "
         +",kinmu_keitai = $kinmu_keitai "
         +",shussha_jikoku = time( $shussha_jikoku )"
         +",taisha_jikoku = time( $taisha_jikoku ) "
         +",koujyo_jikan = $koujyo_jikan "
-        // +",time($kinmu_jikan) "
-        // +",time($gingyou_jikan)"
-        // +",time($gingyou_jikan_shinya) "
         +",kyuushutsu_jikan = $kyuushutsu_jikan"
-        // +",time($sagyou_jikan_goukyou)s"
         +",memo = $memo"
-        //+")"
         +" WHERE id = $id"
         )
         stm.run({
             $kinmu_kubun: kinmu.kinmuKubun,
-            $kinmu_keitai: kinmu.keitai,
+            $kinmu_keitai: kinmu.kinmuKeitai,
             $shussha_jikoku: kinmu.shusshaJikoku,
             $taisha_jikoku: kinmu.taishaJikoku,
             $koujyo_jikan: kinmu.koujyoJikan,
