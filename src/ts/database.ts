@@ -85,17 +85,12 @@ const createDb = ()=>{
         +"id INTEGER PRIMARY KEY"
         +",shain_id INTEGER"
         +",hidsuke TEXT UNIQUE"
-        //+",youbi TEXT"
         +",kinmu_kubun TEXT"
         +",kinmu_keitai TEXT"
         +",shussha_jikoku TEXT"
         +",taisha_jikoku TEXT"
         +",koujyo_jikan REAL"
-        // +",kinmu_jikan TEXT"
-        // +",gingyou_ikan TEXT"
-        // +",gingyou_jikan_shinya TEXT"
         +",kyuushutsu_jikan REAL"
-        // +",sagyou_jikan_goukyou TEXT"
         +",memo TEXT"
         +")"
     );
@@ -161,34 +156,24 @@ const addKinmu = function(nKinmu:Kinmu){
             +"("
             +"shain_id "
             +",hidsuke "
-            //+",youbi "
             +",kinmu_kubun "
             +",kinmu_keitai "
             +",shussha_jikoku "
             +",taisha_jikoku "
             +",koujyo_jikan "
-            // +",kinmu_jikan "
-            // +",gingyou_jikan"
-            // +",gingyou_jikan_shinya "
             +",kyuushutsu_jikan "
-            // +",sagyou_jikan_goukyou"
             +",memo"
             +")"
             +" VALUES"
             +"("
             +"$shain_id "
             +",date( $hidsuke )"
-            //+",$youbi "
             +",$kinmu_kubun "
             +",$kinmu_keitai "
             +",time( $shussha_jikoku )"
             +",time( $taisha_jikoku ) "
             +",$koujyo_jikan "
-            // +",time($kinmu_jikan) "
-            // +",time($gingyou_jikan)"
-            // +",time($gingyou_jikan_shinya) "
             +",$kyuushutsu_jikan"
-            // +",time($sagyou_jikan_goukyou)s"
             +",$memo"
             +")"
             )
@@ -215,10 +200,8 @@ const deleteKinmu = function(id:Number){
             +" kinmu"
             +" WHERE"
             +" id = $id", 
-            
             {$id: id}
         )
-       
     })
 }
 
@@ -321,6 +304,27 @@ const updateKinmu = function(kinmu:Kinmu){
 
     });
 
+};
+
+const checkCredentials = function(user:string, password:string){
+    db.serialize(
+        db.all(
+             "SELECT" 
+            +" id"
+            +" FROM"
+            +" shain"
+            +" WHERE"
+            +" username = $username"
+            +" password = $password",
+            {
+                $username: user,
+                $password: password
+            },
+            (err:any, rows:any)=>{
+                
+            }
+            ) 
+    )
 }
 
 module.exports = {
