@@ -2,8 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 // var edge = require("edge-js")
 
-const db = require("../../../src/ts/database.ts")
-
+const db = require("../../../src/lib/database.ts")
 var dataBaseConnectionStr:string = "../../../../db.sqlite3";
 
 export default function hadler(req:NextApiRequest, res:NextApiResponse) 
@@ -15,7 +14,7 @@ export default function hadler(req:NextApiRequest, res:NextApiResponse)
                 db.loadDb(dataBaseConnectionStr);
                 const ser = await db.getKinmuList(pid).then( 
                     (v)=>{
-                        db.closeDb(dataBaseConnectionStr);
+                        // db.closeDb(dataBaseConnectionStr);
                         res.status(200).json({test: v});
                         res.end();
                         return v;

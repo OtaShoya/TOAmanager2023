@@ -216,9 +216,10 @@ function convertDate(date:any, utc = 9){
 
 const getKinmuList = function(id:number){
     return new Promise((resolve, reject)=>{
+       
         db.serialize(()=>{
             db.all( 
-                //statemet
+                //statement
                 "SELECT"
                 +" id"
                 +",shain_id"
@@ -243,8 +244,10 @@ const getKinmuList = function(id:number){
                 (err:any, rows:any)=>{
                     var e:Array<Kinmu> = [];
                     if(rows){
+                        
                         let dt = new Date();
                         rows.forEach( (element:any) => {
+                            
                             let shussha_jikoku_dt =  convertDate(element.shussha_jikoku);
                             let taisha_jikoku_dt =  convertDate(element.taisha_jikoku);
 
@@ -265,10 +268,10 @@ const getKinmuList = function(id:number){
     
                         });
                     }
-                    
                     resolve(e)
                 })
         })
+        console.log(db);
     })
 }
 
@@ -277,7 +280,7 @@ const updateKinmu = function(kinmu:Kinmu){
     db.serialize(()=>{
         
         var stm = db.prepare(
-            "UPDATE" 
+        "UPDATE" 
         + " kinmu"
         +" SET"
         +" kinmu_kubun = $kinmu_kubun "
@@ -307,24 +310,32 @@ const updateKinmu = function(kinmu:Kinmu){
 };
 
 const checkCredentials = function(user:string, password:string){
-    db.serialize(
-        db.all(
-             "SELECT" 
+    return new Promise((resolve, reject)=>{ 
+        db.serialize(()=>{
+
+            // var stm = db.prepare();
+            
+            db.get(
+            "SELECT" 
             +" id"
             +" FROM"
             +" shain"
             +" WHERE"
-            +" username = $username"
-            +" password = $password",
+            +" bango = $bango"
+            +" and"
+            +" password = $password"
+            ,
             {
-                $username: user,
+                $bango: user,
                 $password: password
             },
-            (err:any, rows:any)=>{
-                
-            }
-            ) 
-    )
+            (err:any, row:any)=>{
+                if(err)console.log(err);
+                console.log(row)
+                resolve(row);
+            }) 
+        })
+    })
 }
 
 module.exports = {
@@ -340,5 +351,6 @@ module.exports = {
     deleteKinmu: deleteKinmu,
     closeDb: closeDb,
     updateKinmu: updateKinmu,
+    checkCredentials: checkCredentials,
     // deleteDatabase: deleteDatabase,
 }

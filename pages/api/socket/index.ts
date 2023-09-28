@@ -1,19 +1,15 @@
-
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
 
-import nextSession from "next-session";
-import next from 'next';
-export const getSession = nextSession();
+const db = require("../../../src/lib/database.ts")
+var dataBaseConnectionStr:string = "../../../../db.sqlite3";
 
 
 const randomId = function(length = 6) {
   return Math.random().toString(36).substring(2, length+2);
 };
-
-
 
 class SessionStore{
     
@@ -35,7 +31,6 @@ class SessionStore{
       return [...this.sessions.values()];
     }
 }
-
 
 const sessionStore:SessionStore = new SessionStore();
 
@@ -74,24 +69,20 @@ const SocketHandler = (req, res) => {
       //   return next(new Error("invalid username"));
       // }
       // create new session
-      socket.sessionID = randomId();
-      socket.userID = "ss";
-      sessionStore.saveSession(socket.sessionID, socket.userID)
+      // socket.sessionID = randomId();
+      // socket.userID = "ss";
+      // sessionStore.saveSession(socket.sessionID, socket.userID)
       next();
     });
     io.on('connection', (socket:any) => {
 
-      socket.emit("session", {
-        sessionID: socket.sessionID,
-        userID: socket.userID,
-      });
-
-
-
+      // socket.emit("session", {
+      //   sessionID: socket?.sessionID,
+      //   userID: socket?.userID,
+      // });
 
       socket.on('input-change', msg => {
-       
-      
+        console.log(socket?.sessionID)
         // const ss = async()=>{
         //   const s =  await fetch("http://localhost:3000/api/test/1", 
         //   { 
@@ -105,6 +96,34 @@ const SocketHandler = (req, res) => {
         // }
         // ss();
         
+        const ss = async()=>{
+          const res =  await fetch("http://localhost:3000/api/db", 
+          { 
+            method: "POST", 
+            body: JSON.stringify(
+              {
+                type: "login",
+                user: "adachi",
+                password: "adachi",
+              }
+            ),
+          });
+          const d = await res.json();
+          console.log(d);
+          if(d?.id){
+            socket.sessionID = randomId();
+            socket.userID = d?.id;
+            sessionStore.saveSession(socket.sessionID, socket.userID)
+            socket.emit("session", 
+            {
+              sessionID: socket?.sessionID,
+              userID: socket?.userID,
+            })
+          }
+        }
+
+        ss();
+
         return socket.sessionID;
 
       })

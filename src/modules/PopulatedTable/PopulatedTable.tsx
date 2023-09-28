@@ -67,7 +67,17 @@ async function postData(setDataf:any, fData:FormData) {
 }
 
 async function fetchData(setDataf:any) {
-    const res = await fetch("/api/test/1");//method: "POST", body: JSON.stringify({test: "test"})
+    const res = await fetch("/api/db/"
+    ,
+    {
+        method: "POST", 
+        body: JSON.stringify(
+          {
+            type: "kinmu-list",
+            id: 1,
+          }
+        ),
+    });//method: "POST", body: JSON.stringify({test: "test"})
     const d = await res.json();
     setDataf(d);
 }
