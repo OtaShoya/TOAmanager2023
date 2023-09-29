@@ -141,7 +141,7 @@ const createDb = ()=>{
         +")"
     );
    })
-}
+};
 
 const loadDb = (dbLocation:string)=>{
     databaseLocation = path.join(__dirname, "../" + dbLocation)
@@ -152,11 +152,11 @@ const loadDb = (dbLocation:string)=>{
     }else{
         db = new sqlite3.Database(databaseLocation);
     }
-}
+};
 
 const closeDb = ()=>{
     db.close();
-}
+};
 
 const addKinmu = function(nKinmu:Kinmu){
     db.serialize(()=>{
@@ -230,7 +230,7 @@ const addKinmu = function(nKinmu:Kinmu){
         } )
 
     });
-}
+};
 
 const deleteKinmu = function(id:Number){
     db.serialize(()=>{
@@ -243,7 +243,7 @@ const deleteKinmu = function(id:Number){
             {$id: id}
         )
     })
-}
+};
 
 function convertDate(date:any, utc = 9){
     let respDate:Date|null = null;
@@ -313,7 +313,7 @@ const getKinmuList = function(id:number){
             )
         })
     })
-}
+};
 
 const updateKinmu = function(kinmu:Kinmu){
     // console.log(kinmu.id)
@@ -398,7 +398,7 @@ const checkCredentials = function(user:string, password:string){
             }) 
         })
     })
-}
+};
 
 const getShain = function(id:number){
     return new Promise((resolve, reject)=>{ 
@@ -439,9 +439,7 @@ const getShain = function(id:number){
             }) 
         })
     })
-}
-
-
+};
 
 module.exports = {
     Kinmu: Kinmu,

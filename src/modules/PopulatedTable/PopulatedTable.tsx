@@ -57,15 +57,14 @@ class OptionElement{
 }
 
 async function fetchData(setDataf:any) {
-    const res = await fetch("/api/db/"
-    ,
+    const res = await fetch("/api/db/",
     {
         method: "POST", 
         body: JSON.stringify(
-          {
-            type: "kinmu-list",
-            id: localStorage.getItem("userID"),
-          }
+            {
+                type: "kinmu-list",
+                id: localStorage.getItem("userID"),
+            }
         ),
     });
     const d = await res.json();
@@ -94,7 +93,6 @@ export default function PopulatedTable({ beginingDate}:any ){
         
         let foundEl = data.kinmuList.find((el:any)=> {
             var fDate = new Date( el.hidsuke);
-
             return ( fDate.getDate() == date.getDate() && fDate.getMonth() == date.getMonth() && fDate.getFullYear() == date.getFullYear())
         })
         

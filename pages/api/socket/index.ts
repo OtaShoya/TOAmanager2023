@@ -39,8 +39,6 @@ class SessionStore{
 const sessionStore:SessionStore = new SessionStore();
 
 const SocketHandler = (req, res) => {
-  
-  // const session = getSession(req, res);
 
   if (res.socket.server.io) {
     console.log('Socket is already running')
@@ -120,6 +118,7 @@ const SocketHandler = (req, res) => {
     })
 
   }
+
   res.end()
 }
 

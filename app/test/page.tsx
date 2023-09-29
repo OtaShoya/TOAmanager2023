@@ -4,8 +4,7 @@ import PopulatedTable from "../../src/modules/PopulatedTable/PopulatedTable";
 import io, {Socket} from "socket.io-client";
 let socket:Socket
 var date = new Date("2023-08-21")
-function testClick(){
-    date.setMonth(date.getMonth() + 1);
+function loginClick(){
     socket.emit('login', 
     {
         user: "adachi"
@@ -19,15 +18,32 @@ function logoutClick(){
     }
 }
 
-function LoggedOrNot({logged}:any){
+class LoggedIn extends React.Component{
+    state = {
+        date: date,
+      }
+    nextClick = (f:any)=> {
+        date.setMonth(date.getMonth() + 1);
+        this.setState({
+            date: date, 
+        })
+    }
     
-    if(logged === true){
+    prevClick = (f:any)=>{
+        date.setMonth(date.getMonth() - 1);
+        this.setState({
+            date: date, 
+        })
+    }
+
+    render(): React.ReactNode {
+
         return (
-            <div>
+            <>
                 <button onClick={logoutClick}>logout</button>
                 <br/>
-                <button> Prev </button>
-                <button> Next </button>
+                <button onClick={this.prevClick}> Prev </button>
+                <button onClick={this.nextClick}> Next </button>
                 <br/>
                 <table>
                     <thead>
@@ -48,22 +64,34 @@ function LoggedOrNot({logged}:any){
                     </tr>
                     </thead>
                     <PopulatedTable beginingDate={date} />
-                </table> 
-            {/* <TestElemet/> */}
-            
+                </table>    
+            </>
+            );
+    }
+
+}
+
+function LoggedOrNot({logged}:any){
+    
+    if(logged === true){
+        return (
+            <div>
+               <LoggedIn />
             </div>
             );
     }else if(logged === false){
-        return (<button onClick={testClick}>login</button> );
+        return (<button onClick={loginClick}>login</button> );
     }
 
     return ( <div></div> );
+    
 }
-
 
 export default function Page(){
     const [logged, setData]:any = useState([]);
-    useEffect(() => { socketInitializer() }, [])
+    useEffect(() => { 
+        socketInitializer()
+    }, [])
     const socketInitializer = async () => {
         await fetch('/api/socket');
         socket = io("http://localhost:3000/", {
@@ -98,8 +126,7 @@ export default function Page(){
 
         socket.on("session", msg=>{
             localStorage.setItem("sessionID", msg.sessionID);
-            // localStorage.setItem("userID", msg.userID);
-            console.log(msg.sessionID)
+            localStorage.setItem("userID", msg.userID);
             location.reload();
         });
         

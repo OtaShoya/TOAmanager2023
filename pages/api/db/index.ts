@@ -50,6 +50,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 }
             case "shain":
                 {
+
                     async function getShain() {
                         db.loadDb(dataBaseConnectionStr);
                         const ser = await db.getShain(body.id).then( 
@@ -63,6 +64,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     }
                     getShain();
                     break;
+                    
                 }
             case "kinmu-update":
                 {
