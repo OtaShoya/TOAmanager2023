@@ -3,6 +3,14 @@ const path = require("path");
 const fs = require("fs");
 
 var db:any;
+
+class SakugyouNaiyou{
+    kinmuDate!: Date|null;
+    projectId !: number|null;
+    sakugyouNaiyouId !: number|null;
+    sakugyouJikan !: number|null;
+}
+
 class Kinmu{
     id!: number|string|null;
     shainId!:number|string|null;
@@ -14,6 +22,8 @@ class Kinmu{
     koujyoJikan!: number|string|null;
     kyuushutsuJikan!: number|string|null;
     memo!:string|null;
+
+    sakugyouNaiyou?:Array<SakugyouNaiyou>|null;
 }
 
 class Shain{
@@ -189,6 +199,36 @@ const addKinmu = function(nKinmu:Kinmu){
             ,$memo: nKinmu.memo
         })
         stm.finalize();
+
+        nKinmu?.sakugyouNaiyou?.forEach( (v, index, arr)=>{
+
+            let stm = db.prepare(
+                "INSERT INTO"
+                +" kinmu_sakugyou_naiyou"
+                +"("
+                +"kinmu_date "
+                +",project_id "
+                +",sakugyou_naiyou_id "
+                +",sakugyou_jikan "
+                +")"
+                +" VALUES"
+                +"("
+                +"$kinmu_id "
+                +",$project_id "
+                +",$sakugyou_naiyou_id "
+                +",$sakugyou_jikan "
+                +")"
+                )
+            stm.run({
+                $kinmu_date : v.kinmuDate
+                ,$project_id: v.projectId
+                ,$sakugyou_naiyou_id: v.sakugyouNaiyouId
+                ,$sakugyou_jikan: v.sakugyouJikan
+            })
+            stm.finalize();
+
+        } )
+
     });
 }
 
@@ -269,9 +309,9 @@ const getKinmuList = function(id:number){
                         });
                     }
                     resolve(e)
-                })
+                }
+            )
         })
-        console.log(db);
     })
 }
 
@@ -290,7 +330,7 @@ const updateKinmu = function(kinmu:Kinmu){
         +",koujyo_jikan = $koujyo_jikan "
         +",kyuushutsu_jikan = $kyuushutsu_jikan"
         +",memo = $memo"
-        +" WHERE id = $id"
+        +" WHERE hidsuke = $hidsuke"
         )
         stm.run({
             $kinmu_kubun: kinmu.kinmuKubun,
@@ -300,10 +340,36 @@ const updateKinmu = function(kinmu:Kinmu){
             $koujyo_jikan: kinmu.koujyoJikan,
             $kyuushutsu_jikan: kinmu.kyuushutsuJikan,
             $memo: kinmu.memo,
-            $id:  kinmu.id,
+            $hidsuke:  kinmu.hidsuke,
         })
 
         stm.finalize();
+
+
+        kinmu?.sakugyouNaiyou?.forEach( (v, index, array)=>{
+            
+            let stmt = db.prepare(
+                "UPDATE" 
+                + " kinmu_sakugyou_naiyou"
+                +" SET"
+                +" kinmu_date = $kinmu_date "
+                +",project_id = $project_id "
+                +",sakugyou_naiyou_id = $sakugyou_naiyou_id "
+                +",sakugyou_jikan = $sakugyou_jikan"
+                +" WHERE id = $id"
+                )
+            stmt.run({
+                $kinmu_date: v.kinmuDate,
+                $project_id: v.projectId,
+                $sakugyou_naiyou_id: v.sakugyouNaiyouId,
+                $sakugyou_jikan: v.sakugyouJikan,
+                $id:  kinmu.id,
+            })
+            stmt.finalize();
+
+
+
+        })
 
     });
 
@@ -312,9 +378,6 @@ const updateKinmu = function(kinmu:Kinmu){
 const checkCredentials = function(user:string, password:string){
     return new Promise((resolve, reject)=>{ 
         db.serialize(()=>{
-
-            // var stm = db.prepare();
-            
             db.get(
             "SELECT" 
             +" id"
@@ -331,12 +394,54 @@ const checkCredentials = function(user:string, password:string){
             },
             (err:any, row:any)=>{
                 if(err)console.log(err);
-                console.log(row)
                 resolve(row);
             }) 
         })
     })
 }
+
+const getShain = function(id:number){
+    return new Promise((resolve, reject)=>{ 
+        db.serialize(()=>{
+            db.get(
+            "SELECT" 
+            +" bango"
+            +",password"
+            +",shimei"
+            +",furigana"
+            +",ryakushyou"
+            +",busho_id"
+            +",shain_kubun_id"
+            +",yakushoku_id"
+            +",kyujitsu_group_id"
+            +",shayou_keitai_bango"
+            +",shayou_keitai_naisen_bango"
+            +",nyuusha_nichi"
+            +",taisha_nichi"
+            +",account"
+            +",mail_address"
+            +",yubin_bango"
+            +",jyuusho"
+            +",denwa_bango"
+            +",keitai_bango"
+            +",inkan"
+            +" FROM"
+            +" shain"
+            +" WHERE"
+            +" id = $id"
+            ,
+            {
+                $id: id
+            },
+            (err:any, row:any)=>{
+                if(err)console.log(err);
+                resolve(row);
+            }) 
+        })
+    })
+}
+
+
 
 module.exports = {
     Kinmu: Kinmu,
@@ -344,7 +449,7 @@ module.exports = {
     loadDb: loadDb,
     createDb: createDb,
     // addShain: addShain,
-    // getShain:  getShain,
+    getShain:  getShain,
     // deleteShain: deleteShain,
     addKinmu: addKinmu,
     getKinmuList: getKinmuList,

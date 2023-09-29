@@ -6,32 +6,29 @@ let socket:Socket
 var date = new Date("2023-08-21")
 function testClick(){
     date.setMonth(date.getMonth() + 1);
-    socket.emit('input-change', "eee")
+    socket.emit('login', 
+    {
+        user: "adachi"
+        ,password: "adachi"
+    })
 }
 
 function logoutClick(){
-    localStorage.removeItem("sessionID");
-    location.reload();
+    if(localStorage.getItem("sessionID")){
+        socket.emit("logout", localStorage.getItem("sessionID") )
+    }
 }
 
-function LoggedOrNot(){
-    const [logged, setData]:any = useState([]);
-    // var logged:boolean = false;
-    useEffect(() => { 
-
-        var da:boolean = false;
-        if (localStorage.getItem("sessionID")){
-            da = true;
-        }
-        setData(da) 
-
-    }, [
-
-    ])
+function LoggedOrNot({logged}:any){
+    
     if(logged === true){
         return (
-            <body>
+            <div>
                 <button onClick={logoutClick}>logout</button>
+                <br/>
+                <button> Prev </button>
+                <button> Next </button>
+                <br/>
                 <table>
                     <thead>
                     <tr>
@@ -50,13 +47,11 @@ function LoggedOrNot(){
                         <th>メモ</th>
                     </tr>
                     </thead>
-                    <tbody>
-                        <PopulatedTable beginingDate={date} />
-                    </tbody>
+                    <PopulatedTable beginingDate={date} />
                 </table> 
             {/* <TestElemet/> */}
             
-            </body>
+            </div>
             );
     }else if(logged === false){
         return (<button onClick={testClick}>login</button> );
@@ -67,36 +62,48 @@ function LoggedOrNot(){
 
 
 export default function Page(){
- 
+    const [logged, setData]:any = useState([]);
     useEffect(() => { socketInitializer() }, [])
     const socketInitializer = async () => {
         await fetch('/api/socket');
         socket = io("http://localhost:3000/", {
             path: "/api/socket/socket.io",
-          transports: ['polling'], 
-          auth:{
-            sessionID:  localStorage.getItem("sessionID"), //localStorage
-          }
-         })
+            transports: ['polling'], 
+            auth:{
+                sessionID:  localStorage.getItem("sessionID"),
+            }
+        })
+     
         socket.on('connect', () => {
             console.log('connected')
-            // localStorage.removeItem("sessionID");
         })
+     
+        socket.on('logout', () => {
+            localStorage.removeItem("sessionID");
+            location.reload();
+        })
+
+        socket.on('isLoggedIn', () =>{
+            setData(true)
+        })
+
+        socket.on('notLoggedIn', () =>{
+            setData(false)
+        })
+
         socket.on("connect_error", (err) => {
             console.log(`connect_error due to ${err.message}`);
             console.log(err)
         });
-        socket.on('update-input', msg => {
-            console.log(msg);
-          
-        })
+
         socket.on("session", msg=>{
-            localStorage.setItem("sessionID", msg.sessionID); //localStorage
+            localStorage.setItem("sessionID", msg.sessionID);
+            // localStorage.setItem("userID", msg.userID);
             console.log(msg.sessionID)
             location.reload();
         });
         
     }
-    return <LoggedOrNot  />
+    return <LoggedOrNot  logged={logged} />
   
 }
