@@ -12,32 +12,32 @@ const randomId = function(length = 20) {
 
 class SessionStore{
     
-    sessions:Map<string, string>;
+    sessions:Map<string, any>;
 
     constructor() {
       this.sessions = new Map();
     }
     
-    removeSession(id){
+    removeSession(id:string){
       this.sessions.delete(id);
     }
 
-    findSession(id) {
+    findSession(id:string) {
       return this.sessions.get(id);
     }
     
-    saveSession(id, session) {
+    saveSession(id:string, session:any) {
       this.sessions.set(id, session);
     }
   
     findAllSessions() {
-      return [...this.sessions.keys()];
+      return this.sessions.keys();
     }
 }
 
 const sessionStore:SessionStore = new SessionStore();
 
-const SocketHandler = (req, res) => {
+const SocketHandler = (req:any, res:any) => {
 
   if (res.socket.server.io) {
     // console.log('Socket is already running')
@@ -72,13 +72,13 @@ const SocketHandler = (req, res) => {
         socket.emit('session_found', false);
       }
       
-      socket.on('logout', msg =>{
+      socket.on('logout', (msg:string) =>{
         sessionStore.removeSession(msg);
         socket.emit("session_logout", "")
         socket.emit("after_logout", "");
       });
       
-      socket.on('login', msg => {
+      socket.on('login', (msg:any) => {
         
         const login = async()=>{
           
@@ -114,7 +114,7 @@ const SocketHandler = (req, res) => {
 
       })
       
-      socket.on('update-kinmu', msg =>{
+      socket.on('update-kinmu', (msg:any) =>{
         if( sessionStore.findSession( msg.sessionID ) == msg.userID )
         {
             console.log("ok");

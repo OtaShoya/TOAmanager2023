@@ -37,7 +37,6 @@ const Navigation = ({ title, subTitles, label, socket }: PropType) => {
   };
 
   const logout = () => {
-    console.log(socket);
     socket.emit("logout", localStorage.getItem("sessionID"))
     localStorage.removeItem("sessionID");
     router.push("/");

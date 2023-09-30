@@ -13,7 +13,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     const loginFunc = async ()=>{
                         db.loadDb(dataBaseConnectionStr);
                         db.checkCredentials(body.user, body.password).then(
-                            (result)=>{
+                            (result:any)=>{
                                 db.closeDb(dataBaseConnectionStr);
                                 
                                 if(result){
@@ -35,10 +35,10 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 }
             case "kinmu-list":
                 {
-                    async function kinmuListFunc() {
+                    const kinmuListFunc = async ()=> {
                         db.loadDb(dataBaseConnectionStr);
                         const ser = await db.getKinmuList(body.id).then( 
-                            (v)=>{
+                            (v:any)=>{
                                 res.status(200).json({kinmuList: v});
                                 res.end();
                                 db.closeDb(dataBaseConnectionStr);
@@ -51,10 +51,10 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "shain":
                 {
 
-                    async function getShain() {
+                    const getShain = async () => {
                         db.loadDb(dataBaseConnectionStr);
                         const ser = await db.getShain(body.id).then( 
-                            (v)=>{
+                            (v:any)=>{
                                 res.status(200).json({test: v});
                                 res.end();
                                 db.closeDb(dataBaseConnectionStr);

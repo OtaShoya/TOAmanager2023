@@ -30,7 +30,6 @@ const TopPage = () => {
       if(msg === true){
         setData({socket: socket, session_found: msg})
       }else{
-        console.log("test")
         location.href = "/pages/login";
         // router.push("/pages/login")
       }
