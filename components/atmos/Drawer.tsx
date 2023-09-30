@@ -13,6 +13,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { useRouter } from "next/navigation";
 import { Button } from "@mui/material";
+import { Socket } from "socket.io-client";
 
 const drawerWidth = 300;
 
@@ -20,6 +21,7 @@ type PropType = {
   title: string;
   subTitles: SubTitleType[];
   label: string;
+  socket: Socket;
 };
 
 type SubTitleType = {
@@ -27,7 +29,7 @@ type SubTitleType = {
   url: string;
 };
 
-const Navigation = ({ title, subTitles, label }: PropType) => {
+const Navigation = ({ title, subTitles, label, socket }: PropType) => {
   const router = useRouter();
 
   const clickHandler = (url: string) => {
@@ -35,6 +37,9 @@ const Navigation = ({ title, subTitles, label }: PropType) => {
   };
 
   const logout = () => {
+    console.log(socket);
+    socket.emit("logout", localStorage.getItem("sessionID"))
+    localStorage.removeItem("sessionID");
     router.push("/");
   };
 

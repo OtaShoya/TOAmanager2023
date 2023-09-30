@@ -1,7 +1,10 @@
 "use client";
 import React, {useEffect, useState} from "react";
 import PopulatedTable from "../../src/modules/PopulatedTable/PopulatedTable";
-import io, {Socket} from "socket.io-client";
+import {Socket} from "socket.io-client";
+
+const sessions =  require("../../src/lib/sessions");
+
 let socket:Socket
 var date = new Date("2023-08-21")
 function loginClick(){
@@ -10,6 +13,7 @@ function loginClick(){
         user: "adachi"
         ,password: "adachi"
     })
+
 }
 
 function logoutClick(){
@@ -88,49 +92,38 @@ function LoggedOrNot({logged}:any){
 }
 
 export default function Page(){
+    
     const [logged, setData]:any = useState([]);
+    
     useEffect(() => { 
-        socketInitializer()
-    }, [])
-    const socketInitializer = async () => {
-        await fetch('/api/socket');
-        socket = io("http://localhost:3000/", {
-            path: "/api/socket/socket.io",
-            transports: ['polling'], 
-            auth:{
-                sessionID:  localStorage.getItem("sessionID"),
+
+        socket = sessions.connectSession();
+
+        sessions.socketInitializer(socket);
+
+        socket.on('session_found', msg =>{
+            
+            if(msg){
+                setData(true)
+            }else{
+                setData(false)
             }
-        })
-     
-        socket.on('connect', () => {
-            console.log('connected')
-        })
-     
-        socket.on('logout', () => {
-            localStorage.removeItem("sessionID");
+            
+        });
+
+        socket.on('after_logout', () => {
             location.reload();
         })
 
-        socket.on('isLoggedIn', () =>{
-            setData(true)
-        })
-
-        socket.on('notLoggedIn', () =>{
-            setData(false)
-        })
-
-        socket.on("connect_error", (err) => {
-            console.log(`connect_error due to ${err.message}`);
-            console.log(err)
+        socket.on("logged", msg =>{
+            console.log(msg)
+            if(msg === true){
+                location.reload();
+            }
         });
 
-        socket.on("session", msg=>{
-            localStorage.setItem("sessionID", msg.sessionID);
-            localStorage.setItem("userID", msg.userID);
-            location.reload();
-        });
-        
-    }
+    }, [])
+
     return <LoggedOrNot  logged={logged} />
   
 }

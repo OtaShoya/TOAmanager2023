@@ -5,6 +5,12 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
+import {Socket} from "socket.io-client";
+import React, {useEffect, useState} from "react";
+
+const sessions =  require("../../../src/lib/sessions");
+
+let socket:Socket;
 
 const theme = createTheme({
   palette: {
@@ -27,13 +33,34 @@ const Login = () => {
 
   const onSubmit: SubmitHandler<IFormInput> = (data: IFormInput) => {
     console.log(data);
-    result = true;
-    if (result) {
-      router.push("/pages/top");
-    } else {
-      router.push("/");
-    }
+    
+    socket.emit('login', 
+    {
+      user: data.loginId,
+      password: data.password
+    })
+  
+
   };
+  
+  useEffect(() => { 
+
+      socket = sessions.connectSession();
+
+      sessions.socketInitializer(socket);
+
+      socket.on('session_found', msg =>{
+        if(msg === true) location.href = "/pages/top";
+      });
+
+      socket.on("logged", msg =>{
+        console.log(msg)
+        if(msg === true){
+          location.href = "/pages/top";
+        }
+    });
+
+  }, [])
 
   return (
     <main>

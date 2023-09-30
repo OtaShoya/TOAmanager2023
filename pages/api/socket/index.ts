@@ -6,7 +6,6 @@ import { Server as NetServer } from "http";
 const db = require("../../../src/lib/database.ts")
 var dataBaseConnectionStr:string = "../../../../db.sqlite3";
 
-
 const randomId = function(length = 20) {
   return Math.random().toString(36).substring(2, length+2);
 };
@@ -41,9 +40,9 @@ const sessionStore:SessionStore = new SessionStore();
 const SocketHandler = (req, res) => {
 
   if (res.socket.server.io) {
-    console.log('Socket is already running')
+    // console.log('Socket is already running')
   } else {
-    console.log('Socket is initializing')
+    // console.log('Socket is initializing')
     console.log(req.body);
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(
@@ -64,22 +63,27 @@ const SocketHandler = (req, res) => {
       }
       next();
     });
+    
     io.on('connection', (socket:any) => {
       
       if(socket.sessionID && sessionStore.findSession(socket.sessionID)){
-        socket.emit('isLoggedIn', "");
+        socket.emit('session_found', true);
       } else{
-        socket.emit('notLoggedIn', "");
+        socket.emit('session_found', false);
       }
       
       socket.on('logout', msg =>{
         sessionStore.removeSession(msg);
-        socket.emit("logout", "");
+        socket.emit("session_logout", "")
+        socket.emit("after_logout", "");
       });
       
       socket.on('login', msg => {
         
         const login = async()=>{
+          
+          let logged = false;
+
           const res =  await fetch("http://localhost:3000/api/db", 
           { 
             method: "POST", 
@@ -96,12 +100,14 @@ const SocketHandler = (req, res) => {
             socket.sessionID = randomId() + randomId() + randomId();
             socket.userID = d?.id;
             sessionStore.saveSession(socket.sessionID, socket.userID)
-            socket.emit("session", 
+            logged = true;
+            await socket.emit("session_created", 
             {
               sessionID: socket?.sessionID,
               userID: socket?.userID,
             })
           }
+          socket.emit("logged", logged);
         }
 
         login();
