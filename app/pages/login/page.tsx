@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
 
-const theme = createTheme({
+export const theme = createTheme({
   palette: {
     primary: { main: "#4f46e5" },
   },
@@ -41,11 +41,11 @@ const Login = () => {
         <div className="basis-1/2 h-screen max-h-screen bg-indigo-600">
           {/* 画像配置 */}
         </div>
-        <div className="basis-1/2 h-screen flex justify-center items-center flex flex-col space-y-4">
+        <div className="basis-1/2 h-screen flex justify-center items-center flex flex-col space-y-2">
           {/* ログインフォーム*/}
           <h1 className="text-indigo-600 text-8xl mb-20 font-bold">Login</h1>
           <ThemeProvider theme={theme}>
-            <form className="flex flex-col space-y-4">
+            <form className="flex flex-col space-y-2">
               <Controller
                 name="loginId"
                 control={control}
