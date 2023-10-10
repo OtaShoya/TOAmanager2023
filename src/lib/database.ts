@@ -1,53 +1,88 @@
+import { sakugyoNaiyouItem, ProjectItem } from "@/src/lib/report";
+
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const fs = require("fs");
 
 var db:any;
 
-class SakugyouNaiyou{
-    kinmuDate!: Date|null;
-    projectId !: number|null;
-    sakugyouNaiyouId !: number|null;
-    sakugyouJikan !: number|null;
+class KinmuSakugyouNaiyou{
+    kinmuDate?: Date|null;
+    projectId?: number|null;
+    sakugyouNaiyouId?: number|null;
+    sakugyouJikan?: number|null;
 }
 
 class Kinmu{
-    id!: number|string|null;
-    shainId!:number|string|null;
-    hidsuke!:string|Date|null ; //date
-    kinmuKubun!: number|string|null;
-    kinmuKeitai!: number|string|null;//form
-    shusshaJikoku!: string|Date|null;//momment of arrival
-    taishaJikoku!: string|Date|null;//momment of departure
-    koujyoJikan!: number|string|null;
-    kyuushutsuJikan!: number|string|null;
-    memo!:string|null;
+    id?: number|string|null;
+    shainId?:number|string|null;
+    hidsuke?:string|Date|null ; //date
+    kinmuKubun?: number|string|null;
+    kinmuKeitai?: number|string|null;//form
+    shusshaJikoku?: string|Date|null;//momment of arrival
+    taishaJikoku?: string|Date|null;//momment of departure
+    koujyoJikan?: number|string|null;
+    kyuushutsuJikan?: number|string|null;
+    memo?:string|null;
 
-    sakugyouNaiyou?:Array<SakugyouNaiyou>|null;
+    sakugyouNaiyou?:Array<KinmuSakugyouNaiyou>|null;
 }
 
 class Shain{
-    id!: number|string|null;
-    bango!: number|string|null;
-    password!: number|string|null;
-    shimei!: string|null;
-    furigana!: string|null;
-    ryakushou!: string|null;//abreviation
-    bushoId!: number|string|null; //post //Select
-    shainKubunId!: number|string|null; //employee devision //Select
-    yakushokuId!: number|string|null; //manegerial position //Select
-    kyujitsuGroupId!: number|string|null; //day off group //Select
-    shayouKeitaiBango!: string|null; //Company's cellphone number
-    shayouKeitaiNaisenBango!: string|null; //Company's cellphone extension number
-    nyuushaNichi!: Date|string|null; //day entering the company
-    taishaNichi!: Date|string|null; //day of resignation
-    account!: string|null;
-    mailAddress!: string|null;
-    yubinBango!: string|null; //mailNumber
-    jyuusho!: string|null; //address
-    denwaBango!: string|null; //phone Number
-    keitaiBango!: string|null; //cellphone number
-    inkan!: string|null; //stamp // data/image
+    id?: number|string|null;
+    bango?: number|string|null;
+    password?: number|string|null;
+    shimei?: string|null;
+    furigana?: string|null;
+    ryakushou?: string|null;//abreviation
+    bushoId?: number|string|null; //post //Select
+    shainKubunId?: number|string|null; //employee devision //Select
+    yakushokuId?: number|string|null; //manegerial position //Select
+    kyujitsuGroupId?: number|string|null; //day off group //Select
+    shayouKeitaiBango?: string|null; //Company's cellphone number
+    shayouKeitaiNaisenBango?: string|null; //Company's cellphone extension number
+    nyuushaNichi?: Date|string|null; //day entering the company
+    taishaNichi?: Date|string|null; //day of resignation
+    account?: string|null;
+    mailAddress?: string|null;
+    yubinBango?: string|null; //mailNumber
+    jyuusho?: string|null; //address
+    denwaBango?: string|null; //phone Number
+    keitaiBango?: string|null; //cellphone number
+    inkan?: string|null; //stamp // data/image
+}
+
+class Project{
+    id?:number
+    kokakuId?:number //client
+    jyuchuuRootId?:number //accepting order root
+    bangou?:string
+    oyaProjectId?:number //parent project
+    na?:string
+    gaiyou?:string //Project outline
+    mokuhyou?:string //project objective
+    yosa?:number //budget
+    cousuu?:number //man-hours
+    keihi?:number //cost
+    honkadouYoteiHi?:string //day of actual opration
+    kashibi?:string //starting day
+    shuuryoubi?:string //end day
+    memo?:string
+    mitsumoriFile?:string //stimate file
+    documentFolder?:string
+    shuuryuHoukoku?:String //end report
+}
+
+class ProjectSakugyouNaiyou{
+
+    id?:number
+    protectId?:number
+    taskId?:number
+    sakugyouNaiyou?:string
+    kaishiYoteiHi?:string
+    shuuryouYoteiHu?:string
+    yoteiKousuu?:string 
+
 }
 
 var bushoList = {};
@@ -441,12 +476,165 @@ const getShain = function(id:number){
     })
 };
 
+const updateShain = function(shain:Shain){
+    return new Promise((resolve, reject)=>{ 
+        db.serialize(()=>{
+
+            var stm = db.prepare(
+            "UPDATE" 
+            + " shain"
+            +" SET"
+            +" bango = $bango"
+            +",password = $password "
+            +",shimei = $shimei "
+            +",furigana = $furigana "
+
+            // +",ryakushou = $ryakushou "
+            // +",busho_id = $busho_id "
+            // +",shain_kubun_id = $shain_kubun_id "
+            // +",yakushoku_id = $yakushoku_id "
+            // +",kyujitsu_group_id = $kyujitsu_group_id "
+            // +",shayou_keitai_bango = $shayou_keitai_bango "   
+            // +",shayou_keitai_naisen_bango = $shayou_keitai_naisen_bango "
+            // +",nyuusha_nichi = $nyuusha_nichi "
+            // +",taisha_nichi = $taisha_nichi "
+            // +",account = $account "
+            // +",mail_address = $mail_address "
+            // +",yubin_bango = $yubin_bango "
+            // +",jyuusho = $jyuusho "
+            // +",denwa_bango = $denwa_bango "
+            // +",keitai_bango = $keitai_bango "
+            // +",inkan = $inkan "
+
+            +" WHERE id = $id"
+            )
+            stm.run({
+                $bango: shain.bango,
+                $password: shain.password,
+                $shimei: shain.shimei,
+                $furigana: shain.furigana,
+
+                // $ryakushou: shain.ryakushou,
+                // $busho_id: shain.bushoId,
+                // $shain_kubun_id: shain.shainKubunId,
+                // $yakushoku_id: shain.yakushokuId,
+                // $kyujitsu_group_id: shain.kyujitsuGroupId,
+                // $shayou_keitai_bango: shain.shayouKeitaiBango,
+                // $shayou_keitai_naisen_bango: shain.shayouKeitaiNaisenBango,
+                // $nyuusha_nichi: shain.nyuushaNichi,
+                // $taisha_nichi: shain.taishaNichi,
+                // $account: shain.account,
+                // $mail_address: shain.mailAddress,
+                // $yubin_bango: shain.yubinBango,
+                // $jyuusho: shain.jyuusho,
+                // $denwa_bango: shain.denwaBango,
+                // $keitai_bango: shain.keitaiBango,
+                // $inkan: shain.inkan,
+                            
+                $id:  shain.id,
+            })
+
+            stm.finalize();
+
+        });
+    });
+
+};
+
+const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
+    return new Promise((resolve, reject)=>{ 
+    
+        var projectI:ProjectItem;
+
+        db.serialize(()=>{
+            db.all( 
+                //statement
+                'Select'
+                +' project.bangou as bangou'
+                +',project.na as na'
+                +',project.id as id'
+                +' from'
+                +' kinmu_sakugyou_naiyou'
+                +' left join'
+                +' project on kinmu_sakugyou_naiyou.project_id = project.id'
+                +' left join'
+                +' kinmu on kinmu_sakugyou_naiyou.kinmu_id = kinmu.id'
+                +' where'
+                +' kinmu.hidsuke BETWEEN date($begin_date) AND date($end_date)'
+                +' and'
+                +' kinmu.shain_id = $shain_id'
+                +' group by project.bangou'
+                ,
+                //parameter
+                {
+                    $begin_date: beginDate,
+                    $end_date: endDate,
+                    $shain_id: shainId
+                },
+                //callbacks
+                (err:any, pjRows:Array<any>)=>{
+                    var pjList:Array<ProjectItem> = new Array<ProjectItem>();
+                    pjRows.forEach( (pj)=>{
+                        projectI = new ProjectItem()
+                        projectI.bango = pj.bango;
+                        projectI.na = projectI.na
+                        projectI.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
+                        db.all( 
+                            'Select'
+                            +' project_sakugyou_naiyou.sakugyou_naiyou as sakugyou_naiyou'
+                            +',kinmu_sakugyou_naiyou.sakugyou_jikan as sakugyou_jikan'
+                            +',kinmu.hidsuke as hidsuke'
+                            +' from'
+                            +' kinmu_sakugyou_naiyou'
+                            +' left join'
+                            +' project_sakugyou_naiyou on kinmu_sakugyou_naiyou.sakugyou_naiyou_id = project_sakugyou_naiyou.id'
+                            +' left join kinmu on kinmu_sakugyou_naiyou.kinmu_id = kinmu.id'
+                            +' where'
+                            +' kinmu_sakugyou_naiyou.project_id = $project_id'
+                            +' and'
+                            +' kinmu.hidsuke BETWEEN date($begin_date) AND date($end_date)'
+                            +' and kinmu.shain_id = $shain_id'
+                            +' order by project_sakugyou_naiyou.sakugyou_naiyou'
+                            , {
+                                $project_id: pj.id,
+                                $begin_date: beginDate,
+                                $end_date: endDate,
+                                $shain_id: shainId
+                            }
+                            , ((err:any, sgRows:Array<any>)=>{
+                                let si:sakugyoNaiyouItem = new sakugyoNaiyouItem();
+                                si.shuu = new Array<number>();
+                                var oldTitle = sgRows[0].sakugyou_naiyou;
+                                sgRows.forEach( (sg)=>{
+                                    if(sgRows[0].sakugyou_naiyou != oldTitle){
+                                        projectI.sakugyoNaiyouList?.push(si);
+                                        si = new sakugyoNaiyouItem();
+                                        si.shuu = new Array<number>();
+                                    }
+                                    sg[new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
+                                } )
+                                projectI.sakugyoNaiyouList?.push(si);
+                              
+                            }) 
+                        )
+                        pjList.push(projectI)   
+                    } )
+                   resolve(pjList);
+                }
+            )
+        })
+        
+    });
+
+}
+
 module.exports = {
     Kinmu: Kinmu,
     Shain: Shain,
     loadDb: loadDb,
     createDb: createDb,
     // addShain: addShain,
+    updateShain: updateShain,
     getShain:  getShain,
     // deleteShain: deleteShain,
     addKinmu: addKinmu,
@@ -456,4 +644,7 @@ module.exports = {
     updateKinmu: updateKinmu,
     checkCredentials: checkCredentials,
     // deleteDatabase: deleteDatabase,
+    getSakugyouNaiyou: getSakugyouNaiyou,
 }
+
+export {Kinmu , Shain}

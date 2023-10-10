@@ -1,9 +1,35 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-
 import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
+import fs from "fs";
 
-const db = require("../../../src/lib/database.ts")
+import { weekReport, ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
+
+class Shain{
+  id!: number|string|null;
+  bango!: number|string|null;
+  password!: number|string|null;
+  shimei!: string|null;
+  furigana!: string|null;
+  ryakushou!: string|null;//abreviation
+  bushoId!: number|string|null; //post //Select
+  shainKubunId!: number|string|null; //employee devision //Select
+  yakushokuId!: number|string|null; //manegerial position //Select
+  kyujitsuGroupId!: number|string|null; //day off group //Select
+  shayouKeitaiBango!: string|null; //Company's cellphone number
+  shayouKeitaiNaisenBango!: string|null; //Company's cellphone extension number
+  nyuushaNichi!: Date|string|null; //day entering the company
+  taishaNichi!: Date|string|null; //day of resignation
+  account!: string|null;
+  mailAddress!: string|null;
+  yubinBango!: string|null; //mailNumber
+  jyuusho!: string|null; //address
+  denwaBango!: string|null; //phone Number
+  keitaiBango!: string|null; //cellphone number
+  inkan!: string|null; //stamp // data/image
+}
+
+const db = require("@/src/lib/database.ts")
 var dataBaseConnectionStr:string = "../../../../db.sqlite3";
 
 const randomId = function(length = 20) {
@@ -12,27 +38,27 @@ const randomId = function(length = 20) {
 
 class SessionStore{
     
-    sessions:Map<string, any>;
+  sessions:Map<string, any>;
 
-    constructor() {
-      this.sessions = new Map();
-    }
-    
-    removeSession(id:string){
-      this.sessions.delete(id);
-    }
-
-    findSession(id:string) {
-      return this.sessions.get(id);
-    }
-    
-    saveSession(id:string, session:any) {
-      this.sessions.set(id, session);
-    }
+  constructor() {
+    this.sessions = new Map();
+  }
   
-    findAllSessions() {
-      return this.sessions.keys();
-    }
+  removeSession(id:string){
+    this.sessions.delete(id);
+  }
+
+  findSession(id:string) {
+    return this.sessions.get(id);
+  }
+  
+  saveSession(id:string, session:any) {
+    this.sessions.set(id, session);
+  }
+
+  findAllSessions() {
+    return this.sessions.keys();
+  }
 }
 
 const sessionStore:SessionStore = new SessionStore();
@@ -95,7 +121,9 @@ const SocketHandler = (req:any, res:any) => {
               }
             ),
           });
+          
           const d = await res.json();
+
           if(d?.id){
             socket.sessionID = randomId() + randomId() + randomId();
             socket.userID = d?.id;
@@ -119,6 +147,135 @@ const SocketHandler = (req:any, res:any) => {
         {
             console.log("ok");
         }
+      })
+
+      socket.on("update-shain", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+         
+            var shain:Shain = new Shain();
+            
+            shain.id = msg.userID;
+
+            shain.bango = msg.bango;
+            shain.password = msg.password;
+            shain.shimei = msg.shimei;
+            shain.furigana = msg.furigana;
+
+            const r = async ()=>{
+              const res =  await fetch("http://localhost:3000/api/db", 
+              { 
+                method: "POST", 
+                body: JSON.stringify(
+                  {
+                    type: "shain-update",
+                    shain: shain,
+                  }
+                ),
+              });
+            }
+            
+            r();
+
+            console.log("ok");
+        }
+      })
+
+      socket.on("download", (msg:any)=>{
+
+        var pl:Array<ProjectItem> = [
+          {
+              bango: "z33",
+              na: "プロ 1",
+              sakugyoNaiyouList:
+              [
+                  {
+                      name: "s1",
+                      shuu: [
+                          0,
+                          0,
+                          0,
+                          8,
+                          0,
+                          0,
+                          0,
+                      ]
+                  },
+                  {
+                      name: "s2",
+                      shuu: [
+                          0,
+                          8,
+                          0,
+                          0,
+                          5,
+                          0,
+                          0,
+                      ]
+                  },
+              ]
+          },
+          {
+              bango: "z34",
+              na: "プロ 2",
+              sakugyoNaiyouList:
+              [
+                  {
+                      name: "s1",
+                      shuu: [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          3,
+                          0,
+                      ]
+                  },
+              ]
+          },
+          {
+              bango: "z35",
+              na: "プロ 3",
+              sakugyoNaiyouList:
+              [
+                  {
+                      name: "s1",
+                      shuu: [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          3,
+                          0,
+                      ]
+                  },
+                  {
+                      name: "s2",
+                      shuu: [
+                          3,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                      ]
+                  },
+              ]
+          },
+        ]
+
+        var e = weekReport("./test.xlsx", "test", new Date('2023-9-4'), pl).then((msg)=>{
+          // console.log("test")
+          const imgFile = fs.readFileSync("./new.xlsx");
+          const imgBase64 = Buffer.from(imgFile).toString('base64');
+       
+          socket.emit("download", imgBase64 )
+        });
+        
       })
       
     })

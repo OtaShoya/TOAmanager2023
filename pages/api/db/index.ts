@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-
-const db = require("../../../src/lib/database.ts")
+import type { Kinmu, Shain } from '../../../src/lib/database'
+import { ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
+const db = require("@/src/lib/database.ts")
 var dataBaseConnectionStr:string = "../../../db.sqlite3";
 
 export default function handler(req:NextApiRequest, res:NextApiResponse){
@@ -48,29 +49,63 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     kinmuListFunc();
                     break;
                 }
-            case "shain":
-                {
-
-                    const getShain = async () => {
-                        db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.getShain(body.id).then( 
-                            (v:any)=>{
-                                res.status(200).json({test: v});
-                                res.end();
-                                db.closeDb(dataBaseConnectionStr);
-                            } 
-                        );
-                        
-                    }
-                    getShain();
-                    break;
-                    
-                }
             case "kinmu-update":
                 {
                     console.log("ees");
                     break;
                 }
+            case "shain-get":
+                {
+                    const getShain = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        const ser = await db.getShain(body.id).then( 
+                            (v:any)=>{
+                                res.status(200).json({user: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                    }
+                    getShain();
+                    break; 
+                }
+            case "shain-update":
+                {
+                    const updateShain = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        console.log(body?.shain);
+                        const ser = await db.updateShain(body.shain).then( 
+                            (v:any)=>{
+                                res.status(200).json({user: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                    }
+                    updateShain();
+                    break;
+                }
+            case "shuu-sakugyou-houkoku":
+
+                const kinmuListFunc = async ()=> {
+                    db.loadDb(dataBaseConnectionStr);
+                    const ser = await db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then( 
+                        (v:any)=>{
+                            // res.status(200).json({projectList: v});
+                            // res.end();
+                            console.log(v);
+                            db.closeDb(dataBaseConnectionStr);
+                        } 
+                    );
+                    
+                }
+                kinmuListFunc();
+                db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
+                    (v:any)=>{
+                        console.log(v)
+                    }
+                )
+                break
             default:
                 break;
         }
