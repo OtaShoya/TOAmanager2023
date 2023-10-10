@@ -15,8 +15,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@mui/material";
 import { Socket } from "socket.io-client";
 
-const drawerWidth = 300;
-
 type PropType = {
   title: string;
   subTitles: SubTitleType[];
@@ -29,7 +27,7 @@ type SubTitleType = {
   url: string;
 };
 
-const Navigation = ({ title, subTitles, label, socket }: PropType) => {
+const Navigation = ({ subTitles, label, socket }: PropType) => {
   const router = useRouter();
 
   const clickHandler = (url: string) => {
@@ -43,47 +41,24 @@ const Navigation = ({ title, subTitles, label, socket }: PropType) => {
   };
 
   return (
-    <>
+    <div className="border-r border-black/12 w-full h-full">
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-      >
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            {title}
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-          },
-        }}
-        variant="permanent"
-        anchor="left"
-      >
-        <Toolbar />
-        <Divider />
-        <List>
-          {subTitles.map((subTitle, index) => (
-            <ListItem key={index} disablePadding>
-              <ListItemButton onClick={() => clickHandler(subTitle.url)}>
-                <ListItemText primary={subTitle.tabTitle} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <Button variant="text" onClick={logout}>
-          {label}
-        </Button>
-      </Drawer>
-    </>
+      <Toolbar />
+      <Divider />
+      <List>
+        {subTitles.map((subTitle, index) => (
+          <ListItem key={index} disablePadding>
+            <ListItemButton onClick={() => clickHandler(subTitle.url)}>
+              <ListItemText primary={subTitle.tabTitle} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <Button variant="text" onClick={logout}>
+        {label}
+      </Button>
+    </div>
   );
 };
 
