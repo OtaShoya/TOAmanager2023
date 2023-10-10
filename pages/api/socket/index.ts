@@ -1,4 +1,3 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
@@ -117,8 +116,6 @@ const SocketHandler = (req: any, res: any) => {
           
           const d = await res.json();
           if (d?.id) {
-
-          if(d?.id){
             socket.sessionID = randomId() + randomId() + randomId();
             socket.userID = d?.id;
             sessionStore.saveSession(socket.sessionID, socket.userID);
