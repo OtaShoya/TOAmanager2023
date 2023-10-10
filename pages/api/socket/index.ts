@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from "next";
 import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
 import fs from "fs";
@@ -32,8 +33,10 @@ class Shain{
 const db = require("@/src/lib/database.ts")
 var dataBaseConnectionStr:string = "../../../../db.sqlite3";
 
-const randomId = function(length = 20) {
-  return Math.random().toString(36).substring(2, length+2);
+const randomId = function (length = 20) {
+  return Math.random()
+    .toString(36)
+    .substring(2, length + 2);
 };
 
 class SessionStore{
@@ -61,26 +64,22 @@ class SessionStore{
   }
 }
 
-const sessionStore:SessionStore = new SessionStore();
+const sessionStore: SessionStore = new SessionStore();
 
-const SocketHandler = (req:any, res:any) => {
-
+const SocketHandler = (req: any, res: any) => {
   if (res.socket.server.io) {
     // console.log('Socket is already running')
   } else {
     // console.log('Socket is initializing')
     console.log(req.body);
     const httpServer: NetServer = res.socket.server as any;
-    const io = new ServerIO(
-      httpServer, 
-      {
-        path: "/api/socket"
-      }
-    );
+    const io = new ServerIO(httpServer, {
+      path: "/api/socket",
+    });
 
     res.socket.server.io = io;
 
-    io.use((socket:any, next) => {
+    io.use((socket: any, next) => {
       const sessionID = socket.handshake.auth.sessionID;
       if (sessionID) {
         // find existing session
@@ -89,63 +88,55 @@ const SocketHandler = (req:any, res:any) => {
       }
       next();
     });
-    
-    io.on('connection', (socket:any) => {
-      
-      if(socket.sessionID && sessionStore.findSession(socket.sessionID)){
-        socket.emit('session_found', true);
-      } else{
-        socket.emit('session_found', false);
+
+    io.on("connection", (socket: any) => {
+      if (socket.sessionID && sessionStore.findSession(socket.sessionID)) {
+        socket.emit("session_found", true);
+      } else {
+        socket.emit("session_found", false);
       }
-      
-      socket.on('logout', (msg:string) =>{
+
+      socket.on("logout", (msg: string) => {
         sessionStore.removeSession(msg);
-        socket.emit("session_logout", "")
+        socket.emit("session_logout", "");
         socket.emit("after_logout", "");
       });
-      
-      socket.on('login', (msg:any) => {
-        
-        const login = async()=>{
-          
+
+      socket.on("login", (msg: any) => {
+        const login = async () => {
           let logged = false;
 
-          const res =  await fetch("http://localhost:3000/api/db", 
-          { 
-            method: "POST", 
-            body: JSON.stringify(
-              {
-                type: "login",
-                user: msg.user,
-                password: msg.password,
-              }
-            ),
+          const res = await fetch("http://localhost:3000/api/db", {
+            method: "POST",
+            body: JSON.stringify({
+              type: "login",
+              user: msg.user,
+              password: msg.password,
+            }),
           });
           
           const d = await res.json();
+          if (d?.id) {
 
           if(d?.id){
             socket.sessionID = randomId() + randomId() + randomId();
             socket.userID = d?.id;
-            sessionStore.saveSession(socket.sessionID, socket.userID)
+            sessionStore.saveSession(socket.sessionID, socket.userID);
             logged = true;
-            await socket.emit("session_created", 
-            {
+            await socket.emit("session_created", {
               sessionID: socket?.sessionID,
               userID: socket?.userID,
-            })
+            });
           }
           socket.emit("logged", logged);
-        }
+        };
 
         login();
+      });
 
-      })
-      
-      socket.on('update-kinmu', (msg:any) =>{
-        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
-        {
-            console.log("ok");
+      socket.on("update-kinmu", (msg: any) => {
+        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
+          console.log("ok");
         }
       })
 
@@ -282,7 +273,7 @@ const SocketHandler = (req:any, res:any) => {
 
   }
 
-  res.end()
-}
+  res.end();
+};
 
-export default SocketHandler
+export default SocketHandler;
