@@ -5,12 +5,12 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import {Socket} from "socket.io-client";
-import React, {useEffect, useState} from "react";
+import { Socket } from "socket.io-client";
+import React, { useEffect, useState } from "react";
 
-const sessions =  require("../../../src/lib/sessions");
+const sessions = require("../../../src/lib/sessions");
 
-let socket:Socket;
+let socket: Socket;
 
 export const theme = createTheme({
   palette: {
@@ -18,49 +18,45 @@ export const theme = createTheme({
   },
 });
 
-interface IFormInput {
+export type LoginProps = {
   loginId: string;
   password: string;
-}
+};
 
 const Login = () => {
   const router = useRouter();
-  const { control, handleSubmit } = useForm<IFormInput>({
+  const [error, setError] = useState("");
+  const { control, handleSubmit } = useForm<LoginProps>({
     defaultValues: { loginId: "", password: "" },
   });
 
-  let result: boolean = false;
-
-  const onSubmit: SubmitHandler<IFormInput> = (data: IFormInput) => {
+  const onSubmit: SubmitHandler<LoginProps> = (data: LoginProps) => {
     console.log(data);
-    
-    socket.emit('login', 
-    {
+
+    socket.emit("login", {
       user: data.loginId,
-      password: data.password
-    })
-  
-
+      password: data.password,
+    });
   };
-  
-  useEffect(() => { 
 
-      socket = sessions.connectSession();
+  useEffect(() => {
+    socket = sessions.connectSession();
 
-      sessions.socketInitializer(socket);
+    sessions.socketInitializer(socket);
 
-      socket.on('session_found', msg =>{
-        if(msg === true) location.href = "/pages/top";
-      });
-
-      socket.on("logged", msg =>{
-        console.log(msg)
-        if(msg === true){
-          location.href = "/pages/top";
-        }
+    socket.on("session_found", (msg) => {
+      if (msg === true) location.href = "/pages/top";
     });
 
-  }, [])
+    socket.on("logged", (msg) => {
+      console.log(msg);
+      if (msg === true) {
+        location.href = "/pages/top";
+      } else {
+        setError("ログインIDまたはパスワードが間違っています");
+      }
+    });
+  }, []);
 
   return (
     <main>
@@ -80,6 +76,7 @@ const Login = () => {
                   <TextField {...field} label="ログインID" color="primary" />
                 )}
               />
+
               <Controller
                 name="password"
                 control={control}
@@ -87,6 +84,7 @@ const Login = () => {
                   <TextField {...field} label="パスワード" color="primary" />
                 )}
               />
+              <div className="text-rose-600">{error}</div>
               <Button
                 variant="outlined"
                 color="primary"

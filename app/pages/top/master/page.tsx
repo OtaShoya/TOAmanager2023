@@ -3,6 +3,9 @@
 import Navigation from "@/components/atmos/Drawer";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { Socket } from "socket.io-client";
+import React, { useEffect } from "react";
+const sessions = require("@/src/lib/sessions");
 
 export const title = "東亜ソフト業務管理ソフト";
 
@@ -23,6 +26,9 @@ const pageTitles = [
   { label: "業種登録", url: "" },
   { label: "カレンダー登録", url: "" },
 ];
+
+let socket: Socket;
+
 const MasterPage = () => {
   const router = useRouter();
 
@@ -30,13 +36,24 @@ const MasterPage = () => {
     router.push(url);
   };
 
+  useEffect(() => {
+    socket = sessions.connectSession();
+
+    sessions.socketInitializer(socket);
+  }, []);
+
   return (
     <div className="h-screen">
       {/* タイトルスペース */}
       <div className="h-40 border border-indigo-600"></div>
       <div className="flex flex-row h-full">
         <div className="w-72">
-          <Navigation title={title} subTitles={subTitle} label="ログオフ" />
+          <Navigation
+            title={title}
+            subTitles={subTitle}
+            label="ログオフ"
+            socket={socket}
+          />
         </div>
         <div className="w-full flex justify-center items-center">
           <div className="grid gap-4 grid-cols-3">
