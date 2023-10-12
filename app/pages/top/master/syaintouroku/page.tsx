@@ -9,6 +9,12 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { useRouter } from "next/navigation";
+import { Socket } from "socket.io-client";
+import React, { useEffect, useState } from "react";
+// import "./style.css"
+
+const sessions = require("@/src/lib/sessions");
+let socket: Socket;
 
 type DataType = {
   ID: string;
@@ -35,12 +41,117 @@ const SyainTouroku = () => {
 
   const onSubmit = (data: DataType) => {
     console.log(data);
+
+    let idIput:any = document.querySelector("input[name='ID']")
+    let passInput:any = document.querySelector("input[name='pass']")
+    let nameInput:any = document.querySelector("input[name='name']")
+    let furinaganaInput:any = document.querySelector("input[name='Furigana']")
+  
+    let departmentInput:any = document.querySelector("select[name='department']");
+    let classInput:any = document.querySelector("select[name='class']");
+    let postInput:any = document.querySelector("select[name='post']");
+    let groupInput:any = document.querySelector("select[name='group']");
+
+    let accountInput:any = document.querySelector("input[name='acount']")
+    let mailInput:any = document.querySelector("input[name='mail']")
+    let postalCodeInput:any = document.querySelector("input[name='postalCode']")
+    let addressInput:any = document.querySelector("input[name='address']")
+    let homePhoneInput:any = document.querySelector("input[name='homePhone']")
+    let telephoneInput:any = document.querySelector("input[name='telhone']")
+    
+    socket.emit("shain-update", 
+    {
+      sessionID: localStorage.getItem("sessionID"),
+      userID: localStorage.getItem("userID"),
+      
+      bango: idIput.value,
+      password: passInput.value,
+      shimei: nameInput.value,
+      furigana: furinaganaInput.value,
+
+      bushoId: departmentInput.value,
+      shainKubunId: classInput.value ,
+      yakushokuId: groupInput.value,
+      kyujitsuGroupId: postInput.value,
+
+      account: accountInput.value,
+      mailAddress: mailInput.value,
+      yubinBango: postalCodeInput.value,
+      jyuusho: addressInput.value,
+      denwaBango: homePhoneInput.value,
+      keitaiBango: telephoneInput.value,
+    })
   };
 
   const clickHandler = () => {
     router.push("/pages/top");
   };
 
+  let loaded:boolean = false;
+  const [idValue, setIdValue] = useState('');
+  const [passValue, setPassValue] = useState('');
+  const [nameValue, setNameValue] = useState('');
+  const [furiganaValue, setFuriganaValue] = useState('');
+  const [departmentValue, setDepartmentValue] = useState('');
+
+  const [classValue, setClassValue] = useState('');
+  const [groupValue, setGroupValue] = useState('');
+  const [postValue, setPostValue] = useState('');
+  const [accountValue, setAccountValue] = useState('');
+  const [mailValue, setMailValue] = useState('');
+  const [postalCodeValue, setPostalCodeValue] = useState('');
+  const [addressValue, setAddressValue] = useState('');
+  const [homePhoneValue, setHomePhoneValue] = useState('');
+  const [telephoneValue, setTelephoneValue] = useState('');
+
+  useEffect(() => {
+
+    if(!loaded){
+      socket = sessions.connectSession();
+      sessions.socketInitializer(socket);
+
+      const r = async ()=>{
+
+        const res =  await fetch("http://localhost:3000/api/db", 
+        { 
+          method: "POST", 
+          body: JSON.stringify(
+            {
+              type: "shain-get",
+              id: localStorage.getItem("userID"),
+            }
+          ),
+        });
+        let s = await res.json();
+        if(s?.user){
+
+          setIdValue( s?.user?.bango);
+          setPassValue( s?.user?.password);
+          setNameValue( s?.user?.shimei);
+          setFuriganaValue( s?.user?.furigana);
+          setDepartmentValue( s?.user?.busho_id);
+
+          setClassValue(s?.user?.shain_kubun_id)
+          setGroupValue(s?.user?.yakushoku_id)
+          setPostValue(s?.user?.kyujitsu_group_id)
+          setAccountValue(s?.user?.account)
+          setMailValue(s?.user?.mail_address)
+          setPostalCodeValue(s?.user?.yubin_bango)
+          setAddressValue(s?.user?.jyuusho)
+          setHomePhoneValue(s?.user?.denwa_bango)
+          setTelephoneValue(s?.user?.keitai_bango)
+
+          loaded = true;
+        }
+
+      }
+
+      r();
+
+    }
+
+  }, []);
+ 
   return (
     <>
       <div>
@@ -52,7 +163,7 @@ const SyainTouroku = () => {
           終了
         </Button>
       </div>
-      <div className="h-screen w-screen flex justify-center items-center flex-col ">
+      <div className="w-screen flex justify-center items-center flex-col ">
         <div className="grid gap-y-10">
           <h1 className="text-5xl justify-self-center">社員登録</h1>
           {/* ↓社員番号、パスワード */}
@@ -60,13 +171,15 @@ const SyainTouroku = () => {
             <Controller
               name="ID"
               control={control}
-              render={({ field }) => <TextField label="社員番号" {...field} />}
+              render={({ field }) => <TextField label="社員番号" {...field} value={idValue}
+              onChange={e => setIdValue(e.target.value)}/>}
             />
             <Controller
               name="pass"
               control={control}
               render={({ field }) => (
-                <TextField label="パスワード" {...field} />
+                <TextField label="パスワード" {...field} value={passValue}
+                onChange={e => setPassValue(e.target.value)} />
               )}
             />
           </div>
@@ -75,12 +188,14 @@ const SyainTouroku = () => {
             <Controller
               name="name"
               control={control}
-              render={({ field }) => <TextField label="氏名" {...field} />}
+              render={({ field }) => <TextField label="氏名" {...field} value={nameValue}
+              onChange={e => setNameValue(e.target.value)} />}
             />
             <Controller
               name="Furigana"
               control={control}
-              render={({ field }) => <TextField label="ふりがな" {...field} />}
+              render={({ field }) => <TextField label="ふりがな" {...field} value={furiganaValue}
+              onChange={e => setFuriganaValue(e.target.value)}  />}
             />
             <Controller
               name="department"
@@ -93,8 +208,10 @@ const SyainTouroku = () => {
                   <Select
                     native
                     label="部署"
-                    id="grouped-class-select"
+                    id="grouped-department-select"
                     {...field}
+                    value={departmentValue}
+                    onChange={e => setDepartmentValue(e.target.value)} 
                   >
                     <option aria-label="None" />
                     <option value={1}>システム開発部</option>
@@ -125,6 +242,8 @@ const SyainTouroku = () => {
                     label="社員区分"
                     id="grouped-class-select"
                     {...field}
+                    value={classValue}
+                    onChange={e => setClassValue(e.target.value)}
                   >
                     <option aria-label="None" />
                     <option value={1}>正社員</option>
@@ -145,8 +264,10 @@ const SyainTouroku = () => {
                   <Select
                     native
                     label="役職"
-                    id="grouped-class-select"
+                    id="grouped-post-select"
                     {...field}
+                    value={postValue}
+                    onChange={e => setPostValue(e.target.value)}
                   >
                     <option aria-label="None" />
                     <option value={1}>常務</option>
@@ -170,6 +291,8 @@ const SyainTouroku = () => {
                     label="休日グループ"
                     id="grouped-rest-select"
                     {...field}
+                    value={groupValue}
+                    onChange={e => setGroupValue(e.target.value)}
                   >
                     <option aria-label="None" />
                     <option value={1}>Aグループ</option>
@@ -213,14 +336,16 @@ const SyainTouroku = () => {
               name="acount"
               control={control}
               render={({ field }) => (
-                <TextField label="アカウント" {...field} />
+                <TextField label="アカウント" {...field} value={accountValue}
+                onChange={e => setAccountValue(e.target.value)} />
               )}
             />
             <Controller
               name="mail"
               control={control}
               render={({ field }) => (
-                <TextField label="メールアドレス" {...field} />
+                <TextField label="メールアドレス" {...field} value={mailValue}
+                onChange={e => setMailValue(e.target.value)}/>
               )}
             />
           </div>
@@ -231,7 +356,8 @@ const SyainTouroku = () => {
                 name="postalCode"
                 control={control}
                 render={({ field }) => (
-                  <TextField label="郵便番号" {...field} />
+                  <TextField label="郵便番号" {...field} value={postalCodeValue}
+                  onChange={e => setPostalCodeValue(e.target.value)}/>
                 )}
               />
             </div>
@@ -240,7 +366,8 @@ const SyainTouroku = () => {
                 name="address"
                 control={control}
                 render={({ field }) => (
-                  <TextField label="住所" fullWidth {...field} />
+                  <TextField label="住所" fullWidth {...field} value={addressValue}
+                  onChange={e => setAddressValue(e.target.value)}/>
                 )}
               />
             </div>
@@ -250,12 +377,14 @@ const SyainTouroku = () => {
             <Controller
               name="homePhone"
               control={control}
-              render={({ field }) => <TextField label="電話番号" {...field} />}
+              render={({ field }) => <TextField label="電話番号" {...field} value={homePhoneValue}
+              onChange={e => setHomePhoneValue(e.target.value)}/>}
             />
             <Controller
               name="telhone"
               control={control}
-              render={({ field }) => <TextField label="携帯番号" {...field} />}
+              render={({ field }) => <TextField label="携帯番号" {...field}value={telephoneValue}
+              onChange={e => setTelephoneValue(e.target.value)} />}
             />
           </div>
           <div className="flex justify-around">

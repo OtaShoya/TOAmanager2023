@@ -3,17 +3,15 @@ import fs from "fs"
 import { get } from "http";
 
 class sakugyoNaiyouItem{
-  
     name?: string;
-    shuu!:Array<number>
-   
+    shuu!:Array<number>;
 }
 
 
 class ProjectItem{
     bango?:string;
     na?:string;
-    sakugyoNaiyouList?:Array<sakugyoNaiyouItem>
+    sakugyoNaiyouList?:Array<sakugyoNaiyouItem>;
 }
 
 function styleCells(row:ExcelJS.Row, isProjectRow:boolean = false){
@@ -53,8 +51,6 @@ function styleCells(row:ExcelJS.Row, isProjectRow:boolean = false){
         }
 
     }
-
-
 }
 
 function format(toFormat:number){

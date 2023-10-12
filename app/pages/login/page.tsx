@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Socket } from "socket.io-client";
 import React, { useEffect, useState } from "react";
 
-const sessions = require("../../../src/lib/sessions");
+const sessions = require("@/src/lib/sessions");
 
 let socket: Socket;
 

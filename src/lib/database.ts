@@ -490,20 +490,20 @@ const updateShain = function(shain:Shain){
             +",furigana = $furigana "
 
             // +",ryakushou = $ryakushou "
-            // +",busho_id = $busho_id "
-            // +",shain_kubun_id = $shain_kubun_id "
-            // +",yakushoku_id = $yakushoku_id "
-            // +",kyujitsu_group_id = $kyujitsu_group_id "
+            +",busho_id = $busho_id "
+            +",shain_kubun_id = $shain_kubun_id "
+            +",yakushoku_id = $yakushoku_id "
+            +",kyujitsu_group_id = $kyujitsu_group_id "
             // +",shayou_keitai_bango = $shayou_keitai_bango "   
             // +",shayou_keitai_naisen_bango = $shayou_keitai_naisen_bango "
             // +",nyuusha_nichi = $nyuusha_nichi "
             // +",taisha_nichi = $taisha_nichi "
-            // +",account = $account "
-            // +",mail_address = $mail_address "
-            // +",yubin_bango = $yubin_bango "
-            // +",jyuusho = $jyuusho "
-            // +",denwa_bango = $denwa_bango "
-            // +",keitai_bango = $keitai_bango "
+            +",account = $account "
+            +",mail_address = $mail_address "
+            +",yubin_bango = $yubin_bango "
+            +",jyuusho = $jyuusho "
+            +",denwa_bango = $denwa_bango "
+            +",keitai_bango = $keitai_bango "
             // +",inkan = $inkan "
 
             +" WHERE id = $id"
@@ -515,31 +515,128 @@ const updateShain = function(shain:Shain){
                 $furigana: shain.furigana,
 
                 // $ryakushou: shain.ryakushou,
-                // $busho_id: shain.bushoId,
-                // $shain_kubun_id: shain.shainKubunId,
-                // $yakushoku_id: shain.yakushokuId,
-                // $kyujitsu_group_id: shain.kyujitsuGroupId,
+                $busho_id: shain.bushoId,
+                $shain_kubun_id: shain.shainKubunId,
+                $yakushoku_id: shain.yakushokuId,
+                $kyujitsu_group_id: shain.kyujitsuGroupId,
                 // $shayou_keitai_bango: shain.shayouKeitaiBango,
                 // $shayou_keitai_naisen_bango: shain.shayouKeitaiNaisenBango,
                 // $nyuusha_nichi: shain.nyuushaNichi,
                 // $taisha_nichi: shain.taishaNichi,
-                // $account: shain.account,
-                // $mail_address: shain.mailAddress,
-                // $yubin_bango: shain.yubinBango,
-                // $jyuusho: shain.jyuusho,
-                // $denwa_bango: shain.denwaBango,
-                // $keitai_bango: shain.keitaiBango,
+                $account: shain.account,
+                $mail_address: shain.mailAddress,
+                $yubin_bango: shain.yubinBango,
+                $jyuusho: shain.jyuusho,
+                $denwa_bango: shain.denwaBango,
+                $keitai_bango: shain.keitaiBango,
                 // $inkan: shain.inkan,
                             
                 $id:  shain.id,
             })
 
             stm.finalize();
-
+            resolve("");
         });
     });
 
 };
+
+const addShain = (shain:Shain)=>{
+    return new Promise((resolve, reject)=>{ 
+        let stm = db.prepare(
+        "INSERT INTO"
+        + " shain"
+        +" ("
+        +" bango"
+        +",password"
+        +",shimei "
+        +",furigana"
+        // +",ryakushou "
+        +",busho_id "
+        +",shain_kubun_id"
+        +",yakushoku_id"
+        +",kyujitsu_group_id "
+        // +",shayou_keitai_bango"   
+        // +",shayou_keitai_naisen_bango"
+        // +",nyuusha_nichi "
+        // +",taisha_nichi "
+        +",account"
+        +",mail_address"
+        +",yubin_bango"
+        +",jyuusho"
+        +",denwa_bango "
+        +",keitai_bango"
+        // +",inkan"
+        + " )"
+        + " VALUES"
+        +" ("
+        +" $bango"
+        +",$password"
+        +",$shimei "
+        +",$furigana"
+        // +",$ryakushou "
+        +",$busho_id "
+        +",$shain_kubun_id"
+        +",$yakushoku_id"
+        +",$kyujitsu_group_id "
+        // +",shayou_keitai_bango"   
+        // +",shayou_keitai_naisen_bango"
+        // +",nyuusha_nichi "
+        // +",taisha_nichi "
+        +",$account"
+        +",$mail_address"
+        +",$yubin_bango"
+        +",$jyuusho"
+        +",$denwa_bango "
+        +",$keitai_bango"
+        // +",$inkan"
+        + " )"
+        )
+        stm.run({
+            $bango: shain.bango,
+            $password: shain.password,
+            $shimei: shain.shimei,
+            $furigana: shain.furigana,
+
+            // $ryakushou: shain.ryakushou,
+            $busho_id: shain.bushoId,
+            $shain_kubun_id: shain.shainKubunId,
+            $yakushoku_id: shain.yakushokuId,
+            $kyujitsu_group_id: shain.kyujitsuGroupId,
+            // $shayou_keitai_bango: shain.shayouKeitaiBango,
+            // $shayou_keitai_naisen_bango: shain.shayouKeitaiNaisenBango,
+            // $nyuusha_nichi: shain.nyuushaNichi,
+            // $taisha_nichi: shain.taishaNichi,
+            $account: shain.account,
+            $mail_address: shain.mailAddress,
+            $yubin_bango: shain.yubinBango,
+            $jyuusho: shain.jyuusho,
+            $denwa_bango: shain.denwaBango,
+            $keitai_bango: shain.keitaiBango,
+            // $inkan: shain.inkan,
+        })
+        stm.finalize();
+        resolve("");
+    })
+}
+
+const deleteShain = (id:number) =>{
+    return new Promise((resolve, reject) =>{
+        let stm = db.prepare(
+        "DELETE FROM"
+        +" shain"
+        +" WHERE"
+        +" id = $id"
+        )
+
+        stm.run({
+            $id: id
+        })
+
+        stm.finalize();
+        resolve("");
+    })
+}
 
 const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
     return new Promise((resolve, reject)=>{ 
@@ -633,10 +730,10 @@ module.exports = {
     Shain: Shain,
     loadDb: loadDb,
     createDb: createDb,
-    // addShain: addShain,
+    addShain: addShain,
     updateShain: updateShain,
     getShain:  getShain,
-    // deleteShain: deleteShain,
+    deleteShain: deleteShain,
     addKinmu: addKinmu,
     getKinmuList: getKinmuList,
     deleteKinmu: deleteKinmu,

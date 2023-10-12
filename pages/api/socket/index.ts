@@ -137,7 +137,7 @@ const SocketHandler = (req: any, res: any) => {
         }
       })
 
-      socket.on("update-shain", (msg:any)=>{
+      socket.on("shain-update", (msg:any)=>{
         
         if( sessionStore.findSession( msg.sessionID ) == msg.userID )
         {
@@ -150,6 +150,18 @@ const SocketHandler = (req: any, res: any) => {
             shain.password = msg.password;
             shain.shimei = msg.shimei;
             shain.furigana = msg.furigana;
+
+            shain.bushoId = msg.bushoId;
+            shain.shainKubunId = msg.shainKubunId;
+            shain.yakushokuId = msg.yakushokuId;
+            shain.kyujitsuGroupId = msg.kyujitsuGroupId;
+   
+            shain.account = msg.account;
+            shain.mailAddress = msg.mailAddress;
+            shain.yubinBango = msg.yubinBango;
+            shain.jyuusho = msg.jyuusho;
+            shain.denwaBango = msg.denwaBango;
+            shain.keitaiBango = msg.keitaiBango;
 
             const r = async ()=>{
               const res =  await fetch("http://localhost:3000/api/db", 
@@ -167,6 +179,74 @@ const SocketHandler = (req: any, res: any) => {
             r();
 
             console.log("ok");
+        }
+      })
+
+      socket.on("shain-add", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+         
+            var shain:Shain = new Shain();
+            
+            shain.id = msg.userID;
+
+            shain.bango = msg.bango;
+            shain.password = msg.password;
+            shain.shimei = msg.shimei;
+            shain.furigana = msg.furigana;
+
+            shain.bushoId = msg.bushoId;
+            shain.shainKubunId = msg.shainKubunId;
+            shain.yakushokuId = msg.yakushokuId;
+            shain.kyujitsuGroupId = msg.kyujitsuGroupId;
+   
+            shain.account = msg.account;
+            shain.mailAddress = msg.mailAddress;
+            shain.yubinBango = msg.yubinBango;
+            shain.jyuusho = msg.jyuusho;
+            shain.denwaBango = msg.denwaBango;
+            shain.keitaiBango = msg.keitaiBango;
+
+            const r = async ()=>{
+              const res =  await fetch("http://localhost:3000/api/db", 
+              { 
+                method: "POST", 
+                body: JSON.stringify(
+                  {
+                    type: "shain-add",
+                    shain: shain,
+                  }
+                ),
+              });
+            }
+            
+            r();
+
+            console.log("ok");
+        }
+      })
+
+      socket.on("shain-delete", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "shain-delete",
+                  id: msg.userID,
+                }
+              ),
+            });
+          }
+          
+          r();
+
+          console.log("ok");
         }
       })
 

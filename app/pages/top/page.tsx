@@ -17,7 +17,7 @@ export const subTitle = [
 ];
 
 var socket: Socket;
-const sessions = require("../../../src/lib/sessions");
+const sessions = require("@/src/lib/sessions");
 
 const pageTitles = [
   { label: "作業報告登録", url: "/pages/top/business/WorkReportEntry" },

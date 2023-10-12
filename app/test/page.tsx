@@ -43,12 +43,10 @@ function updateClick(){
         {
             sessionID: localStorage.getItem("sessionID"),
             userID: localStorage.getItem("userID"),
-
             bango: bango.value ,
             password: password.value,
             shimei: shimei.value,
             furigana: furigana.value,
-
         })
     }
 }
@@ -81,6 +79,7 @@ class LoggedIn extends React.Component{
                 <button onClick={this.nextClick}> Next </button>
                 <br/>
                 <table>
+                  
                     <thead>
                     <tr>
                         <th>日付</th>
@@ -98,7 +97,9 @@ class LoggedIn extends React.Component{
                         <th>メモ</th>
                     </tr>
                     </thead>
+                    <tbody>
                     <PopulatedTable beginingDate={date} />
+                    </tbody>
                 </table>    
             </>
             );
@@ -114,6 +115,7 @@ function LoggedOrNot({logged}:any){
     useEffect(()=>{
         
         if(!loaded && logged === true){
+
             const r = async ()=>{
                 const res =  await fetch("http://localhost:3000/api/db", 
                 { 
@@ -141,9 +143,6 @@ function LoggedOrNot({logged}:any){
 
                     loaded = true;
                 }
-                
-                
-
             }
 
             r();

@@ -5,7 +5,6 @@ const db = require("@/src/lib/database.ts")
 var dataBaseConnectionStr:string = "../../../db.sqlite3";
 
 export default function handler(req:NextApiRequest, res:NextApiResponse){
-
     if(req.method == "POST" && req.body){
         var body = JSON.parse(req.body);
         switch (body?.type) {
@@ -85,6 +84,37 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     updateShain();
                     break;
                 }
+            case "shain-add":
+                {
+                    const addShain = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        const ser = await db.addShain(body.shain).then( 
+                            (v:any)=>{
+                                res.status(200).json({added: true});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                    }
+                    addShain();
+                    break;
+                }
+            case "shain-delete":
+                {
+                    const deleteShain = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        
+                        const ser = await db.deleteShain(body.id).then( 
+                            (v:any)=>{
+                                res.status(200).json({deleted: true});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                    }
+                    deleteShain();
+                    break;
+                }
             case "shuu-sakugyou-houkoku":
 
                 const kinmuListFunc = async ()=> {
@@ -109,6 +139,8 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             default:
                 break;
         }
+    }else{
+        res.status(400).end();
     }
 
 }
