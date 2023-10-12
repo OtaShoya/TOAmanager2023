@@ -1,4 +1,22 @@
-import { sakugyoNaiyouItem, ProjectItem } from "@/src/lib/report";
+// import { sakugyoNaiyouItem, ProjectItem } from "@/src/lib/report";
+class sakugyoNaiyouItem{
+    constructor(){
+        this.shuu = new Array<number>();
+    }
+    name?: string;
+    shuu!:Array<number>;
+ 
+}
+
+
+class ProjectItem{
+    constructor(){
+            this.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
+    }
+    bango?:string;
+    na?:string;
+    sakugyoNaiyouList?:Array<sakugyoNaiyouItem>;
+}
 
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
@@ -642,7 +660,7 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
     return new Promise((resolve, reject)=>{ 
     
         var projectI:ProjectItem;
-
+        
         db.serialize(()=>{
             db.all( 
                 //statement
@@ -673,9 +691,10 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                     var pjList:Array<ProjectItem> = new Array<ProjectItem>();
                     pjRows.forEach( (pj)=>{
                         projectI = new ProjectItem()
-                        projectI.bango = pj.bango;
-                        projectI.na = projectI.na
+                        projectI.bango = pj.bangou;
+                        projectI.na = pj.na;
                         projectI.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
+
                         db.all( 
                             'Select'
                             +' project_sakugyou_naiyou.sakugyou_naiyou as sakugyou_naiyou'
@@ -700,23 +719,33 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                             }
                             , ((err:any, sgRows:Array<any>)=>{
                                 let si:sakugyoNaiyouItem = new sakugyoNaiyouItem();
-                                si.shuu = new Array<number>();
-                                var oldTitle = sgRows[0].sakugyou_naiyou;
-                                sgRows.forEach( (sg)=>{
-                                    if(sgRows[0].sakugyou_naiyou != oldTitle){
-                                        projectI.sakugyoNaiyouList?.push(si);
-                                        si = new sakugyoNaiyouItem();
-                                        si.shuu = new Array<number>();
-                                    }
-                                    sg[new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
-                                } )
-                                projectI.sakugyoNaiyouList?.push(si);
+                                si.shuu = [0,0,0,0,0,0,0];
+
+                                if(sgRows){
+                                    var oldTitle = sgRows[0].sakugyou_naiyou;
+                                    sgRows.forEach( (sg)=>{
+                                        if(sg.sakugyou_naiyou != oldTitle){
+                                            projectI.sakugyoNaiyouList?.push(si);
+                                            si = new sakugyoNaiyouItem();
+                                            si.shuu = [0,0,0,0,0,0,0];
+                                            // console.log(projectI);
+                                            oldTitle = sg.sakugyou_naiyou ;
+                                        }
+                                        
+                                        si.shuu [new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
+                                    } )
+                                    projectI.sakugyoNaiyouList?.push(si);
+
+                                    pjList.push(projectI)  
+                                    
+                                }
+                            
                               
                             }) 
                         )
-                        pjList.push(projectI)   
+                        resolve(pjList);
                     } )
-                   resolve(pjList);
+                   
                 }
             )
         })

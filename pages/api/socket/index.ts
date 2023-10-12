@@ -335,9 +335,27 @@ const SocketHandler = (req: any, res: any) => {
               ]
           },
         ]
+        const r = async ()=>{
+          const res =  await fetch("http://localhost:3000/api/db", 
+          { 
+            method: "POST", 
+            body: JSON.stringify(
+              {
+                type: "shuu-sakugyou-houkoku",
+                beginDate: new Date('2023-9-4'),
+                endDate: new Date('2023-9-10'),
+                shainId: 1,
+              }
+            ),
+          });
+        }
+      
+        r();
 
+        
         var e = weekReport("./test.xlsx", "test", new Date('2023-9-4'), pl).then((msg)=>{
           // console.log("test")
+
           const imgFile = fs.readFileSync("./new.xlsx");
           const imgBase64 = Buffer.from(imgFile).toString('base64');
        

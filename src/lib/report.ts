@@ -3,12 +3,19 @@ import fs from "fs"
 import { get } from "http";
 
 class sakugyoNaiyouItem{
+    constructor(){
+        this.shuu = new Array<number>();
+    }
     name?: string;
     shuu!:Array<number>;
+ 
 }
 
 
 class ProjectItem{
+    constructor(){
+            this.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
+    }
     bango?:string;
     na?:string;
     sakugyoNaiyouList?:Array<sakugyoNaiyouItem>;
