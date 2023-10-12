@@ -15,7 +15,7 @@ import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import CreateIcon from "@mui/icons-material/Create";
-import EditPage from "./comoponent/Edit";
+import EditPage from "./component/Edit";
 
 const columns = [
   "",
@@ -31,13 +31,6 @@ const columns = [
   "休出時刻",
   "作業時間合計",
   "メモ",
-];
-
-const buttonLabels = [
-  { label: "再表示", url: "" },
-  { label: "休日登録", url: "" },
-  { label: "週間報告書出力", url: "" },
-  { label: "出力", url: "" },
 ];
 
 const label = "ビジネスサポート部 リレーショングループ";
