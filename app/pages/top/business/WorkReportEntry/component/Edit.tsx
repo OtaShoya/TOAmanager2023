@@ -51,7 +51,7 @@ const FormlabelGroup = {
   total: "合計",
 };
 
-const textBoxVariant: "filled" | "outlined" | "standard" = "outlined";
+export const textBoxVariant: "filled" | "outlined" | "standard" = "outlined";
 
 const buttonVariant: ("text" | "contained" | "outlined")[] = [
   "text",
@@ -59,7 +59,7 @@ const buttonVariant: ("text" | "contained" | "outlined")[] = [
   "outlined",
 ];
 
-const widthGroup = {
+export const widthGroup = {
   drawer: 1500,
   defalut: 240,
   width1: 750,
