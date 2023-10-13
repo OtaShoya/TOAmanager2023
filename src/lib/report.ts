@@ -16,6 +16,7 @@ class ProjectItem{
     constructor(){
             this.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
     }
+    id?:number;
     bango?:string;
     na?:string;
     sakugyoNaiyouList?:Array<sakugyoNaiyouItem>;
