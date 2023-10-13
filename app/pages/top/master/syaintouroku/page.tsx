@@ -1,445 +1,134 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
-import TextField from "@mui/material/TextField";
-import { Button, FormControl, InputLabel, Select } from "@mui/material";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import { useRouter } from "next/navigation";
-import { Socket } from "socket.io-client";
-import React, { useEffect, useState } from "react";
-// import "./style.css"
+import ExitButton from "@/components/molecule/ExitButton";
+import ReloadButton from "@/components/molecule/RelodeButton";
+import * as React from "react";
+import {
+  Drawer,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import CreateIcon from "@mui/icons-material/Create";
+import EditPage from "./component/Edit";
 
-const sessions = require("@/src/lib/sessions");
-let socket: Socket;
+const columns = ["", "氏名", "部署", "役職", "休日グループ"];
 
-type DataType = {
-  ID: string;
-  pass: string;
-  name: string;
-  Furigana: string /*ふりがな*/;
-  department: number /*部署*/;
-  class: number /*社員区分*/;
-  post: number /*役職*/;
-  group: number /*グループ*/;
-  // date1: Date /*入社日*/;
-  // date2: Date /*退職日*/;
-  acount: string /*アカウント*/;
-  mail: string /*メールアドレス*/;
-  postalCode: string /*郵便番号*/;
-  address: string /*住所*/;
-  homePhone: string /*電話番号*/;
-  telhone: string /*携帯番号*/;
-};
+const datas = [{ userName: "", affiliation: "", post: "", restGroup: "" }];
 
-const SyainTouroku = () => {
-  const { control, handleSubmit } = useForm<DataType>();
-  const router = useRouter();
+const ShainTourokuPage = () => {
+  const [state, setState] = React.useState(false);
+  const [condition1, setCondition1] = React.useState("A");
+  const [condition4, setCondition4] = React.useState("");
+  const [condition5, setCondition5] = React.useState("");
+  const [condition6, setCondition6] = React.useState("");
+  const [condition7, setCondition7] = React.useState("");
 
-  const onSubmit = (data: DataType) => {
-    console.log(data);
-
-    let idIput: any = document.querySelector("input[name='ID']");
-    let passInput: any = document.querySelector("input[name='pass']");
-    let nameInput: any = document.querySelector("input[name='name']");
-    let furinaganaInput: any = document.querySelector("input[name='Furigana']");
-
-    let departmentInput: any = document.querySelector(
-      "select[name='department']"
-    );
-    let classInput: any = document.querySelector("select[name='class']");
-    let postInput: any = document.querySelector("select[name='post']");
-    let groupInput: any = document.querySelector("select[name='group']");
-
-    let accountInput: any = document.querySelector("input[name='acount']");
-    let mailInput: any = document.querySelector("input[name='mail']");
-    let postalCodeInput: any = document.querySelector(
-      "input[name='postalCode']"
-    );
-    let addressInput: any = document.querySelector("input[name='address']");
-    let homePhoneInput: any = document.querySelector("input[name='homePhone']");
-    let telephoneInput: any = document.querySelector("input[name='telhone']");
-
-    socket.emit("shain-update", {
-      sessionID: localStorage.getItem("sessionID"),
-      userID: localStorage.getItem("userID"),
-
-      bango: idIput.value,
-      password: passInput.value,
-      shimei: nameInput.value,
-      furigana: furinaganaInput.value,
-
-      bushoId: departmentInput.value,
-      shainKubunId: classInput.value,
-      yakushokuId: groupInput.value,
-      kyujitsuGroupId: postInput.value,
-
-      account: accountInput.value,
-      mailAddress: mailInput.value,
-      yubinBango: postalCodeInput.value,
-      jyuusho: addressInput.value,
-      denwaBango: homePhoneInput.value,
-      keitaiBango: telephoneInput.value,
-    });
+  const toggleDrawer = (open: boolean) => {
+    setState(open);
   };
 
-  const clickHandler = () => {
-    router.push("/pages/top");
-  };
-
-  let loaded: boolean = false;
-  const [idValue, setIdValue] = useState("");
-  const [passValue, setPassValue] = useState("");
-  const [nameValue, setNameValue] = useState("");
-  const [furiganaValue, setFuriganaValue] = useState("");
-  const [departmentValue, setDepartmentValue] = useState("");
-
-  const [classValue, setClassValue] = useState("");
-  const [groupValue, setGroupValue] = useState("");
-  const [postValue, setPostValue] = useState("");
-  const [accountValue, setAccountValue] = useState("");
-  const [mailValue, setMailValue] = useState("");
-  const [postalCodeValue, setPostalCodeValue] = useState("");
-  const [addressValue, setAddressValue] = useState("");
-  const [homePhoneValue, setHomePhoneValue] = useState("");
-  const [telephoneValue, setTelephoneValue] = useState("");
-
-  useEffect(() => {
-    if (!loaded) {
-      socket = sessions.connectSession();
-      sessions.socketInitializer(socket);
-
-      const r = async () => {
-        const res = await fetch("http://localhost:3000/api/db", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "shain-get",
-            id: localStorage.getItem("userID"),
-          }),
-        });
-        let s = await res.json();
-        if (s?.user) {
-          setIdValue(s?.user?.bango);
-          setPassValue(s?.user?.password);
-          setNameValue(s?.user?.shimei);
-          setFuriganaValue(s?.user?.furigana);
-          setDepartmentValue(s?.user?.busho_id);
-
-          setClassValue(s?.user?.shain_kubun_id);
-          setGroupValue(s?.user?.yakushoku_id);
-          setPostValue(s?.user?.kyujitsu_group_id);
-          setAccountValue(s?.user?.account);
-          setMailValue(s?.user?.mail_address);
-          setPostalCodeValue(s?.user?.yubin_bango);
-          setAddressValue(s?.user?.jyuusho);
-          setHomePhoneValue(s?.user?.denwa_bango);
-          setTelephoneValue(s?.user?.keitai_bango);
-
-          loaded = true;
-        }
-      };
-
-      r();
+  const changeHandler = () => {
+    if (condition1 === "A") {
+      setCondition1("B");
+    } else {
+      setCondition1("A");
     }
-  }, []);
+  };
+
+  React.useEffect(() => {
+    console.log(
+      `${condition1} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
+    );
+  }, [condition1, condition4, condition5, condition6, condition7]);
 
   return (
-    <>
-      <div>
-        <Button
-          variant="text"
-          startIcon={<ExitToAppIcon />}
-          onClick={clickHandler}
-        >
-          終了
-        </Button>
-      </div>
-      <div className="w-screen flex justify-center items-center flex-col ">
-        <div className="grid gap-y-10">
-          <h1 className="text-5xl justify-self-center">社員登録</h1>
-          {/* ↓社員番号、パスワード */}
-          <div className="flex flex-row justify-between">
-            <Controller
-              name="ID"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="社員番号"
-                  {...field}
-                  value={idValue}
-                  onChange={(e) => setIdValue(e.target.value)}
-                />
-              )}
-            />
-            <Controller
-              name="pass"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="パスワード"
-                  {...field}
-                  value={passValue}
-                  onChange={(e) => setPassValue(e.target.value)}
-                />
-              )}
-            />
-          </div>
-          {/* ↓氏名、フリガナ、部署 */}
-          <div className="flex flex-col gap-y-4">
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="氏名"
-                  {...field}
-                  value={nameValue}
-                  onChange={(e) => setNameValue(e.target.value)}
-                />
-              )}
-            />
-            <Controller
-              name="Furigana"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="ふりがな"
-                  {...field}
-                  value={furiganaValue}
-                  onChange={(e) => setFuriganaValue(e.target.value)}
-                />
-              )}
-            />
-            <Controller
-              name="department"
-              control={control}
-              render={({ field }) => (
-                <FormControl>
-                  <InputLabel htmlFor="grouped-department-select">
-                    部署
-                  </InputLabel>
-                  <Select
-                    native
-                    label="部署"
-                    id="grouped-department-select"
-                    {...field}
-                    value={departmentValue}
-                    onChange={(e) => setDepartmentValue(e.target.value)}
-                  >
-                    <option aria-label="None" />
-                    <option value={1}>システム開発部</option>
-                    <option value={2}>営業部</option>
-                    <option value={3}>
-                      ビジネスサポート部 リレーショングループ
-                    </option>
-                    <option value={4}>ビジネスサポート部 ユースウェア</option>
-                    <option value={5}>ビジネスサポート部 技術部</option>
-                    <option value={5}>ビジネスサポート部 業務部</option>
-                  </Select>
-                </FormControl>
-              )}
-            />
-          </div>
-          {/* ↓社員区分、役職、グループ */}
-          <div className="flex flex-col gap-y-4">
-            <Controller
-              name="class"
-              control={control}
-              render={({ field }) => (
-                <FormControl>
-                  <InputLabel htmlFor="grouped-class-select">
-                    社員区分
-                  </InputLabel>
-                  <Select
-                    native
-                    label="社員区分"
-                    id="grouped-class-select"
-                    {...field}
-                    value={classValue}
-                    onChange={(e) => setClassValue(e.target.value)}
-                  >
-                    <option aria-label="None" />
-                    <option value={1}>正社員</option>
-                    <option value={2}>契約社員</option>
-                    <option value={3}>派遣社員</option>
-                    <option value={4}>アルバイト</option>
-                    <option value={5}>インターシップ</option>
-                  </Select>
-                </FormControl>
-              )}
-            />
-            <Controller
-              name="post"
-              control={control}
-              render={({ field }) => (
-                <FormControl>
-                  <InputLabel htmlFor="grouped-post-select">役職</InputLabel>
-                  <Select
-                    native
-                    label="役職"
-                    id="grouped-post-select"
-                    {...field}
-                    value={postValue}
-                    onChange={(e) => setPostValue(e.target.value)}
-                  >
-                    <option aria-label="None" />
-                    <option value={1}>常務</option>
-                    <option value={2}>部長</option>
-                    <option value={3}>マネージャー</option>
-                    <option value={4}>主任</option>
-                  </Select>
-                </FormControl>
-              )}
-            />
-            <Controller
-              name="group"
-              control={control}
-              render={({ field }) => (
-                <FormControl>
-                  <InputLabel htmlFor="grouped-rest-select">
-                    休日グループ
-                  </InputLabel>
-                  <Select
-                    native
-                    label="休日グループ"
-                    id="grouped-rest-select"
-                    {...field}
-                    value={groupValue}
-                    onChange={(e) => setGroupValue(e.target.value)}
-                  >
-                    <option aria-label="None" />
-                    <option value={1}>Aグループ</option>
-                    <option value={2}>Bグループ</option>
-                    <option value={3}>運用Aグループ</option>
-                    <option value={4}>運用Bグループ</option>
-                    <option value={5}>その他</option>
-                  </Select>
-                </FormControl>
-              )}
-            />
-          </div>
-          {/* ↓入社日、退職日 */}
-          {/* <div className="flex flex-row gap-x-10">
-          <Controller
-            name="date1"
-            control={control}
-            render={({ field }) => (
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DemoItem label="入社日">
-                  <DatePicker {...field} />
-                </DemoItem>
-              </LocalizationProvider>
-            )}
-          />
-          <Controller
-            name="date2"
-            control={control}
-            render={({ field }) => (
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DemoItem label="退社日">
-                  <DatePicker {...field} />
-                </DemoItem>
-              </LocalizationProvider>
-            )}
-          />
-        </div> */}
-          {/* ↓アカウント、メールアドレス*/}
-          <div className="flex flex-col gap-y-4">
-            <Controller
-              name="acount"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="アカウント"
-                  {...field}
-                  value={accountValue}
-                  onChange={(e) => setAccountValue(e.target.value)}
-                />
-              )}
-            />
-            <Controller
-              name="mail"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="メールアドレス"
-                  {...field}
-                  value={mailValue}
-                  onChange={(e) => setMailValue(e.target.value)}
-                />
-              )}
-            />
-          </div>
-          {/* ↓郵便番号、住所 */}
-          <div className="flex flex-row justify-between">
-            <div className="w-1/5">
-              <Controller
-                name="postalCode"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    label="郵便番号"
-                    {...field}
-                    value={postalCodeValue}
-                    onChange={(e) => setPostalCodeValue(e.target.value)}
-                  />
-                )}
-              />
+    <div>
+      <div className="p-12">
+        <div className="flex space-x-8">
+          <ReloadButton />
+          <ExitButton />
+        </div>
+        {/* ↓新規追加ボタンの作成 */}
+        <div className="flex justify-end">
+          <button
+            onClick={() => toggleDrawer(true)}
+            className="border rounded-md border-indigo-600 text-indigo-600 hover:bg-slate-100 justify-self-end w-24 h-8"
+          >
+            新規登録
+          </button>
+        </div>
+        <div className="flex flex-col items-center mt-8">
+          {/* ↓フィルター */}
+          <div>
+            <div>
+              <input type="checkbox" onChange={changeHandler} />
+              <label>退職者も表示</label>
             </div>
-            <div className="w-4/5">
-              <Controller
-                name="address"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    label="住所"
-                    fullWidth
-                    {...field}
-                    value={addressValue}
-                    onChange={(e) => setAddressValue(e.target.value)}
-                  />
-                )}
-              />
+            <div className="">
+              <input
+                className="border"
+                placeholder={columns[1]}
+                onChange={(e) => setCondition4(e.target.value)}
+              ></input>
+              <input
+                className="border"
+                placeholder={columns[2]}
+                onChange={(e) => setCondition5(e.target.value)}
+              ></input>
+              <input
+                className="border"
+                placeholder={columns[3]}
+                onChange={(e) => setCondition6(e.target.value)}
+              ></input>
+              <input
+                className="border"
+                placeholder={columns[4]}
+                onChange={(e) => setCondition7(e.target.value)}
+              ></input>
             </div>
           </div>
-          {/* ↓電話番号、携帯番号 */}
-          <div className="flex flex-row justify-between">
-            <Controller
-              name="homePhone"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="電話番号"
-                  {...field}
-                  value={homePhoneValue}
-                  onChange={(e) => setHomePhoneValue(e.target.value)}
-                />
-              )}
-            />
-            <Controller
-              name="telhone"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  label="携帯番号"
-                  {...field}
-                  value={telephoneValue}
-                  onChange={(e) => setTelephoneValue(e.target.value)}
-                />
-              )}
-            />
-          </div>
-          <div className="flex justify-around">
-            <Button variant="outlined" onClick={handleSubmit(onSubmit)}>
-              登録
-            </Button>
-            <button className="border border-rose-600 rounded hover:bg-slate-100 text-rose-600 text-sm w-16">
-              削除
-            </button>
+          {/* ↓テーブル */}
+          <div className="flex flex-row border mt-8">
+            <TableContainer component={Paper} className="">
+              <Table sx={{ maxWidth: 1920, minWidth: 1050 }}>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column, i) => (
+                      <TableCell key={i}>{column}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {datas.map((data, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <IconButton onClick={() => toggleDrawer(true)}>
+                          <CreateIcon />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>{data.userName}</TableCell>
+                      <TableCell>{data.affiliation}</TableCell>
+                      <TableCell>{data.post}</TableCell>
+                      <TableCell>{data.restGroup}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </div>
         </div>
       </div>
-    </>
+      <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
+        <EditPage />
+      </Drawer>
+    </div>
   );
 };
 
-export default SyainTouroku;
+export default ShainTourokuPage;
