@@ -16,76 +16,89 @@ import {
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./component/Edit";
-import AddPage from "./component/Add";
-import { Socket } from "socket.io-client";
 
-const sessions = require("@/src/lib/sessions");
-let socket: Socket;
-var loaded:boolean = false;
+const columns = ["", "顧客", "プロジェクト番号", "プロジェクト名", "状態"];
 
-const columns = ["", "氏名", "部署", "役職", "休日グループ"];
+const datas = [{ client: "", projectNo: "", projectName: "", progress: "" }];
 
-const datas = [{ userName: "", affiliation: "", post: "", restGroup: "" }];
-
-const ShainTourokuPage = () => {
+const ProjectEntryPage = () => {
   const [state, setState] = React.useState(false);
-  const [stateAdd, setStateAdd] = React.useState(false);
   const [condition1, setCondition1] = React.useState("A");
+  const [condition2, setCondition2] = React.useState("A");
+  const [condition3, setCondition3] = React.useState("A");
   const [condition4, setCondition4] = React.useState("");
   const [condition5, setCondition5] = React.useState("");
   const [condition6, setCondition6] = React.useState("");
   const [condition7, setCondition7] = React.useState("");
 
-  const toggleAddDrawer = (open: boolean) => {
-    setStateAdd(open);
-    // setState(!open);
-  };
   const toggleDrawer = (open: boolean) => {
     setState(open);
-    // setStateAdd(!open);
   };
-  const changeHandler = () => {
-    if (condition1 === "A") {
-      setCondition1("B");
-    } else {
-      setCondition1("A");
+
+  const changeHandler = (no: number) => {
+    switch (no) {
+      case 1:
+        if (condition1 === "A") {
+          setCondition1("B");
+        } else {
+          setCondition1("A");
+        }
+        break;
+      case 2:
+        if (condition2 === "A") {
+          setCondition2("B");
+        } else {
+          setCondition2("A");
+        }
+        break;
+      case 3:
+        if (condition3 === "A") {
+          setCondition3("B");
+        } else {
+          setCondition3("A");
+        }
     }
   };
 
   React.useEffect(() => {
-
-    if (!loaded) {
-      socket = sessions.connectSession();
-      sessions.socketInitializer(socket);
-      loaded = true;
-    }
     console.log(
-      `${condition1} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
+      `${condition1} + ${condition2} + ${condition3} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
     );
-  }, [condition1, condition4, condition5, condition6, condition7]);
+  }, [
+    condition1,
+    condition2,
+    condition3,
+    condition4,
+    condition5,
+    condition6,
+    condition7,
+  ]);
 
   return (
     <div>
       <div className="p-12">
-        <div className="flex space-x-8">
+        <div>
           <ReloadButton />
           <ExitButton />
         </div>
         {/* ↓新規追加ボタンの作成 */}
         <div className="flex justify-end">
           <button
-            onClick={() => toggleAddDrawer(true)}
+            onClick={() => toggleDrawer(true)}
             className="border rounded-md border-indigo-600 text-indigo-600 hover:bg-slate-100 justify-self-end w-24 h-8"
           >
             新規登録
           </button>
         </div>
         <div className="flex flex-col items-center mt-8">
-          {/* ↓フィルター */}
           <div>
             <div>
-              <input type="checkbox" onChange={changeHandler} />
-              <label>退職者も表示</label>
+              <input type="checkbox" onChange={() => changeHandler(1)} />
+              <label>終了分は除く</label>
+              <input type="checkbox" onChange={() => changeHandler(2)} />
+              <label>担当プロジェクトのみ</label>
+              <input type="checkbox" onChange={() => changeHandler(3)} />
+              <label>担当顧客のみ</label>
             </div>
             <div className="">
               <input
@@ -129,10 +142,10 @@ const ShainTourokuPage = () => {
                           <CreateIcon />
                         </IconButton>
                       </TableCell>
-                      <TableCell>{data.userName}</TableCell>
-                      <TableCell>{data.affiliation}</TableCell>
-                      <TableCell>{data.post}</TableCell>
-                      <TableCell>{data.restGroup}</TableCell>
+                      <TableCell>{data.client}</TableCell>
+                      <TableCell>{data.projectNo}</TableCell>
+                      <TableCell>{data.projectName}</TableCell>
+                      <TableCell>{data.progress}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -142,13 +155,10 @@ const ShainTourokuPage = () => {
         </div>
       </div>
       <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-        <EditPage socket={socket}/>
-      </Drawer>
-      <Drawer anchor="right" open={stateAdd} onClose={() => toggleAddDrawer(false)}>
-        <AddPage socket={socket}/>
+        <EditPage />
       </Drawer>
     </div>
   );
 };
 
-export default ShainTourokuPage;
+export default ProjectEntryPage;
