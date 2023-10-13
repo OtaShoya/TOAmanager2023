@@ -32,7 +32,7 @@ type DataType = {
   telhone: string /*携帯番号*/;
 };
 
-const EditPage = ({socket}:any) => {
+const AddPage = ({socket}:any) => {
   const { control, handleSubmit } = useForm<DataType>();
   const [open, setOpen] = useState(false);
 
@@ -103,42 +103,6 @@ const EditPage = ({socket}:any) => {
   const [addressValue, setAddressValue] = useState("");
   const [homePhoneValue, setHomePhoneValue] = useState("");
   const [telephoneValue, setTelephoneValue] = useState("");
-
-  useEffect(() => {
-    if (!loaded) {
-      const r = async () => {
-        const res = await fetch("http://localhost:3000/api/db", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "shain-get",
-            id: localStorage.getItem("userID"),
-          }),
-        });
-        let s = await res.json();
-        if (s?.user) {
-          setIdValue(s?.user?.bango);
-          setPassValue(s?.user?.password);
-          setNameValue(s?.user?.shimei);
-          setFuriganaValue(s?.user?.furigana);
-          setDepartmentValue(s?.user?.busho_id);
-
-          setClassValue(s?.user?.shain_kubun_id);
-          setGroupValue(s?.user?.yakushoku_id);
-          setPostValue(s?.user?.kyujitsu_group_id);
-          setAccountValue(s?.user?.account);
-          setMailValue(s?.user?.mail_address);
-          setPostalCodeValue(s?.user?.yubin_bango);
-          setAddressValue(s?.user?.jyuusho);
-          setHomePhoneValue(s?.user?.denwa_bango);
-          setTelephoneValue(s?.user?.keitai_bango);
-
-          loaded = true;
-        }
-      };
-
-      r();
-    }
-  }, []);
 
   return (
     <Box sx={{ width: widthGroup.drawer }}>
@@ -418,4 +382,4 @@ const EditPage = ({socket}:any) => {
   );
 };
 
-export default EditPage;
+export default AddPage;
