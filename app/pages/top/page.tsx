@@ -22,7 +22,10 @@ const sessions = require("@/src/lib/sessions");
 const pageTitles = [
   { label: "作業報告登録", url: "/pages/top/business/WorkReportEntry" },
   { label: "作業報告出力", url: "/pages/top/business/WorkReportOutput" },
-  { label: "プロジェクト報告書登録", url: "" },
+  {
+    label: "プロジェクト報告書登録",
+    url: "/pages/top/business/ProjectReportEntry",
+  },
   { label: "プロジェクト報告書出力", url: "" },
   { label: "プロジェクト登録", url: "/pages/top/business/ProjectEntry" },
   { label: "引合物件一覧表出力", url: "" },
