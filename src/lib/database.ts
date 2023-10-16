@@ -308,6 +308,47 @@ function convertDate(date:any, utc = 9){
     return respDate;
 }
 
+const getShainList = function(){
+    return new Promise((resolve, reject)=>{
+       
+        db.serialize(()=>{
+            db.all( 
+                //statement
+                "SELECT"
+                +" id"
+                +",shimei"
+                +",busho_id"
+                +",yakushoku_id"
+                +",kyujitsu_group_id"
+                +" FROM" 
+                +" shain"
+                ,
+                //parameter
+                {},
+                //callbacks
+                (err:any, rows:any)=>{
+                    var e:Array<any> = [];
+                    if(rows){
+
+                        rows.forEach( (element:any) => {
+                            e.push({
+                                id: element.id,
+                                shimei: element.shimei,
+                                bushoId: element.busho_id,
+                                yakushokuId: element.yakushoku_id,
+                                kyujitsuGroupId: element.kyujitsu_group_id,
+                            })
+    
+                        });
+                    }
+                    resolve(e)
+                }
+            )
+        })
+    })
+};
+
+
 const getKinmuList = function(id:number){
     return new Promise((resolve, reject)=>{
        
@@ -368,6 +409,7 @@ const getKinmuList = function(id:number){
         })
     })
 };
+
 
 const updateKinmu = function(kinmu:Kinmu){
     // console.log(kinmu.id)
@@ -788,7 +830,7 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                         si.shuu = [0,0,0,0,0,0,0];
 
                         if(sgRows){
-                            console.log(projectI.id);
+                        
                             var oldTitle = sgRows[0].sakugyou_naiyou;
                             
                             sgRows.forEach( (sg)=>{
@@ -828,6 +870,7 @@ module.exports = {
     addShain: addShain,
     updateShain: updateShain,
     getShain:  getShain,
+    getShainList: getShainList,
     deleteShain: deleteShain,
     addKinmu: addKinmu,
     getKinmuList: getKinmuList,

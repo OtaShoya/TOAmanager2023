@@ -2,7 +2,9 @@
 
 import ExitButton from "@/components/molecule/ExitButton";
 import ReloadButton from "@/components/molecule/RelodeButton";
+import { Select } from "@mui/material";
 import * as React from "react";
+
 import {
   Drawer,
   IconButton,
@@ -25,11 +27,13 @@ var loaded:boolean = false;
 
 const columns = ["", "氏名", "部署", "役職", "休日グループ"];
 
-const datas = [{ userName: "", affiliation: "", post: "", restGroup: "" }];
+// let datas = [{ shimei: "", bushoId: "", yakushokuId: "", kyujitsuGroupId: "" }];
 
 const ShainTourokuPage = () => {
   const [state, setState] = React.useState(false);
   const [stateAdd, setStateAdd] = React.useState(false);
+  const [datas, setDatas]= React.useState([{ shimei: "", bushoId: "", yakushokuId: "", kyujitsuGroupId: "", id: "" }]);
+  const [uid, setUid]= React.useState(0);
   const [condition1, setCondition1] = React.useState("A");
   const [condition4, setCondition4] = React.useState("");
   const [condition5, setCondition5] = React.useState("");
@@ -38,11 +42,15 @@ const ShainTourokuPage = () => {
 
   const toggleAddDrawer = (open: boolean) => {
     setStateAdd(open);
+    loadShainList();
     // setState(!open);
   };
-  const toggleDrawer = (open: boolean) => {
+  const toggleDrawer = (open: boolean, id:number=0) => {
     setState(open);
+    loadShainList();
     // setStateAdd(!open);
+
+    setUid(id);
   };
   const changeHandler = () => {
     if (condition1 === "A") {
@@ -52,12 +60,37 @@ const ShainTourokuPage = () => {
     }
   };
 
-  React.useEffect(() => {
+  const loadShainList = async () => {
+    const res = await fetch("http://localhost:3000/api/db", {
+      method: "POST",
+      body: JSON.stringify({
+        type: "shain-list",
+      }),
+    });
 
-    if (!loaded) {
+    let s = await res.json();
+
+    if(s){
+      setDatas(s.shainList);
+      loaded = true;
+    }
+    
+    //  console.log(s)
+    
+  }
+
+  React.useEffect(() => {
+    if (!loaded) 
+    {
       socket = sessions.connectSession();
       sessions.socketInitializer(socket);
-      loaded = true;
+      
+      socket.on("after-shain-add", ()=>{
+        toggleAddDrawer(false)
+      })
+     
+      loadShainList();
+     
     }
     console.log(
       `${condition1} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
@@ -125,14 +158,56 @@ const ShainTourokuPage = () => {
                   {datas.map((data, index) => (
                     <TableRow key={index}>
                       <TableCell>
-                        <IconButton onClick={() => toggleDrawer(true)}>
+                        <IconButton onClick={() => toggleDrawer(true, parseInt( data.id))}>
                           <CreateIcon />
                         </IconButton>
                       </TableCell>
-                      <TableCell>{data.userName}</TableCell>
-                      <TableCell>{data.affiliation}</TableCell>
-                      <TableCell>{data.post}</TableCell>
-                      <TableCell>{data.restGroup}</TableCell>
+                      <TableCell>{data.shimei}</TableCell>
+                      <TableCell>
+                        <Select  native
+                              label="部署"
+                              id="grouped-department-select"
+                              value={data.bushoId}
+                            >
+                          <option aria-label="None" />
+                          <option value={1}>システム開発部</option>
+                          <option value={2}>営業部</option>
+                          <option value={3}>
+                            ビジネスサポート部 リレーショングループ
+                          </option>
+                          <option value={4}>ビジネスサポート部 ユースウェア</option>
+                          <option value={5}>ビジネスサポート部 技術部</option>
+                          <option value={5}>ビジネスサポート部 業務部</option>
+
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          native
+                          label=""
+                          value={data.yakushokuId}
+                        >
+                          <option aria-label="None" />
+                          <option value={1}>正社員</option>
+                          <option value={2}>契約社員</option>
+                          <option value={3}>派遣社員</option>
+                          <option value={4}>アルバイト</option>
+                          <option value={5}>インターシップ</option>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          native
+                          label=""
+                          value={data.kyujitsuGroupId}
+                        >
+                          <option aria-label="None" />
+                          <option value={1}>常務</option>
+                          <option value={2}>部長</option>
+                          <option value={3}>マネージャー</option>
+                          <option value={4}>主任</option>
+                        </Select>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -142,10 +217,10 @@ const ShainTourokuPage = () => {
         </div>
       </div>
       <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-        <EditPage socket={socket}/>
+        <EditPage socket={socket} uid={uid} onClose={()=>{toggleDrawer(false)}}/>
       </Drawer>
       <Drawer anchor="right" open={stateAdd} onClose={() => toggleAddDrawer(false)}>
-        <AddPage socket={socket}/>
+        <AddPage socket={socket} onClose={() => toggleAddDrawer(false)}/>
       </Drawer>
     </div>
   );

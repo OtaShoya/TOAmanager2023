@@ -32,7 +32,7 @@ type DataType = {
   telhone: string /*携帯番号*/;
 };
 
-const AddPage = ({socket}:any) => {
+const AddPage = ({socket, onClose}:any) => {
   const { control, handleSubmit } = useForm<DataType>();
   const [open, setOpen] = useState(false);
 
@@ -60,7 +60,7 @@ const AddPage = ({socket}:any) => {
     let homePhoneInput: any = document.querySelector("input[name='homePhone']");
     let telephoneInput: any = document.querySelector("input[name='telhone']");
 
-    socket.emit("shain-update", {
+    socket.emit("shain-add", {
       sessionID: localStorage.getItem("sessionID"),
       userID: localStorage.getItem("userID"),
 
@@ -81,6 +81,8 @@ const AddPage = ({socket}:any) => {
       denwaBango: homePhoneInput.value,
       keitaiBango: telephoneInput.value,
     });
+
+    // onClose()
   };
 
   const handleOpen = () => {
@@ -361,20 +363,6 @@ const AddPage = ({socket}:any) => {
             <Button variant="outlined" onClick={handleSubmit(onSubmit)}>
               登録
             </Button>
-            {/* ↓ 2023-1013 Add Modal */}
-            <button
-              className="border border-rose-600 rounded hover:bg-slate-100 text-rose-600 text-sm w-16"
-              onClick={handleOpen}
-            >
-              削除
-            </button>
-            <BasicModal
-              text="削除します。よろしいですか？"
-              label1="キャンセル"
-              label2="削除"
-              open={open}
-              setOpen={setOpen}
-            />
           </div>
         </div>
       </div>

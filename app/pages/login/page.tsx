@@ -49,7 +49,7 @@ const Login = () => {
     });
 
     socket.on("logged", (msg) => {
-      console.log(msg);
+      
       if (msg === true) {
         location.href = "/pages/top";
       } else {

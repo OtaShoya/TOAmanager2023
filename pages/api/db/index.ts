@@ -53,6 +53,23 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     console.log("ees");
                     break;
                 }
+            case "shain-list":
+                {
+                    const shainListFunc = async ()=> {
+                        db.loadDb(dataBaseConnectionStr);
+                        const ser = await db.getShainList().then( 
+                            (v:any)=>{
+                                console.log(v)
+                                res.status(200).json({shainList: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                    }
+                    shainListFunc();
+                   
+                    break;
+                }
             case "shain-get":
                 {
                     const getShain = async () => {

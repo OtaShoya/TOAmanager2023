@@ -70,7 +70,7 @@ const SocketHandler = (req: any, res: any) => {
     // console.log('Socket is already running')
   } else {
     // console.log('Socket is initializing')
-    console.log(req.body);
+//
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(httpServer, {
       path: "/api/socket",
@@ -144,7 +144,7 @@ const SocketHandler = (req: any, res: any) => {
          
             var shain:Shain = new Shain();
             
-            shain.id = msg.userID;
+            shain.id = msg.id;
 
             shain.bango = msg.bango;
             shain.password = msg.password;
@@ -219,11 +219,12 @@ const SocketHandler = (req: any, res: any) => {
                   }
                 ),
               });
+              socket.emit("after-shain-add")
             }
             
             r();
 
-            console.log("ok");
+            
         }
       })
 
@@ -246,7 +247,7 @@ const SocketHandler = (req: any, res: any) => {
           
           r();
 
-          console.log("ok");
+          socket.emit("after-shain-delete")
         }
       })
 

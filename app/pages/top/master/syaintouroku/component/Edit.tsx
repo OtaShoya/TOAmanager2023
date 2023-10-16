@@ -32,9 +32,31 @@ type DataType = {
   telhone: string /*携帯番号*/;
 };
 
-const EditPage = ({socket}:any) => {
+
+
+
+
+
+const EditPage = ({socket, uid, onClose}:any) => {
   const { control, handleSubmit } = useForm<DataType>();
   const [open, setOpen] = useState(false);
+
+  const delFunction = ()=>{
+
+    const r = async () => {
+      const res = await fetch("http://localhost:3000/api/db", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "shain-delete",
+          id: uid,
+        }),
+      });
+      
+    }
+    r();
+    onClose()
+    setOpen(false)
+  }
 
   const onSubmit = (data: DataType) => {
     console.log(data);
@@ -53,9 +75,7 @@ const EditPage = ({socket}:any) => {
 
     let accountInput: any = document.querySelector("input[name='acount']");
     let mailInput: any = document.querySelector("input[name='mail']");
-    let postalCodeInput: any = document.querySelector(
-      "input[name='postalCode']"
-    );
+    let postalCodeInput: any = document.querySelector("input[name='postalCode']");
     let addressInput: any = document.querySelector("input[name='address']");
     let homePhoneInput: any = document.querySelector("input[name='homePhone']");
     let telephoneInput: any = document.querySelector("input[name='telhone']");
@@ -63,6 +83,8 @@ const EditPage = ({socket}:any) => {
     socket.emit("shain-update", {
       sessionID: localStorage.getItem("sessionID"),
       userID: localStorage.getItem("userID"),
+
+      id: uid,
 
       bango: idIput.value,
       password: passInput.value,
@@ -111,7 +133,7 @@ const EditPage = ({socket}:any) => {
           method: "POST",
           body: JSON.stringify({
             type: "shain-get",
-            id: localStorage.getItem("userID"),
+            id: uid,
           }),
         });
         let s = await res.json();
@@ -123,23 +145,21 @@ const EditPage = ({socket}:any) => {
           setDepartmentValue(s?.user?.busho_id);
 
           setClassValue(s?.user?.shain_kubun_id);
-          setGroupValue(s?.user?.yakushoku_id);
-          setPostValue(s?.user?.kyujitsu_group_id);
+          setGroupValue(s?.user?.kyujitsu_group_id);
+          setPostValue(s?.user?.yakushoku_id);
           setAccountValue(s?.user?.account);
           setMailValue(s?.user?.mail_address);
           setPostalCodeValue(s?.user?.yubin_bango);
           setAddressValue(s?.user?.jyuusho);
           setHomePhoneValue(s?.user?.denwa_bango);
           setTelephoneValue(s?.user?.keitai_bango);
-
-          loaded = true;
         }
       };
 
       r();
     }
   }, []);
-
+    
   return (
     <Box sx={{ width: widthGroup.drawer }}>
       <div className="flex justify-center">
@@ -410,6 +430,7 @@ const EditPage = ({socket}:any) => {
               label2="削除"
               open={open}
               setOpen={setOpen}
+              doAction={delFunction}
             />
           </div>
         </div>

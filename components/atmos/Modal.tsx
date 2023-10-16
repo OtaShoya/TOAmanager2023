@@ -22,11 +22,11 @@ type PropsType = {
   label2: string;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  doAction: ()=>void;
 };
 
-const BasicModal = ({ text, label1, label2, open, setOpen }: PropsType) => {
+const BasicModal = ({ text, label1, label2, open, setOpen, doAction }: PropsType) => {
   const handleClose = () => setOpen(false);
-
   return (
     <div>
       <Modal open={open}>
@@ -38,7 +38,7 @@ const BasicModal = ({ text, label1, label2, open, setOpen }: PropsType) => {
               {label1}
             </button>
             {/*↓削除ボタン*/}
-            <button className="border hover:bg-slate-100">{label2}</button>
+            <button className="border hover:bg-slate-100" onClick={doAction}>{label2}</button>
           </div>
         </Box>
       </Modal>
