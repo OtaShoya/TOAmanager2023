@@ -172,9 +172,7 @@ const ShainTourokuPage = () => {
                           <option aria-label="None" />
                           <option value={1}>システム開発部</option>
                           <option value={2}>営業部</option>
-                          <option value={3}>
-                            ビジネスサポート部 リレーショングループ
-                          </option>
+                          <option value={3}>ビジネスサポート部 リレーショングループ</option>
                           <option value={4}>ビジネスサポート部 ユースウェア</option>
                           <option value={5}>ビジネスサポート部 技術部</option>
                           <option value={5}>ビジネスサポート部 業務部</option>
@@ -188,11 +186,10 @@ const ShainTourokuPage = () => {
                           value={data.yakushokuId}
                         >
                           <option aria-label="None" />
-                          <option value={1}>正社員</option>
-                          <option value={2}>契約社員</option>
-                          <option value={3}>派遣社員</option>
-                          <option value={4}>アルバイト</option>
-                          <option value={5}>インターシップ</option>
+                          <option value={1}>常務</option>
+                          <option value={2}>部長</option>
+                          <option value={3}>マネージャー</option>
+                          <option value={4}>主任</option>
                         </Select>
                       </TableCell>
                       <TableCell>
@@ -202,10 +199,11 @@ const ShainTourokuPage = () => {
                           value={data.kyujitsuGroupId}
                         >
                           <option aria-label="None" />
-                          <option value={1}>常務</option>
-                          <option value={2}>部長</option>
-                          <option value={3}>マネージャー</option>
-                          <option value={4}>主任</option>
+                          <option value={1}>Aグループ</option>
+                          <option value={2}>Bグループ</option>
+                          <option value={3}>運用Aグループ</option>
+                          <option value={4}>運用Bグループ</option>
+                          <option value={5}>その他</option>
                         </Select>
                       </TableCell>
                     </TableRow>

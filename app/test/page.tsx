@@ -128,7 +128,6 @@ function LoggedOrNot({logged}:any){
                 ),
                 });
                 let s = await res.json();
-                console.log(s);
                 if(s?.user){
 
                     var bango:any = document.getElementById("n1");
