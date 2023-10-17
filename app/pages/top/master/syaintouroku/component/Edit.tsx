@@ -93,8 +93,8 @@ const EditPage = ({socket, uid, onClose}:any) => {
 
       bushoId: departmentInput.value,
       shainKubunId: classInput.value,
-      yakushokuId: groupInput.value,
-      kyujitsuGroupId: postInput.value,
+      yakushokuId: postInput.value,
+      kyujitsuGroupId:  groupInput.value,
 
       account: accountInput.value,
       mailAddress: mailInput.value,

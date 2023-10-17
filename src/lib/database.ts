@@ -798,66 +798,86 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
         })
         
     }).then( (v:any)=>{
-
-
         return new Promise((resolve, reject)=>{
+            const ss = async ()=>{
 
-            v.forEach((projectI:any)=>{
-                db.all( 
-                    'Select'
-                    +' project_sakugyou_naiyou.sakugyou_naiyou as sakugyou_naiyou'
-                    +',kinmu_sakugyou_naiyou.sakugyou_jikan as sakugyou_jikan'
-                    +',kinmu.hidsuke as hidsuke'
-                    +' from'
-                    +' kinmu_sakugyou_naiyou'
-                    +' left join'
-                    +' project_sakugyou_naiyou on kinmu_sakugyou_naiyou.sakugyou_naiyou_id = project_sakugyou_naiyou.id'
-                    +' left join kinmu on kinmu_sakugyou_naiyou.kinmu_id = kinmu.id'
-                    +' where'
-                    +' kinmu_sakugyou_naiyou.project_id = $project_id'
-                    +' and'
-                    +' kinmu.hidsuke BETWEEN date($begin_date) AND date($end_date)'
-                    +' and kinmu.shain_id = $shain_id'
-                    +' order by project_sakugyou_naiyou.sakugyou_naiyou'
-                    , {
-                        $project_id: projectI.id,
-                        $begin_date: beginDate,
-                        $end_date: endDate,
-                        $shain_id: shainId
-                    }
-                    , ((err:any, sgRows:Array<any>)=>{
-                        let si:sakugyoNaiyouItem = new sakugyoNaiyouItem();
-                        si.shuu = [0,0,0,0,0,0,0];
 
-                        if(sgRows){
-                        
-                            var oldTitle = sgRows[0].sakugyou_naiyou;
-                            
-                            sgRows.forEach( (sg)=>{
+                var pjList:Array<ProjectItem> = new Array<ProjectItem>();
 
-                                if(sg.sakugyou_naiyou != oldTitle){
-                                    projectI.sakugyoNaiyouList?.push(si);
-                                    si = new sakugyoNaiyouItem();
-                                    si.shuu = [0,0,0,0,0,0,0];
-                                    // console.log(projectI);
-                                    oldTitle = sg.sakugyou_naiyou ;
-                                }
-                                
-                                si.shuu [new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
-
-                            } )
-                            
-                            projectI.sakugyoNaiyouList?.push(si);
-                            
-                            
+                await v.forEach((projectI:any, index:number, array:any)=>{
+                    db.all( 
+                        'Select'
+                        +' project_sakugyou_naiyou.sakugyou_naiyou as sakugyou_naiyou'
+                        +',kinmu_sakugyou_naiyou.sakugyou_jikan as sakugyou_jikan'
+                        +',kinmu.hidsuke as hidsuke'
+                        +' from'
+                        +' kinmu_sakugyou_naiyou'
+                        +' left join'
+                        +' project_sakugyou_naiyou on kinmu_sakugyou_naiyou.sakugyou_naiyou_id = project_sakugyou_naiyou.id'
+                        +' left join kinmu on kinmu_sakugyou_naiyou.kinmu_id = kinmu.id'
+                        +' where'
+                        +' kinmu_sakugyou_naiyou.project_id = $project_id'
+                        +' and'
+                        +' kinmu.hidsuke BETWEEN date($begin_date) AND date($end_date)'
+                        +' and kinmu.shain_id = $shain_id'
+                        +' order by project_sakugyou_naiyou.sakugyou_naiyou'
+                        , {
+                            $project_id: projectI.id,
+                            $begin_date: beginDate,
+                            $end_date: endDate,
+                            $shain_id: shainId
                         }
-                    
-                        
-                    }) 
-                )
-            })
+                        , ((err:any, sgRows:Array<any>)=>{
+                            let si:sakugyoNaiyouItem = new sakugyoNaiyouItem();
+                            si.shuu = [0,0,0,0,0,0,0];
+                            
+                            var projectI2 = new ProjectItem()
+                            projectI2.bango = projectI.bango;
+                            projectI2.na = projectI.na;
+                            projectI2.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
+                            projectI2.id = projectI.id
 
-            resolve(v)
+                            if(sgRows){
+                            
+                                var oldTitle = sgRows[0].sakugyou_naiyou;
+                                
+                                sgRows.forEach( (sg)=>{
+    
+                                    if(sg.sakugyou_naiyou != oldTitle){
+                                        projectI.sakugyoNaiyouList?.push(si);
+                                        si = new sakugyoNaiyouItem();
+                                        si.shuu = [0,0,0,0,0,0,0];
+                                        // console.log(projectI);
+                                        oldTitle = sg.sakugyou_naiyou ;
+                                    }
+                                    
+                                    si.shuu [new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
+    
+                                } )
+                                
+                                projectI2.sakugyoNaiyouList?.push(si);
+                              
+                                pjList.push(projectI2);
+                                
+                            }
+                            
+                            if (index + 1 == array.length){
+                                resolve(pjList)
+                            }
+                            
+                        }) 
+                    )
+
+                    
+
+                })
+                
+                // console.log("ss\n" + v);
+                
+            }
+           
+            ss()
+           
         })
     } );
 }
