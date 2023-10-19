@@ -252,48 +252,48 @@ const SocketHandler = (req: any, res: any) => {
       })
 
       socket.on("download-week", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const weekReportFunction = async ()=>{
 
-        const weekReportFunction = async ()=>{
-
-          var bd =  new Date(msg.tgDate)
-          if(bd.getDay() > 0){
-            bd.setDate( bd.getDate() - (bd.getDay() - 1) );
-          }else{
-            bd.setDate( bd.getDate() - 6 );
+            var bd =  new Date(msg.tgDate)
+            if(bd.getDay() > 0){
+              bd.setDate( bd.getDate() - (bd.getDay() - 1) );
+            }else{
+              bd.setDate( bd.getDate() - 6 );
+            }
+            
+            var ed = new Date(bd)
+            ed.setDate(ed.getDate() + 6)
+  
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "shuu-sakugyou-houkoku",
+                  beginDate: new Date(bd),
+                  endDate: new Date(ed),
+                  shainId: msg.id,
+                }
+              ),
+            });
+            let pl = await res.json();
+            let timeGet = new Date().getTime();
+            await weekReport("./temp/" + timeGet + "-temp.xlsx", msg.name, new Date(bd), pl.projectList).then((msg)=>{
+  
+              const imgFile = fs.readFileSync("./temp/" + timeGet + "-temp.xlsx");
+              const imgBase64 = Buffer.from(imgFile).toString('base64');
+           
+              socket.emit("download", imgBase64 )
+              fs.unlinkSync("./temp/" + timeGet + "-temp.xlsx");
+            });
+            
           }
-          
-          var ed = new Date(bd)
-          ed.setDate(ed.getDate() + 6)
-
-          const res =  await fetch("http://localhost:3000/api/db", 
-          { 
-            method: "POST", 
-            body: JSON.stringify(
-              {
-                type: "shuu-sakugyou-houkoku",
-                beginDate: new Date(bd),
-                endDate: new Date(ed),
-                shainId: msg.id,
-              }
-            ),
-          });
-          let pl = await res.json();
-          let timeGet = new Date().getTime();
-          await weekReport("./temp/" + timeGet + "-temp.xlsx", msg.name, new Date(bd), pl.projectList).then((msg)=>{
-
-            const imgFile = fs.readFileSync("./temp/" + timeGet + "-temp.xlsx");
-            const imgBase64 = Buffer.from(imgFile).toString('base64');
-         
-            socket.emit("download", imgBase64 )
-            fs.unlinkSync("./temp/" + timeGet + "-temp.xlsx");
-          });
-          
+        
+          weekReportFunction();
         }
-      
-        weekReportFunction();
-
-        
-        
         
       })
       

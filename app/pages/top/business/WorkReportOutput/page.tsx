@@ -48,9 +48,11 @@ function downloadClick(){
   let dateInput:any = document.getElementById("bDate");
   socket.emit("download-week", 
   {
-      name: shainSelect.children[shainSelect.selectedIndex].text,
-      tgDate: dateInput.value,
-      id: shainSelect.value
+    sessionID: localStorage.getItem("sessionID"),
+    userID: localStorage.getItem("userID"),
+    name: shainSelect.children[shainSelect.selectedIndex].text,
+    tgDate: dateInput.value,
+    id: shainSelect.value
   })
 }
 
