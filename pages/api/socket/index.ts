@@ -285,6 +285,7 @@ const SocketHandler = (req: any, res: any) => {
             const imgBase64 = Buffer.from(imgFile).toString('base64');
          
             socket.emit("download", imgBase64 )
+            fs.unlinkSync("./temp/" + timeGet + "-temp.xlsx");
           });
           
         }
