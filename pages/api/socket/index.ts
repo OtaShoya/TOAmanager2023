@@ -70,7 +70,6 @@ const SocketHandler = (req: any, res: any) => {
     // console.log('Socket is already running')
   } else {
     // console.log('Socket is initializing')
-//
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(httpServer, {
       path: "/api/socket",
@@ -251,117 +250,47 @@ const SocketHandler = (req: any, res: any) => {
         }
       })
 
-      socket.on("download", (msg:any)=>{
+      socket.on("download-week", (msg:any)=>{
 
-        var pl:Array<ProjectItem> = [
-          {
-              bango: "z33",
-              na: "プロ 1",
-              sakugyoNaiyouList:
-              [
-                  {
-                      name: "s1",
-                      shuu: [
-                          0,
-                          0,
-                          0,
-                          8,
-                          0,
-                          0,
-                          0,
-                      ]
-                  },
-                  {
-                      name: "s2",
-                      shuu: [
-                          0,
-                          8,
-                          0,
-                          0,
-                          5,
-                          0,
-                          0,
-                      ]
-                  },
-              ]
-          },
-          {
-              bango: "z34",
-              na: "プロ 2",
-              sakugyoNaiyouList:
-              [
-                  {
-                      name: "s1",
-                      shuu: [
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          3,
-                          0,
-                      ]
-                  },
-              ]
-          },
-          {
-              bango: "z35",
-              na: "プロ 3",
-              sakugyoNaiyouList:
-              [
-                  {
-                      name: "s1",
-                      shuu: [
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          3,
-                          0,
-                      ]
-                  },
-                  {
-                      name: "s2",
-                      shuu: [
-                          3,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                      ]
-                  },
-              ]
-          },
-        ]
-        const r = async ()=>{
+        const weekReportFunction = async ()=>{
+
+          var bd =  new Date(msg.tgDate)
+          if(bd.getDay() > 0){
+            bd.setDate( bd.getDate() - (bd.getDay() - 1) );
+          }else{
+            bd.setDate( bd.getDate() - 6 );
+          }
+          
+          var ed = new Date(bd)
+          ed.setDate(ed.getDate() + 6)
+
           const res =  await fetch("http://localhost:3000/api/db", 
           { 
             method: "POST", 
             body: JSON.stringify(
               {
                 type: "shuu-sakugyou-houkoku",
-                beginDate: new Date('2023-9-4'),
-                endDate: new Date('2023-9-10'),
-                shainId: 1,
+                beginDate: new Date(bd),
+                endDate: new Date(ed),
+                shainId: msg.id,
               }
             ),
           });
+          let pl = await res.json();
+          await weekReport("./temp.xlsx", msg.name, new Date(bd), pl.projectList).then((msg)=>{
+
+            const imgFile = fs.readFileSync("./temp.xlsx");
+            const imgBase64 = Buffer.from(imgFile).toString('base64');
+         
+            socket.emit("download", imgBase64 )
+          });
+          
         }
       
-        r();
+        weekReportFunction();
 
         
-        var e = weekReport("./test.xlsx", "test", new Date('2023-9-4'), pl).then((msg)=>{
-          // console.log("test")
-
-          const imgFile = fs.readFileSync("./new.xlsx");
-          const imgBase64 = Buffer.from(imgFile).toString('base64');
-       
-          socket.emit("download", imgBase64 )
-        });
+        
         
       })
       

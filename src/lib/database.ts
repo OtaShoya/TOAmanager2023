@@ -738,57 +738,7 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                         projectI.na = pj.na;
                         projectI.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
                         projectI.id = pj.id
-                        // db.all( 
-                        //     'Select'
-                        //     +' project_sakugyou_naiyou.sakugyou_naiyou as sakugyou_naiyou'
-                        //     +',kinmu_sakugyou_naiyou.sakugyou_jikan as sakugyou_jikan'
-                        //     +',kinmu.hidsuke as hidsuke'
-                        //     +' from'
-                        //     +' kinmu_sakugyou_naiyou'
-                        //     +' left join'
-                        //     +' project_sakugyou_naiyou on kinmu_sakugyou_naiyou.sakugyou_naiyou_id = project_sakugyou_naiyou.id'
-                        //     +' left join kinmu on kinmu_sakugyou_naiyou.kinmu_id = kinmu.id'
-                        //     +' where'
-                        //     +' kinmu_sakugyou_naiyou.project_id = $project_id'
-                        //     +' and'
-                        //     +' kinmu.hidsuke BETWEEN date($begin_date) AND date($end_date)'
-                        //     +' and kinmu.shain_id = $shain_id'
-                        //     +' order by project_sakugyou_naiyou.sakugyou_naiyou'
-                        //     , {
-                        //         $project_id: pj.id,
-                        //         $begin_date: beginDate,
-                        //         $end_date: endDate,
-                        //         $shain_id: shainId
-                        //     }
-                        //     , ((err:any, sgRows:Array<any>)=>{
-                        //         let si:sakugyoNaiyouItem = new sakugyoNaiyouItem();
-                        //         si.shuu = [0,0,0,0,0,0,0];
 
-                        //         if(sgRows){
-                        //             var oldTitle = sgRows[0].sakugyou_naiyou;
-                                    
-                        //             sgRows.forEach( (sg)=>{
-
-                        //                 if(sg.sakugyou_naiyou != oldTitle){
-                        //                     projectI.sakugyoNaiyouList?.push(si);
-                        //                     si = new sakugyoNaiyouItem();
-                        //                     si.shuu = [0,0,0,0,0,0,0];
-                        //                     // console.log(projectI);
-                        //                     oldTitle = sg.sakugyou_naiyou ;
-                        //                 }
-                                        
-                        //                 si.shuu [new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
-
-                        //             } )
-                                    
-                        //             projectI.sakugyoNaiyouList?.push(si);
-                        //             pjList.push(projectI)  
-                                    
-                        //         }
-                            
-                              
-                        //     }) 
-                        // )
                         pjList.push(projectI)
                         
                     } )
@@ -800,10 +750,10 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
     }).then( (v:any)=>{
         return new Promise((resolve, reject)=>{
             const ss = async ()=>{
-
-
                 var pjList:Array<ProjectItem> = new Array<ProjectItem>();
-
+                if (v.length < 1){
+                    resolve(v)
+                }
                 await v.forEach((projectI:any, index:number, array:any)=>{
                     db.all( 
                         'Select'
@@ -840,18 +790,24 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                             if(sgRows){
                             
                                 var oldTitle = sgRows[0].sakugyou_naiyou;
-                                
+                                si.name = sgRows[0].sakugyou_naiyou;
+
                                 sgRows.forEach( (sg)=>{
     
                                     if(sg.sakugyou_naiyou != oldTitle){
-                                        projectI.sakugyoNaiyouList?.push(si);
+                                        projectI2.sakugyoNaiyouList?.push(si);
                                         si = new sakugyoNaiyouItem();
                                         si.shuu = [0,0,0,0,0,0,0];
-                                        // console.log(projectI);
+                                        si.name = sg.sakugyou_naiyou;
                                         oldTitle = sg.sakugyou_naiyou ;
                                     }
                                     
-                                    si.shuu [new Date(sg.hidsuke).getDay()] = sg.sakugyou_jikan;
+                                    
+                                    let posdate = new Date(sg.hidsuke).getDay() - 1
+                                    if(posdate < 0){
+                                        posdate = 6;
+                                    }
+                                    si.shuu[posdate] = sg.sakugyou_jikan;
     
                                 } )
                                 
@@ -867,13 +823,7 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                             
                         }) 
                     )
-
-                    
-
                 })
-                
-                // console.log("ss\n" + v);
-                
             }
            
             ss()

@@ -11,7 +11,11 @@ let socket:Socket
 var date = new Date("2023-08-21")
 
 function downloadClick(){
-    socket.emit("download", "dd")
+    socket.emit("download", 
+    {
+        bDate: new Date('2023-09-6'),
+        id: 1
+    })
 }
 
 function loginClick(){
@@ -79,7 +83,6 @@ class LoggedIn extends React.Component{
                 <button onClick={this.nextClick}> Next </button>
                 <br/>
                 <table>
-                  
                     <thead>
                     <tr>
                         <th>日付</th>
@@ -98,7 +101,7 @@ class LoggedIn extends React.Component{
                     </tr>
                     </thead>
                     <tbody>
-                    <PopulatedTable beginingDate={date} />
+                        <PopulatedTable beginingDate={date} />
                     </tbody>
                 </table>    
             </>

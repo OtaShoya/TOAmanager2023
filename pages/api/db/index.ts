@@ -59,7 +59,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                         db.loadDb(dataBaseConnectionStr);
                         const ser = await db.getShainList().then( 
                             (v:any)=>{
-                                console.log(v)
                                 res.status(200).json({shainList: v});
                                 res.end();
                                 db.closeDb(dataBaseConnectionStr);
@@ -138,20 +137,20 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     db.loadDb(dataBaseConnectionStr);
                     const ser = await db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then( 
                         (v:any)=>{
-                            // res.status(200).json({projectList: v});
-                            // res.end();
-                            console.log(v);
+                            res.status(200).json({projectList: v});
+                            res.end();
+                            // console.log(v);
                             db.closeDb(dataBaseConnectionStr);
                         } 
                     );
                     
                 }
                 kinmuListFunc();
-                db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
-                    (v:any)=>{
-                        console.log(v)
-                    }
-                )
+                // db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
+                //     (v:any)=>{
+                //         console.log(v)
+                //     }
+                // )
                 break
             default:
                 break;
