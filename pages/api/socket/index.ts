@@ -4,6 +4,7 @@ import { Server as NetServer } from "http";
 import fs from "fs";
 
 import { weekReport, ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
+import { time } from "console";
 
 class Shain{
   id!: number|string|null;
@@ -277,9 +278,10 @@ const SocketHandler = (req: any, res: any) => {
             ),
           });
           let pl = await res.json();
-          await weekReport("./temp.xlsx", msg.name, new Date(bd), pl.projectList).then((msg)=>{
+          let timeGet = new Date().getTime();
+          await weekReport("./temp/" + timeGet + "-temp.xlsx", msg.name, new Date(bd), pl.projectList).then((msg)=>{
 
-            const imgFile = fs.readFileSync("./temp.xlsx");
+            const imgFile = fs.readFileSync("./temp/" + timeGet + "-temp.xlsx");
             const imgBase64 = Buffer.from(imgFile).toString('base64');
          
             socket.emit("download", imgBase64 )
