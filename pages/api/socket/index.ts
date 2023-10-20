@@ -251,6 +251,25 @@ const SocketHandler = (req: any, res: any) => {
         }
       })
 
+      socket.on("project-add", (msg:any)=>{
+        const r = async ()=>{
+          const res =  await fetch("http://localhost:3000/api/db", 
+          { 
+            method: "POST", 
+            body: JSON.stringify(
+              {
+                type: "project-add",
+                project: msg.project,
+              }
+            ),
+          });
+        }
+        
+        r();
+
+        socket.emit("after-project-add")
+      })
+
       socket.on("download-week", (msg:any)=>{
         
         if( sessionStore.findSession( msg.sessionID ) == msg.userID )

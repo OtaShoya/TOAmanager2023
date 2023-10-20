@@ -73,7 +73,8 @@ class Shain{
 
 class Project{
     id?:number
-    kokakuId?:number //client
+    kokyakuId?:number //client
+    jyoutaiId?:number
     jyuchuuRootId?:number //accepting order root
     bangou?:string
     oyaProjectId?:number //parent project

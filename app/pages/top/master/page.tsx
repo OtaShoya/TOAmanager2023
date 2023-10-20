@@ -7,9 +7,9 @@ import { Socket } from "socket.io-client";
 import React, { useEffect } from "react";
 const sessions = require("@/src/lib/sessions");
 
-export const title = "東亜ソフト業務管理ソフト";
+const title = "東亜ソフト業務管理ソフト";
 
-export const subTitle = [
+const subTitle = [
   { tabTitle: "通常業務", url: "/pages/top" },
   { tabTitle: "出張", url: "" },
   { tabTitle: "各種フォルダ", url: "" },

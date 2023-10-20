@@ -16,6 +16,10 @@ import {
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./component/Edit";
+import io, { Socket } from "socket.io-client";
+
+var socket: Socket;
+const sessions = require("@/src/lib/sessions");
 
 const columns = ["", "顧客", "プロジェクト番号", "プロジェクト名", "状態"];
 
@@ -64,6 +68,11 @@ const ProjectEntryPage = () => {
     console.log(
       `${condition1} + ${condition2} + ${condition3} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
     );
+
+    socket = sessions.connectSession();
+    sessions.socketInitializer(socket);
+    
+  
   }, [
     condition1,
     condition2,
