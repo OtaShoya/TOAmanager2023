@@ -7,18 +7,44 @@ import BasicCard, { cardColors } from "@/components/atmos/Card";
 const sessions = require("@/src/lib/sessions");
 
 const pageTitles1 = [
-  { label: "製品登録", url: "", tab: false },
-  { label: "部署登録", url: "", tab: false },
-  { label: "社員登録", url: "/pages/top/master/syaintouroku", tab: false },
-  { label: "業種登録", url: "", tab: false },
-  { label: "カレンダー登録", url: "", tab: false },
+  { label: "Cybozu", url: "https://z0bq8.cybozu.com/o/", tab: true },
+  { label: "ホームページ", url: "https://www.toasoft.co.jp/", tab: true },
+  {
+    label: "Mattermost",
+    url: "https://devops.toasoft.co.jp:4343/landing#/",
+    tab: true,
+  },
 ];
 
-const pageTitles2 = [{ label: "メール設定", url: "", tab: false }];
+const pageTitles2 = [
+  {
+    label: "奉行クラウド勤怠管理",
+    url: "https://id.obc.jp/xj03vlx6mem1/",
+    tab: true,
+  },
+  {
+    label: "Facebook",
+    url: "https://www.facebook.com/people/%E6%9D%B1%E4%BA%9C%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BE/100067750847874/",
+    tab: true,
+  },
+  {
+    label: "Knowledge",
+    url: "http://knowledge.toasoft.co.jp:8080/knowledge/open.knowledge/list",
+    tab: true,
+  },
+];
+
+const pageTitles3 = [
+  {
+    label: "NextCloud",
+    url: "https://nc.toasoft.co.jp/index.php/login",
+    tab: true,
+  },
+];
 
 let socket: Socket;
 
-const MasterPage = () => {
+const WebLinkPage = () => {
   useEffect(() => {
     socket = sessions.connectSession();
 
@@ -30,7 +56,7 @@ const MasterPage = () => {
       <Navigation subTitles={subTitle} socket={socket} />
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <h1 className="text-4xl text-white font-bold">マスタ保守</h1>
+        <h1 className="text-4xl text-white font-bold">Webリンク</h1>
         <div className="flex flex-col space-y-14">
           <div className="flex flex-row space-x-14">
             {pageTitles1.map((page, index) => (
@@ -41,7 +67,7 @@ const MasterPage = () => {
                 buttonColor={cardColors[0].buttonBg}
                 shadowColor={cardColors[0].shadow}
                 url={page.url}
-                openNewTab={false}
+                openNewTab={true}
               />
             ))}
           </div>
@@ -54,7 +80,20 @@ const MasterPage = () => {
                 buttonColor={cardColors[1].buttonBg}
                 shadowColor={cardColors[1].shadow}
                 url={page.url}
-                openNewTab={false}
+                openNewTab={true}
+              />
+            ))}
+          </div>
+          <div className="flex flex-row space-x-14">
+            {pageTitles3.map((page, index) => (
+              <BasicCard
+                key={index}
+                title={page.label}
+                cardColor={cardColors[2].cardBg}
+                buttonColor={cardColors[2].buttonBg}
+                shadowColor={cardColors[2].shadow}
+                url={page.url}
+                openNewTab={true}
               />
             ))}
           </div>
@@ -64,4 +103,4 @@ const MasterPage = () => {
   );
 };
 
-export default MasterPage;
+export default WebLinkPage;

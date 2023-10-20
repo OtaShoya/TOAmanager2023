@@ -1,24 +1,11 @@
 "use client";
 
 import * as React from "react";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
 import { useRouter } from "next/navigation";
-import { Button } from "@mui/material";
 import { Socket } from "socket.io-client";
 
 type PropType = {
-  title: string;
   subTitles: SubTitleType[];
-  label: string;
   socket: Socket;
 };
 
@@ -27,7 +14,16 @@ type SubTitleType = {
   url: string;
 };
 
-const Navigation = ({ subTitles, label, socket }: PropType) => {
+export const subTitle = [
+  { tabTitle: "通常業務", url: "/pages/top" },
+  { tabTitle: "出張", url: "/pages/top/BusinessTrip" },
+  { tabTitle: "各種フォルダ", url: "/pages/top/Folder" },
+  { tabTitle: "WEBリンク", url: "/pages/top/WebLink" },
+  { tabTitle: "各種帳票", url: "/pages/top/Ledger" },
+  { tabTitle: "マスタ保守", url: "/pages/top/master" },
+];
+
+const Navigation = ({ subTitles, socket }: PropType) => {
   const router = useRouter();
 
   const clickHandler = (url: string) => {
@@ -35,29 +31,26 @@ const Navigation = ({ subTitles, label, socket }: PropType) => {
   };
 
   const logout = () => {
-    socket.emit("logout", localStorage.getItem("sessionID"))
+    socket.emit("logout", localStorage.getItem("sessionID"));
     localStorage.removeItem("sessionID");
     router.push("/");
   };
 
   return (
-    <div className="border-r border-black/12 w-full h-full">
-      <CssBaseline />
-      <Toolbar />
-      <Divider />
-      <List>
+    <div className="flex flex-col justify-between rounded-lg bg-white/[.07] w-60 h-full relative">
+      <h1 className="text-white text-2xl text-center pt-11">TOAmanager</h1>
+      <ul className="grid grid-cols-1 gap-y-11">
         {subTitles.map((subTitle, index) => (
-          <ListItem key={index} disablePadding>
-            <ListItemButton onClick={() => clickHandler(subTitle.url)}>
-              <ListItemText primary={subTitle.tabTitle} />
-            </ListItemButton>
-          </ListItem>
+          <button key={index} onClick={() => clickHandler(subTitle.url)}>
+            <li className="text-white text-xl hover:text-indigo-400">
+              {subTitle.tabTitle}
+            </li>
+          </button>
         ))}
-      </List>
-      <Divider />
-      <Button variant="text" onClick={logout}>
-        {label}
-      </Button>
+      </ul>
+      <button onClick={logout} className="pb-11 text-white">
+        終了
+      </button>
     </div>
   );
 };

@@ -7,18 +7,16 @@ import BasicCard, { cardColors } from "@/components/atmos/Card";
 const sessions = require("@/src/lib/sessions");
 
 const pageTitles1 = [
-  { label: "製品登録", url: "", tab: false },
-  { label: "部署登録", url: "", tab: false },
-  { label: "社員登録", url: "/pages/top/master/syaintouroku", tab: false },
-  { label: "業種登録", url: "", tab: false },
-  { label: "カレンダー登録", url: "", tab: false },
+  { label: "出張登録", url: "", tab: false },
+  { label: "出張申請", url: "", tab: false },
+  { label: "出張報告", url: "/pages/top/master/syaintouroku", tab: false },
+  { label: "出張申請申請", url: "", tab: false },
+  { label: "出張報告承認", url: "", tab: false },
 ];
-
-const pageTitles2 = [{ label: "メール設定", url: "", tab: false }];
 
 let socket: Socket;
 
-const MasterPage = () => {
+const BusinessTripPage = () => {
   useEffect(() => {
     socket = sessions.connectSession();
 
@@ -30,7 +28,7 @@ const MasterPage = () => {
       <Navigation subTitles={subTitle} socket={socket} />
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <h1 className="text-4xl text-white font-bold">マスタ保守</h1>
+        <h1 className="text-4xl text-white font-bold">出張</h1>
         <div className="flex flex-col space-y-14">
           <div className="flex flex-row space-x-14">
             {pageTitles1.map((page, index) => (
@@ -45,23 +43,10 @@ const MasterPage = () => {
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14">
-            {pageTitles2.map((page, index) => (
-              <BasicCard
-                key={index}
-                title={page.label}
-                cardColor={cardColors[1].cardBg}
-                buttonColor={cardColors[1].buttonBg}
-                shadowColor={cardColors[1].shadow}
-                url={page.url}
-                openNewTab={false}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default MasterPage;
+export default BusinessTripPage;
