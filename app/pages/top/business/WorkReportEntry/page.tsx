@@ -33,8 +33,6 @@ const columns = [
   "メモ",
 ];
 
-const label = "ビジネスサポート部 リレーショングループ";
-
 const WorkReportEntry = () => {
   const router = useRouter();
   const [state, setState] = React.useState(false);
@@ -70,11 +68,11 @@ const WorkReportEntry = () => {
       <div className="flex items-end justify-center space-x-4 mt-8">
         <TextField label="社員番号" />
         <div className="flex flex-col">
-          <label>{label}</label>
+          <label>ビジネスサポート部 リレーショングループ</label>
           <TextField />
         </div>
       </div>
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-8 mx-4">
         <TableContainer component={Paper} className="w-11/12 ">
           <Table sx={{ minWidth: 650 }}>
             <TableHead>

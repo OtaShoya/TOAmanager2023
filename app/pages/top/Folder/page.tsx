@@ -4,6 +4,7 @@ import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import { Socket } from "socket.io-client";
 import React, { useEffect } from "react";
 import BasicCard, { cardColors } from "@/components/atmos/Card";
+import LoginAvatar from "@/components/atmos/Avatar";
 const sessions = require("@/src/lib/sessions");
 
 const pageTitles1 = [
@@ -14,7 +15,7 @@ const pageTitles1 = [
 
 const pageTitles2 = [
   { label: "就労規則", url: "", tab: false },
-  { label: "プライバシーマーク", url: "", tab: false },
+  { label: "プライバシー\nマーク", url: "", tab: false },
   { label: "ISMS", url: "", tab: false },
 ];
 
@@ -35,10 +36,13 @@ const FolderPage = () => {
 
   return (
     <div className="flex flex-row h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} socket={socket} />
+      <Navigation subTitles={subTitle} />
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <h1 className="text-4xl text-white font-bold">各種フォルダ</h1>
+        <div className="flex flex-row justify-between">
+          <h1 className="text-4xl text-white font-bold">各種フォルダ</h1>
+          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
+        </div>
         <div className="flex flex-col space-y-14">
           <div className="flex flex-row space-x-14">
             {pageTitles1.map((page, index) => (
@@ -53,7 +57,7 @@ const FolderPage = () => {
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14">
+          <div className="flex flex-row space-x-14 whitespace-pre">
             {pageTitles2.map((page, index) => (
               <BasicCard
                 key={index}

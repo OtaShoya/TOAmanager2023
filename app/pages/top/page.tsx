@@ -3,45 +3,46 @@ import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import React, { useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import BasicCard, { cardColors } from "@/components/atmos/Card";
+import LoginAvatar from "@/components/atmos/Avatar";
 
 var socket: Socket;
 const sessions = require("@/src/lib/sessions");
 
-const pageTitles1 = [
-  {
-    label: "作業報告登録",
-    url: "/pages/top/business/WorkReportEntry",
-    tab: false,
-  },
-  {
-    label: "作業報告出力",
-    url: "/pages/top/business/WorkReportOutput",
-    tab: false,
-  },
-];
-
-const pageTitles2 = [
-  {
-    label: "プロジェクト報告書登録",
-    url: "/pages/top/business/ProjectReportEntry",
-    tab: false,
-  },
-  { label: "プロジェクト報告書出力", url: "", tab: false },
-  {
-    label: "プロジェクト登録",
-    url: "/pages/top/business/ProjectEntry",
-    tab: false,
-  },
-];
-
-const pageTitles3 = [
-  { label: "引合物件一覧表出力", url: "", tab: false },
-  { label: "顧客登録", url: "", tab: false },
-  { label: "サポート一覧出力", url: "", tab: false },
-];
-
 const TopPage = () => {
   const [data, setData]: any = useState([]);
+
+  const pageTitles1 = [
+    {
+      label: "作業報告登録",
+      url: "/pages/top/business/WorkReportEntry",
+      tab: false,
+    },
+    {
+      label: "作業報告出力",
+      url: "/pages/top/business/WorkReportOutput",
+      tab: false,
+    },
+  ];
+
+  const pageTitles2 = [
+    {
+      label: "プロジェクト\n報告書登録",
+      url: "/pages/top/business/ProjectReportEntry",
+      tab: false,
+    },
+    { label: "プロジェクト\n報告書出力", url: "", tab: false },
+    {
+      label: "プロジェクト\n登録",
+      url: "/pages/top/business/ProjectEntry",
+      tab: false,
+    },
+  ];
+
+  const pageTitles3 = [
+    { label: "引合物件一覧表\n出力", url: "", tab: false },
+    { label: "顧客登録", url: "", tab: false },
+    { label: "サポート一覧\n出力", url: "", tab: false },
+  ];
 
   useEffect(() => {
     socket = sessions.connectSession();
@@ -60,11 +61,19 @@ const TopPage = () => {
   if (data?.session_found === true) {
     return (
       <div className="flex flex-row h-screen p-10 bg-[#556593]">
-        <Navigation subTitles={subTitle} socket={socket} />
+        <Navigation subTitles={subTitle} />
         {/* ↓2023-1019 デザイン変更 */}
         <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-          <h1 className="text-4xl text-white font-bold">通常業務</h1>
-          <div className="flex flex-col space-y-14">
+          <div className="flex flex-row justify-between">
+            <h1 className="text-4xl text-white font-bold">通常業務</h1>
+            <LoginAvatar
+              imgLabel=""
+              imgUrl=""
+              loginId="adachi"
+              socket={socket}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-14">
             <div className="flex flex-row space-x-14">
               {pageTitles1.map((page, index) => (
                 <BasicCard
@@ -78,7 +87,7 @@ const TopPage = () => {
                 />
               ))}
             </div>
-            <div className="flex flex-row space-x-14">
+            <div className="flex flex-row space-x-14 whitespace-pre">
               {pageTitles2.map((page, index) => (
                 <BasicCard
                   key={index}
@@ -91,7 +100,7 @@ const TopPage = () => {
                 />
               ))}
             </div>
-            <div className="flex flex-row space-x-14">
+            <div className="flex flex-row space-x-14 whitespace-pre">
               {pageTitles3.map((page, index) => (
                 <BasicCard
                   key={index}

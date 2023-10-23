@@ -38,7 +38,7 @@ const BasicCard = ({
   url,
   openNewTab,
 }: PropsType) => {
-  const buttonStyle = `${buttonColor} border rounded-full w-14 h-14 mb-3 mr-6 self-end`;
+  const buttonStyle = `${buttonColor} border rounded-full w-14 h-14 mb-3 self-end`;
   const cardStyle = `${cardColor} border rounded-lg w-80 h-44 shadow-2xl ${shadowColor}`;
 
   return (
@@ -46,8 +46,8 @@ const BasicCard = ({
       <div className="flex flex-row h-full">
         {/* ↓画像配置 */}
         <div className="border border-indig-600 w-1/2">画像</div>
-        <div className="w-1/2 flex flex-col justify-between items-end p-3">
-          <h1 className="text-xl text-right font-bold">{title}</h1>
+        <div className="w-1/2 flex flex-col justify-between items-center p-3">
+          <h1 className="text-lg text-center font-bold">{title}</h1>
           {openNewTab ? (
             <a href={url} target="_blank">
               <button className={buttonStyle} />

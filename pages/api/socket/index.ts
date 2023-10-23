@@ -3,34 +3,34 @@ import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
 import fs from "fs";
 
-import { weekReport, ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
+import { weekReport, ProjectItem, sakugyoNaiyouItem } from "@/src/lib/report";
 
-class Shain{
-  id!: number|string|null;
-  bango!: number|string|null;
-  password!: number|string|null;
-  shimei!: string|null;
-  furigana!: string|null;
-  ryakushou!: string|null;//abreviation
-  bushoId!: number|string|null; //post //Select
-  shainKubunId!: number|string|null; //employee devision //Select
-  yakushokuId!: number|string|null; //manegerial position //Select
-  kyujitsuGroupId!: number|string|null; //day off group //Select
-  shayouKeitaiBango!: string|null; //Company's cellphone number
-  shayouKeitaiNaisenBango!: string|null; //Company's cellphone extension number
-  nyuushaNichi!: Date|string|null; //day entering the company
-  taishaNichi!: Date|string|null; //day of resignation
-  account!: string|null;
-  mailAddress!: string|null;
-  yubinBango!: string|null; //mailNumber
-  jyuusho!: string|null; //address
-  denwaBango!: string|null; //phone Number
-  keitaiBango!: string|null; //cellphone number
-  inkan!: string|null; //stamp // data/image
+class Shain {
+  id!: number | string | null;
+  bango!: number | string | null;
+  password!: number | string | null;
+  shimei!: string | null;
+  furigana!: string | null;
+  ryakushou!: string | null; //abreviation
+  bushoId!: number | string | null; //post //Select
+  shainKubunId!: number | string | null; //employee devision //Select
+  yakushokuId!: number | string | null; //manegerial position //Select
+  kyujitsuGroupId!: number | string | null; //day off group //Select
+  shayouKeitaiBango!: string | null; //Company's cellphone number
+  shayouKeitaiNaisenBango!: string | null; //Company's cellphone extension number
+  nyuushaNichi!: Date | string | null; //day entering the company
+  taishaNichi!: Date | string | null; //day of resignation
+  account!: string | null;
+  mailAddress!: string | null;
+  yubinBango!: string | null; //mailNumber
+  jyuusho!: string | null; //address
+  denwaBango!: string | null; //phone Number
+  keitaiBango!: string | null; //cellphone number
+  inkan!: string | null; //stamp // data/image
 }
 
-const db = require("@/src/lib/database.ts")
-var dataBaseConnectionStr:string = "../../../../db.sqlite3";
+const db = require("@/src/lib/database.ts");
+var dataBaseConnectionStr: string = "../../../../db.sqlite3";
 
 const randomId = function (length = 20) {
   return Math.random()
@@ -38,23 +38,22 @@ const randomId = function (length = 20) {
     .substring(2, length + 2);
 };
 
-class SessionStore{
-    
-  sessions:Map<string, any>;
+class SessionStore {
+  sessions: Map<string, any>;
 
   constructor() {
     this.sessions = new Map();
   }
-  
-  removeSession(id:string){
+
+  removeSession(id: string) {
     this.sessions.delete(id);
   }
 
-  findSession(id:string) {
+  findSession(id: string) {
     return this.sessions.get(id);
   }
-  
-  saveSession(id:string, session:any) {
+
+  saveSession(id: string, session: any) {
     this.sessions.set(id, session);
   }
 
@@ -70,7 +69,7 @@ const SocketHandler = (req: any, res: any) => {
     // console.log('Socket is already running')
   } else {
     // console.log('Socket is initializing')
-//
+    //
     const httpServer: NetServer = res.socket.server as any;
     const io = new ServerIO(httpServer, {
       path: "/api/socket",
@@ -113,7 +112,7 @@ const SocketHandler = (req: any, res: any) => {
               password: msg.password,
             }),
           });
-          
+
           const d = await res.json();
           if (d?.id) {
             socket.sessionID = randomId() + randomId() + randomId();
@@ -135,238 +134,173 @@ const SocketHandler = (req: any, res: any) => {
         if (sessionStore.findSession(msg.sessionID) == msg.userID) {
           console.log("ok");
         }
-      })
+      });
 
-      socket.on("shain-update", (msg:any)=>{
-        
-        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
-        {
-         
-            var shain:Shain = new Shain();
-            
-            shain.id = msg.id;
+      socket.on("shain-update", (msg: any) => {
+        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
+          var shain: Shain = new Shain();
 
-            shain.bango = msg.bango;
-            shain.password = msg.password;
-            shain.shimei = msg.shimei;
-            shain.furigana = msg.furigana;
+          shain.id = msg.id;
 
-            shain.bushoId = msg.bushoId;
-            shain.shainKubunId = msg.shainKubunId;
-            shain.yakushokuId = msg.yakushokuId;
-            shain.kyujitsuGroupId = msg.kyujitsuGroupId;
-   
-            shain.account = msg.account;
-            shain.mailAddress = msg.mailAddress;
-            shain.yubinBango = msg.yubinBango;
-            shain.jyuusho = msg.jyuusho;
-            shain.denwaBango = msg.denwaBango;
-            shain.keitaiBango = msg.keitaiBango;
+          shain.bango = msg.bango;
+          shain.password = msg.password;
+          shain.shimei = msg.shimei;
+          shain.furigana = msg.furigana;
 
-            const r = async ()=>{
-              const res =  await fetch("http://localhost:3000/api/db", 
-              { 
-                method: "POST", 
-                body: JSON.stringify(
-                  {
-                    type: "shain-update",
-                    shain: shain,
-                  }
-                ),
-              });
-            }
-            
-            r();
+          shain.bushoId = msg.bushoId;
+          shain.shainKubunId = msg.shainKubunId;
+          shain.yakushokuId = msg.yakushokuId;
+          shain.kyujitsuGroupId = msg.kyujitsuGroupId;
 
-            console.log("ok");
-        }
-      })
+          shain.account = msg.account;
+          shain.mailAddress = msg.mailAddress;
+          shain.yubinBango = msg.yubinBango;
+          shain.jyuusho = msg.jyuusho;
+          shain.denwaBango = msg.denwaBango;
+          shain.keitaiBango = msg.keitaiBango;
 
-      socket.on("shain-add", (msg:any)=>{
-        
-        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
-        {
-         
-            var shain:Shain = new Shain();
-            
-            shain.id = msg.userID;
-
-            shain.bango = msg.bango;
-            shain.password = msg.password;
-            shain.shimei = msg.shimei;
-            shain.furigana = msg.furigana;
-
-            shain.bushoId = msg.bushoId;
-            shain.shainKubunId = msg.shainKubunId;
-            shain.yakushokuId = msg.yakushokuId;
-            shain.kyujitsuGroupId = msg.kyujitsuGroupId;
-   
-            shain.account = msg.account;
-            shain.mailAddress = msg.mailAddress;
-            shain.yubinBango = msg.yubinBango;
-            shain.jyuusho = msg.jyuusho;
-            shain.denwaBango = msg.denwaBango;
-            shain.keitaiBango = msg.keitaiBango;
-
-            const r = async ()=>{
-              const res =  await fetch("http://localhost:3000/api/db", 
-              { 
-                method: "POST", 
-                body: JSON.stringify(
-                  {
-                    type: "shain-add",
-                    shain: shain,
-                  }
-                ),
-              });
-              socket.emit("after-shain-add")
-            }
-            
-            r();
-
-            
-        }
-      })
-
-      socket.on("shain-delete", (msg:any)=>{
-        
-        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
-        {
-          const r = async ()=>{
-            const res =  await fetch("http://localhost:3000/api/db", 
-            { 
-              method: "POST", 
-              body: JSON.stringify(
-                {
-                  type: "shain-delete",
-                  id: msg.userID,
-                }
-              ),
+          const r = async () => {
+            const res = await fetch("http://localhost:3000/api/db", {
+              method: "POST",
+              body: JSON.stringify({
+                type: "shain-update",
+                shain: shain,
+              }),
             });
-          }
-          
+          };
+
           r();
 
-          socket.emit("after-shain-delete")
+          console.log("ok");
         }
-      })
+      });
 
-      socket.on("download", (msg:any)=>{
+      socket.on("shain-add", (msg: any) => {
+        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
+          var shain: Shain = new Shain();
 
-        var pl:Array<ProjectItem> = [
+          shain.id = msg.userID;
+
+          shain.bango = msg.bango;
+          shain.password = msg.password;
+          shain.shimei = msg.shimei;
+          shain.furigana = msg.furigana;
+
+          shain.bushoId = msg.bushoId;
+          shain.shainKubunId = msg.shainKubunId;
+          shain.yakushokuId = msg.yakushokuId;
+          shain.kyujitsuGroupId = msg.kyujitsuGroupId;
+
+          shain.account = msg.account;
+          shain.mailAddress = msg.mailAddress;
+          shain.yubinBango = msg.yubinBango;
+          shain.jyuusho = msg.jyuusho;
+          shain.denwaBango = msg.denwaBango;
+          shain.keitaiBango = msg.keitaiBango;
+
+          const r = async () => {
+            const res = await fetch("http://localhost:3000/api/db", {
+              method: "POST",
+              body: JSON.stringify({
+                type: "shain-add",
+                shain: shain,
+              }),
+            });
+            socket.emit("after-shain-add");
+          };
+
+          r();
+        }
+      });
+
+      socket.on("shain-delete", (msg: any) => {
+        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
+          const r = async () => {
+            const res = await fetch("http://localhost:3000/api/db", {
+              method: "POST",
+              body: JSON.stringify({
+                type: "shain-delete",
+                id: msg.userID,
+              }),
+            });
+          };
+
+          r();
+
+          socket.emit("after-shain-delete");
+        }
+      });
+
+      socket.on("download", (msg: any) => {
+        var pl: Array<ProjectItem> = [
           {
-              bango: "z33",
-              na: "プロ 1",
-              sakugyoNaiyouList:
-              [
-                  {
-                      name: "s1",
-                      shuu: [
-                          0,
-                          0,
-                          0,
-                          8,
-                          0,
-                          0,
-                          0,
-                      ]
-                  },
-                  {
-                      name: "s2",
-                      shuu: [
-                          0,
-                          8,
-                          0,
-                          0,
-                          5,
-                          0,
-                          0,
-                      ]
-                  },
-              ]
-          },
-          {
-              bango: "z34",
-              na: "プロ 2",
-              sakugyoNaiyouList:
-              [
-                  {
-                      name: "s1",
-                      shuu: [
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          3,
-                          0,
-                      ]
-                  },
-              ]
-          },
-          {
-              bango: "z35",
-              na: "プロ 3",
-              sakugyoNaiyouList:
-              [
-                  {
-                      name: "s1",
-                      shuu: [
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          3,
-                          0,
-                      ]
-                  },
-                  {
-                      name: "s2",
-                      shuu: [
-                          3,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                          0,
-                      ]
-                  },
-              ]
-          },
-        ]
-        const r = async ()=>{
-          const res =  await fetch("http://localhost:3000/api/db", 
-          { 
-            method: "POST", 
-            body: JSON.stringify(
+            bango: "z33",
+            na: "プロ 1",
+            sakugyoNaiyouList: [
               {
-                type: "shuu-sakugyou-houkoku",
-                beginDate: new Date('2023-9-4'),
-                endDate: new Date('2023-9-10'),
-                shainId: 1,
-              }
-            ),
+                name: "s1",
+                shuu: [0, 0, 0, 8, 0, 0, 0],
+              },
+              {
+                name: "s2",
+                shuu: [0, 8, 0, 0, 5, 0, 0],
+              },
+            ],
+          },
+          {
+            bango: "z34",
+            na: "プロ 2",
+            sakugyoNaiyouList: [
+              {
+                name: "s1",
+                shuu: [0, 0, 0, 0, 0, 3, 0],
+              },
+            ],
+          },
+          {
+            bango: "z35",
+            na: "プロ 3",
+            sakugyoNaiyouList: [
+              {
+                name: "s1",
+                shuu: [0, 0, 0, 0, 0, 3, 0],
+              },
+              {
+                name: "s2",
+                shuu: [3, 0, 0, 0, 0, 0, 0],
+              },
+            ],
+          },
+        ];
+        const r = async () => {
+          const res = await fetch("http://localhost:3000/api/db", {
+            method: "POST",
+            body: JSON.stringify({
+              type: "shuu-sakugyou-houkoku",
+              beginDate: new Date("2023-9-4"),
+              endDate: new Date("2023-9-10"),
+              shainId: 1,
+            }),
           });
-        }
-      
+        };
+
         r();
 
-        
-        var e = weekReport("./test.xlsx", "test", new Date('2023-9-4'), pl).then((msg)=>{
+        var e = weekReport(
+          "./test.xlsx",
+          "test",
+          new Date("2023-9-4"),
+          pl
+        ).then((msg) => {
           // console.log("test")
 
           const imgFile = fs.readFileSync("./new.xlsx");
-          const imgBase64 = Buffer.from(imgFile).toString('base64');
-       
-          socket.emit("download", imgBase64 )
-        });
-        
-      })
-      
-    })
+          const imgBase64 = Buffer.from(imgFile).toString("base64");
 
+          socket.emit("download", imgBase64);
+        });
+      });
+    });
   }
 
   res.end();
