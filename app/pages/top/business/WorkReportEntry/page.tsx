@@ -8,14 +8,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Button, Drawer, IconButton, TextField } from "@mui/material";
-import { useRouter } from "next/navigation";
-import CachedIcon from "@mui/icons-material/Cached";
-import EditCalendarIcon from "@mui/icons-material/EditCalendar";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
+import { Drawer, IconButton } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./component/Edit";
+import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import LoginAvatar from "@/components/atmos/Avatar";
+import io, { Socket } from "socket.io-client";
+import ReloadButton from "@/components/molecule/RelodeButton";
+
+var socket: Socket;
 
 const columns = [
   "",
@@ -33,75 +34,82 @@ const columns = [
   "メモ",
 ];
 
-const label = "ビジネスサポート部 リレーショングループ";
+const buttonDesign =
+  "border rounded-full hover:bg-slate-100 bg-white text-[#556593] w-40 h-full";
 
 const WorkReportEntry = () => {
-  const router = useRouter();
   const [state, setState] = React.useState(false);
-
-  const clickHandler = () => {
-    router.push("/pages/top");
-  };
+  const [date, setDate] = React.useState("");
 
   const toggleDrawer = (open: boolean) => {
     setState(open);
   };
 
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDate(e.target.value);
+  };
+
+  const entryDate = () => {};
+
+  const reportOutput = () => {};
+
   return (
-    <>
-      <div>
-        <Button variant="text" startIcon={<CachedIcon />}>
-          再表示
-        </Button>
-        <Button variant="text" startIcon={<EditCalendarIcon />}>
-          休日登録
-        </Button>
-        <Button variant="text" startIcon={<FileUploadIcon />}>
-          週間報告書出力
-        </Button>
-        <Button
-          variant="text"
-          startIcon={<ExitToAppIcon />}
-          onClick={clickHandler}
-        >
-          終了
-        </Button>
-      </div>
-      <div className="flex items-end justify-center space-x-4 mt-8">
-        <TextField label="社員番号" />
-        <div className="flex flex-col">
-          <label>{label}</label>
-          <TextField />
+    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+      <Navigation subTitles={subTitle} />
+      <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
+        {/* ↓ページタイトルとログイン情報 */}
+        <div className="flex flex-row justify-between">
+          <h1 className="text-4xl text-white font-bold">作業報告登録</h1>
+          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
+        {/* ↓年月日選択と各ボタン */}
+        <div className="flex flex-row justify-between">
+          <input
+            type="month"
+            value={date}
+            className="text-lg border rounded-lg h-16 p-5"
+            onChange={(e) => changeHandler(e)}
+          />
+          <div className="space-x-4">
+            <ReloadButton />
+            <button className={buttonDesign} onClick={entryDate}>
+              休日登録
+            </button>
+            <button className={buttonDesign} onClick={reportOutput}>
+              週間報告書登録
+            </button>
+          </div>
+        </div>
+        {/* ↓テーブル */}
+        <div className="flex justify-center">
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow>
+                  {columns.map((column, i) => (
+                    <TableCell key={i}>{column}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <IconButton onClick={() => toggleDrawer(true)}>
+                      <CreateIcon />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>2023/10/04</TableCell>
+                  <TableCell>水</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+        <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
+          <EditPage />
+        </Drawer>
       </div>
-      <div className="flex justify-center mt-8">
-        <TableContainer component={Paper} className="w-11/12 ">
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead>
-              <TableRow>
-                {columns.map((column, i) => (
-                  <TableCell key={i}>{column}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>
-                  <IconButton onClick={() => toggleDrawer(true)}>
-                    <CreateIcon />
-                  </IconButton>
-                </TableCell>
-                <TableCell>2023/10/04</TableCell>
-                <TableCell>水</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div>
-      <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-        <EditPage />
-      </Drawer>
-    </>
+    </div>
   );
 };
 

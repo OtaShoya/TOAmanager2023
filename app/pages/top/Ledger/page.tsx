@@ -8,18 +8,19 @@ import LoginAvatar from "@/components/atmos/Avatar";
 const sessions = require("@/src/lib/sessions");
 
 const pageTitles1 = [
-  { label: "製品登録", url: "", tab: false },
-  { label: "部署登録", url: "", tab: false },
-  { label: "社員登録", url: "/pages/top/master/syaintouroku", tab: false },
-  { label: "業種登録", url: "", tab: false },
-  { label: "カレンダー登録", url: "", tab: false },
+  { label: "顧客台帳", url: "/pages/top/Ledger/ClientLedger", tab: false },
+  { label: "顧客導入製品\n台帳", url: "", tab: false },
 ];
 
-const pageTitles2 = [{ label: "メール設定", url: "", tab: false }];
+const pageTitles2 = [
+  { label: "社員別作業時間集計表", url: "/pages/top/Ledger/EmployeeWorkTimeTable", tab: false },
+  { label: "プロジェクト\n一覧表", url: "", tab: false },
+  { label: "プロジェクト別作業時間集計表", url: "", tab: false },
+];
 
 let socket: Socket;
 
-const MasterPage = () => {
+const FolderPage = () => {
   useEffect(() => {
     socket = sessions.connectSession();
 
@@ -32,11 +33,11 @@ const MasterPage = () => {
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">マスタ保守</h1>
+          <h1 className="text-4xl text-white font-bold">各種帳票</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
         <div className="flex flex-col space-y-14">
-          <div className="grid grid-cols-3 gap-y-14">
+          <div className="flex flex-row space-x-14 whitespace-pre">
             {pageTitles1.map((page, index) => (
               <BasicCard
                 key={index}
@@ -49,7 +50,7 @@ const MasterPage = () => {
               />
             ))}
           </div>
-          <div>
+          <div className="flex flex-row space-x-14 whitespace-pre-wrap">
             {pageTitles2.map((page, index) => (
               <BasicCard
                 key={index}
@@ -68,4 +69,4 @@ const MasterPage = () => {
   );
 };
 
-export default MasterPage;
+export default FolderPage;

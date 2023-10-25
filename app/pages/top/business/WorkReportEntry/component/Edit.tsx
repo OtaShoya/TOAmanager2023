@@ -97,7 +97,7 @@ const EditPage = () => {
     <Box sx={{ width: widthGroup.drawer }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mt-16">
-          <h1 className="text-center">作業報告登録</h1>
+          <h1 className="text-center text-2xl">作業報告登録</h1>
         </div>
         <div className="mt-8 ml-24 mr-24">
           <div className="grid gap-y-2.5">

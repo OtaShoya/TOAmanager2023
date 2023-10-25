@@ -1,59 +1,56 @@
 "use client";
 
-import ExitButton from "@/components/molecule/ExitButton";
-import { useForm, Controller } from "react-hook-form";
-import DatePicker from "react-datepicker";
+import { useForm } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 import React, { useEffect, useState } from "react";
+import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import LoginAvatar from "@/components/atmos/Avatar";
 import { Socket } from "socket.io-client";
-import { Select, InputLabel, FormControl } from "@mui/material";
 
+var socket: Socket;
 const sessions = require("@/src/lib/sessions");
-let socket: Socket;
 
 type DataType = {
   user: string;
   TargetDate: any;
 };
 
-
+const labelDesign = "text-white text-2xl";
+const formDesign =
+  "border rounded-full h-12 w-64 ml-4 p-5 text-center text-[#556593] bg-white";
 
 const initialDate = new Date();
 
-function base64ToArrayBuffer(base64:string) {
+function base64ToArrayBuffer(base64: string) {
   var binaryString = window.atob(base64);
   var binaryLen = binaryString.length;
   var bytes = new Uint8Array(binaryLen);
   for (var i = 0; i < binaryLen; i++) {
-      var ascii = binaryString.charCodeAt(i);
-      bytes[i] = ascii;
+    var ascii = binaryString.charCodeAt(i);
+    bytes[i] = ascii;
   }
   return bytes;
 }
 
-function saveByteArray(byte:Uint8Array, fileName:string) {
-  var blob = new Blob([byte], {type: "application/xlsx"});
-  var link = document.createElement('a');
+function saveByteArray(byte: Uint8Array, fileName: string) {
+  var blob = new Blob([byte], { type: "application/xlsx" });
+  var link = document.createElement("a");
   link.href = window.URL.createObjectURL(blob);
   // var fileName = "test.xlsx";
   link.download = fileName;
   link.click();
-};
+}
 
-
-
-function downloadClick(){
-
-  let shainSelect:any = document.getElementById("grouped-shain-select");
-  let dateInput:any = document.getElementById("bDate");
-  socket.emit("download-week", 
-  {
+function downloadClick() {
+  let shainSelect: any = document.getElementById("grouped-shain-select");
+  let dateInput: any = document.getElementById("bDate");
+  socket.emit("download-week", {
     sessionID: localStorage.getItem("sessionID"),
     userID: localStorage.getItem("userID"),
     name: shainSelect.children[shainSelect.selectedIndex].text,
     tgDate: dateInput.value,
-    id: shainSelect.value
-  })
+    id: shainSelect.value,
+  });
 }
 
 const Page = () => {
@@ -62,7 +59,15 @@ const Page = () => {
       TargetDate: initialDate,
     },
   });
-  const [datas, setDatas]= useState([{ shimei: "　　　", bushoId: "", yakushokuId: "", kyujitsuGroupId: "", id: "" }]);
+  const [datas, setDatas] = useState([
+    {
+      shimei: "　　　",
+      bushoId: "",
+      yakushokuId: "",
+      kyujitsuGroupId: "",
+      id: "",
+    },
+  ]);
   const loadShainList = async () => {
     const res = await fetch("http://localhost:3000/api/db", {
       method: "POST",
@@ -73,11 +78,10 @@ const Page = () => {
 
     let resObj = await res.json();
 
-    if(resObj){
+    if (resObj) {
       setDatas(resObj.shainList);
     }
-    
-  }
+  };
 
   const onSubmit = (data: DataType) => {
     console.log(data);
@@ -87,67 +91,71 @@ const Page = () => {
 
     sessions.socketInitializer(socket);
 
-    socket.on("download", msg =>{
-      let shainSelect:any = document.getElementById("grouped-shain-select");
-      let dateInput:any = document.getElementById("bDate");
-      saveByteArray(base64ToArrayBuffer(msg), shainSelect.children[shainSelect.selectedIndex].text + " - " + dateInput.value + ".xlsx");
+    socket.on("download", (msg) => {
+      let shainSelect: any = document.getElementById("grouped-shain-select");
+      let dateInput: any = document.getElementById("bDate");
+      saveByteArray(
+        base64ToArrayBuffer(msg),
+        shainSelect.children[shainSelect.selectedIndex].text +
+          " - " +
+          dateInput.value +
+          ".xlsx"
+      );
     });
     loadShainList();
   }, []);
   return (
-    <div className="p-2.5">
-      <div>
-        <ExitButton />
-      </div>
-      <form
-        className="flex flex-col place-items-center gap gap-y-4 mt-24"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <div className="flex flex-row ">
-        <FormControl>
-        <InputLabel htmlFor="grouped-shain-select">
-        社員
-                  </InputLabel>
-          <Select  native
-                  label="社員"
-                  id="grouped-shain-select"
-                  >
-                          <option aria-label="None" />
-                          {datas.map((data, index) => {
-                            return (
-                              
-                              <option value={data.id} key={index}> {data.shimei} </option>
-                              
-                            )
-                          })}
-          </Select>
-        </FormControl>
+    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+      <Navigation subTitles={subTitle} />
+      <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
+        {/* ↓ページタイトルとログイン情報 */}
+        <div className="flex flex-row justify-between">
+          <h1 className="text-4xl text-white font-bold">作業報告出力</h1>
+          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
-        <div className="flex flex-row">
-          <label>対象日:</label>
-          {/* <input type="text" className="border" {...register("TargetDate")} /> */}
-          <Controller
-            control={control}
-            name="TargetDate"
-            render={({ field: { onChange, value } }) => (
-              <DatePicker
-                dateFormat="yyyy/MM/dd"
-                selected={value}
-                onChange={onChange}
-                className="border"
-                id="bDate"
-              />
-            )}
-          />
-        </div>
-        <button
-          type="submit"
-          className="border border-blue-600 rounded-md hover:bg-slate-100 justify-self-center w-48 h-16 mt-4 text-blue-600"
-          onClick={downloadClick}
+        {/* ↓フォーム */}
+        <form
+          className="flex flex-col items-center mt-24"
+          onSubmit={handleSubmit(onSubmit)}
         >
-          週間報告書作成
-        </button>
-      </form>
+          <div className="flex flex-col place-items-end space-y-4 border rounded-lg py-10 px-40">
+            <label htmlFor="grouped-shain-select" className={labelDesign}>
+              社員
+              <select
+                id="grouped-shain-select"
+                className={formDesign}
+                {...register("user")}
+              >
+                <option aria-label="None" />
+                {datas.map((data, index) => {
+                  return (
+                    <option value={data.id} key={index}>
+                      {" "}
+                      {data.shimei}{" "}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+            <label className={labelDesign}>
+              対象日
+              <input
+                type="date"
+                className={formDesign}
+                id="bDate"
+                {...register("TargetDate")}
+              />
+            </label>
+          </div>
+          <button
+            type="submit"
+            className="border bg-white rounded-full hover:bg-slate-100 justify-self-center w-48 h-16 mt-4 text-[#556593] text-xl font-semibold"
+            onClick={downloadClick}
+          >
+            週間報告書作成
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
