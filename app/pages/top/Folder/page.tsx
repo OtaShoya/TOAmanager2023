@@ -38,7 +38,7 @@ const FolderPage = () => {
     <div className="flex flex-row h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
       {/* ↓2023-1019 デザイン変更 */}
-      <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
+      <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         <div className="flex flex-row justify-between">
           <h1 className="text-4xl text-white font-bold">各種フォルダ</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />

@@ -1,15 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import "react-datepicker/dist/react-datepicker.css";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import LoginAvatar from "@/components/atmos/Avatar";
+import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import { useForm } from "react-hook-form";
 import { Socket } from "socket.io-client";
 
 var socket: Socket;
 
 type DataType = {
-  user: string;
+  Project: string;
   TargetDate: any;
 };
 
@@ -25,7 +24,6 @@ const Page = () => {
       TargetDate: initialDate,
     },
   });
-
   const onSubmit = (data: DataType) => {
     console.log(data);
   };
@@ -36,7 +34,9 @@ const Page = () => {
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">作業報告出力</h1>
+          <h1 className="text-4xl text-white font-bold">
+            プロジェクト報告書出力
+          </h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
         {/* ↓フォーム */}
@@ -46,8 +46,12 @@ const Page = () => {
         >
           <div className="flex flex-col place-items-end space-y-4 border rounded-lg py-10 px-40">
             <label className={labelDesign}>
-              社員
-              <input type="text" className={formDesign} {...register("user")} />
+              プロジェクト
+              <input
+                type="text"
+                className={formDesign}
+                {...register("Project")}
+              />
             </label>
             <label className={labelDesign}>
               対象日

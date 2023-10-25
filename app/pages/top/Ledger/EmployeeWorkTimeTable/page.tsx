@@ -36,7 +36,9 @@ const Page = () => {
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">作業報告出力</h1>
+          <h1 className="text-4xl text-white font-bold">
+            社員別作業時間集計表
+          </h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
         {/* ↓フォーム */}
@@ -44,13 +46,20 @@ const Page = () => {
           className="flex flex-col items-center mt-24"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <div className="flex flex-col place-items-end space-y-4 border rounded-lg py-10 px-40">
+          <div className="flex flex-col place-items-start space-y-4 border rounded-lg py-10 px-40">
+            <div className="flex flex-row">
+              <label className={labelDesign}>
+                対象日
+                <input type="date" className={formDesign} />
+                <input type="date" className={formDesign} />
+              </label>
+            </div>
             <label className={labelDesign}>
               社員
               <input type="text" className={formDesign} {...register("user")} />
             </label>
             <label className={labelDesign}>
-              対象日
+              部署
               <input
                 type="date"
                 className={formDesign}
@@ -60,9 +69,9 @@ const Page = () => {
           </div>
           <button
             type="submit"
-            className="border bg-white rounded-full hover:bg-slate-100 justify-self-center w-48 h-16 mt-4 text-[#556593] text-xl font-semibold"
+            className="border bg-white rounded-full hover:bg-slate-100 justify-self-center h-16 px-5 mt-4 text-[#556593] text-xl font-semibold"
           >
-            週間報告書作成
+            社員別作業時間集計表作成
           </button>
         </form>
       </div>

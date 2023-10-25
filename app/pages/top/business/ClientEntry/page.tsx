@@ -1,6 +1,8 @@
 "use client";
 
-import * as React from "react";
+import LoginAvatar from "@/components/atmos/Avatar";
+import CheckBox from "@/components/atmos/CheckBox";
+import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import {
   Drawer,
   IconButton,
@@ -13,26 +15,23 @@ import {
   TableRow,
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
-import EditPage from "./component/Edit";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
-import LoginAvatar from "@/components/atmos/Avatar";
+import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
-import CheckBox from "@/components/atmos/CheckBox";
 import ReloadButton from "@/components/molecule/RelodeButton";
 var socket: Socket;
-const columns = ["", "顧客", "プロジェクト番号", "プロジェクト名", "状態"];
+const columns = ["", "50音", "顧客略称", "顧客正式名", "業種"];
 
 const datas = [{ client: "", projectNo: "", projectName: "", progress: "" }];
 
-const ProjectEntryPage = () => {
-  const [state, setState] = React.useState(false);
-  const [condition1, setCondition1] = React.useState("A");
-  const [condition2, setCondition2] = React.useState("A");
-  const [condition3, setCondition3] = React.useState("A");
-  const [condition4, setCondition4] = React.useState("");
-  const [condition5, setCondition5] = React.useState("");
-  const [condition6, setCondition6] = React.useState("");
-  const [condition7, setCondition7] = React.useState("");
+const Page = () => {
+  const [state, setState] = useState(false);
+  const [condition1, setCondition1] = useState("A");
+  const [condition2, setCondition2] = useState("A");
+  const [condition3, setCondition3] = useState("");
+  const [condition4, setCondition4] = useState("");
+  const [condition5, setCondition5] = useState("");
+  const [condition6, setCondition6] = useState("");
+  const [condition7, setCondition7] = useState("");
 
   const toggleDrawer = (open: boolean) => {
     setState(open);
@@ -54,16 +53,10 @@ const ProjectEntryPage = () => {
           setCondition2("A");
         }
         break;
-      case 3:
-        if (condition3 === "A") {
-          setCondition3("B");
-        } else {
-          setCondition3("A");
-        }
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     console.log(
       `${condition1} + ${condition2} + ${condition3} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
     );
@@ -76,62 +69,60 @@ const ProjectEntryPage = () => {
     condition6,
     condition7,
   ]);
-
   return (
     <div className="flex flex-row h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
       <div className="w-full ml-5 p-12 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">プロジェクト登録</h1>
+          <h1 className="text-4xl text-white font-bold">顧客登録</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
         <div className="flex flex-col items-center justify-center">
           {/* フィルター */}
-          <div className="w-2/3 mt-10">
+          <div className="mt-10">
             <div className="flex">
               <CheckBox
-                label="終了分は除く"
+                label="担当顧客のみ"
                 onchange={() => changeHandler(1)}
               />
               <CheckBox
-                label="担当プロジェクトのみ"
+                label="使用不可も含む"
                 onchange={() => changeHandler(2)}
-              />
-              <CheckBox
-                label="担当顧客のみ"
-                onchange={() => changeHandler(3)}
               />
             </div>
             <div className="flex space-x-3">
-              <select
+              <input
                 className="border rounded-md"
                 placeholder={columns[1]}
-                onChange={(e) => setCondition4(e.target.value)}
-              >
-                <option value="">顧客</option>
-              </select>
+                onChange={(e) => setCondition3(e.target.value)}
+              />
               <input
                 className="border rounded-md"
                 placeholder={columns[2]}
-                onChange={(e) => setCondition5(e.target.value)}
+                onChange={(e) => setCondition4(e.target.value)}
               />
               <input
                 className="border rounded-md"
                 placeholder={columns[3]}
+                onChange={(e) => setCondition5(e.target.value)}
+              />
+              <input
+                className="border rounded-md"
+                placeholder={columns[4]}
                 onChange={(e) => setCondition6(e.target.value)}
               />
               <select
                 className="border rounded-md"
-                placeholder={columns[4]}
+                placeholder={columns[5]}
                 onChange={(e) => setCondition7(e.target.value)}
               >
-                <option value="">状態</option>
+                <option value="">業種</option>
               </select>
             </div>
           </div>
           {/* ↓テーブル */}
-          <div className=" w-2/3 mt-3">
+          <div className="mt-3">
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 1050 }}>
                 <TableHead>
@@ -163,12 +154,14 @@ const ProjectEntryPage = () => {
             <ReloadButton />
           </div>
         </div>
-        <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-          <EditPage />
-        </Drawer>
+        <Drawer
+          anchor="right"
+          open={state}
+          onClose={() => toggleDrawer(false)}
+        ></Drawer>
       </div>
     </div>
   );
 };
 
-export default ProjectEntryPage;
+export default Page;

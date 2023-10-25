@@ -1,6 +1,5 @@
 "use client";
 
-import ExitButton from "@/components/molecule/ExitButton";
 import ReloadButton from "@/components/molecule/RelodeButton";
 import { Select } from "@mui/material";
 import * as React from "react";
@@ -20,32 +19,78 @@ import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./component/Edit";
 import AddPage from "./component/Add";
 import { Socket } from "socket.io-client";
+import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import LoginAvatar from "@/components/atmos/Avatar";
+import CheckBox from "@/components/atmos/CheckBox";
 
 const sessions = require("@/src/lib/sessions");
 let socket: Socket;
-var loaded:boolean = false;
+var loaded: boolean = false;
 
 const columns = ["", "氏名", "部署", "役職", "休日グループ"];
+const formDesign = "border rounded-md p-5";
 
-// let datas = [{ shimei: "", bushoId: "", yakushokuId: "", kyujitsuGroupId: "" }];
+const bushoValues = [
+  { value: "", label: "部署" },
+  { value: "システム開発部", label: "システム開発部" },
+  { value: "開発部", label: "開発部" },
+  {
+    value: "ビジネスサポート部 ユースウェア",
+    label: "ビジネスサポート部 ユースウェア",
+  },
+  {
+    value: "ビジネスサポート部 リレーショングループ",
+    label: "ビジネスサポート部 リレーショングループ",
+  },
+  { value: "ビジネスサポート部 技術部", label: "ビジネスサポート部 技術部" },
+  { value: "ビジネスサポート部 業務部", label: "ビジネスサポート部 業務部" },
+];
+
+const yakushokuValues = [
+  { value: "", label: "役職" },
+  { value: "正社員", label: "正社員" },
+  { value: "契約社員", label: "契約社員" },
+  {
+    value: "派遣社員",
+    label: "派遣社員",
+  },
+  {
+    value: "アルバイト",
+    label: "アルバイト",
+  },
+  { value: "インターンシップ", label: "インターンシップ" },
+];
+
+const kyuuzituValues = [
+  { value: "", label: "休日グループ" },
+  { value: "Aグループ", label: "Aグループ" },
+  { value: "Bグループ", label: "Bグループ" },
+  { value: "運用Aグループ", label: "運用Aグループ" },
+  {
+    value: "運用Bグループ",
+    label: "運用Bグループ",
+  },
+];
 
 const ShainTourokuPage = () => {
   const [state, setState] = React.useState(false);
   const [stateAdd, setStateAdd] = React.useState(false);
-  const [datas, setDatas]= React.useState([{ shimei: "", bushoId: "", yakushokuId: "", kyujitsuGroupId: "", id: "" }]);
-  const [uid, setUid]= React.useState(0);
+  const [datas, setDatas] = React.useState([
+    { shimei: "", bushoId: "", yakushokuId: "", kyujitsuGroupId: "", id: "" },
+  ]);
+  const [uid, setUid] = React.useState(0);
   const [condition1, setCondition1] = React.useState("A");
+  const [condition2, setCondition2] = React.useState("");
+  const [condition3, setCondition3] = React.useState("");
   const [condition4, setCondition4] = React.useState("");
   const [condition5, setCondition5] = React.useState("");
-  const [condition6, setCondition6] = React.useState("");
-  const [condition7, setCondition7] = React.useState("");
 
   const toggleAddDrawer = (open: boolean) => {
     setStateAdd(open);
     loadShainList();
     // setState(!open);
   };
-  const toggleDrawer = (open: boolean, id:number=0) => {
+  const toggleDrawer = (open: boolean, id: number = 0) => {
     setState(open);
     loadShainList();
     // setStateAdd(!open);
@@ -70,83 +115,90 @@ const ShainTourokuPage = () => {
 
     let s = await res.json();
 
-    if(s){
+    if (s) {
       setDatas(s.shainList);
       loaded = true;
     }
-    
-    //  console.log(s)
-    
-  }
+  };
 
   React.useEffect(() => {
-    if (!loaded) 
-    {
+    if (!loaded) {
       socket = sessions.connectSession();
       sessions.socketInitializer(socket);
-      
-      socket.on("after-shain-add", ()=>{
-        toggleAddDrawer(false)
-      })
-     
+
+      socket.on("after-shain-add", () => {
+        toggleAddDrawer(false);
+      });
+
       loadShainList();
-     
     }
     console.log(
-      `${condition1} + ${condition4} + ${condition5} + ${condition6} + ${condition7}`
+      `${condition1} + ${condition2} + ${condition3} + ${condition4} + ${condition5}`
     );
-  }, [condition1, condition4, condition5, condition6, condition7]);
+  }, [condition1, condition2, condition3, condition4, condition5]);
 
   return (
-    <div>
-      <div className="p-12">
-        <div className="flex space-x-8">
-          <ReloadButton />
-          <ExitButton />
+    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+      <Navigation subTitles={subTitle} />
+      <div className="w-full mx-5 p-12 rounded-lg bg-white/[.07]">
+        {/* ↓ページタイトルとログイン情報 */}
+        <div className="flex flex-row justify-between">
+          <h1 className="text-4xl text-white font-bold">社員登録</h1>
+          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
-        {/* ↓新規追加ボタンの作成 */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => toggleAddDrawer(true)}
-            className="border rounded-md border-indigo-600 text-indigo-600 hover:bg-slate-100 justify-self-end w-24 h-8"
-          >
-            新規登録
-          </button>
-        </div>
-        <div className="flex flex-col items-center mt-8">
+        <div className="flex flex-col items-center justify-center">
           {/* ↓フィルター */}
-          <div>
-            <div>
-              <input type="checkbox" onChange={changeHandler} />
-              <label>退職者も表示</label>
+          <div className="mt-10 w-2/5">
+            <div className="flex items-center ">
+              <CheckBox label="退職者も表示" onchange={changeHandler} />
             </div>
-            <div className="">
-              <input
-                className="border"
-                placeholder={columns[1]}
-                onChange={(e) => setCondition4(e.target.value)}
-              ></input>
-              <input
-                className="border"
-                placeholder={columns[2]}
-                onChange={(e) => setCondition5(e.target.value)}
-              ></input>
-              <input
-                className="border"
-                placeholder={columns[3]}
-                onChange={(e) => setCondition6(e.target.value)}
-              ></input>
-              <input
-                className="border"
-                placeholder={columns[4]}
-                onChange={(e) => setCondition7(e.target.value)}
-              ></input>
+            <div className="flex justify-between">
+              <div className="flex space-x-3">
+                <input
+                  className={formDesign}
+                  placeholder={columns[1]}
+                  onChange={(e) => setCondition2(e.target.value)}
+                />
+                <select
+                  className={formDesign}
+                  onChange={(e) => setCondition3(e.target.value)}
+                >
+                  {bushoValues.map((busho, index) => (
+                    <option key={index} value={busho.value}>
+                      {busho.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className={formDesign}
+                  onChange={(e) => setCondition4(e.target.value)}
+                >
+                  {yakushokuValues.map((yakushoku, index) => (
+                    <option key={index} value={yakushoku.value}>
+                      {yakushoku.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className={formDesign}
+                  onChange={(e) => setCondition5(e.target.value)}
+                >
+                  {kyuuzituValues.map((kyuuzitu, index) => (
+                    <option key={index} value={kyuuzitu.value}>
+                      {kyuuzitu.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
           {/* ↓テーブル */}
-          <div className="flex flex-row border mt-8">
-            <TableContainer component={Paper} className="">
-              <Table sx={{ maxWidth: 1920, minWidth: 1050 }}>
+          <div className="flex flex-col mt-3 w-2/5 ">
+            <TableContainer
+              component={Paper}
+              className="border rounded-lg shadow-lg"
+            >
+              <Table sx={{ minWidth: 1050 }}>
                 <TableHead>
                   <TableRow>
                     {columns.map((column, i) => (
@@ -158,54 +210,38 @@ const ShainTourokuPage = () => {
                   {datas.map((data, index) => (
                     <TableRow key={index}>
                       <TableCell>
-                        <IconButton onClick={() => toggleDrawer(true, parseInt( data.id))}>
+                        <IconButton
+                          onClick={() => toggleDrawer(true, parseInt(data.id))}
+                        >
                           <CreateIcon />
                         </IconButton>
                       </TableCell>
                       <TableCell>{data.shimei}</TableCell>
                       <TableCell>
-                        <Select  native
-                              label="部署"
-                              id="grouped-department-select"
-                              value={data.bushoId}
-                            >
-                          <option aria-label="None" />
-                          <option value={1}>システム開発部</option>
-                          <option value={2}>営業部</option>
-                          <option value={3}>
-                            ビジネスサポート部 リレーショングループ
-                          </option>
-                          <option value={4}>ビジネスサポート部 ユースウェア</option>
-                          <option value={5}>ビジネスサポート部 技術部</option>
-                          <option value={5}>ビジネスサポート部 業務部</option>
-
+                        <Select native value={data.bushoId}>
+                          {bushoValues.map((busho, index) => (
+                            <option key={index} value={busho.value}>
+                              {busho.label}
+                            </option>
+                          ))}
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Select
-                          native
-                          label=""
-                          value={data.yakushokuId}
-                        >
-                          <option aria-label="None" />
-                          <option value={1}>正社員</option>
-                          <option value={2}>契約社員</option>
-                          <option value={3}>派遣社員</option>
-                          <option value={4}>アルバイト</option>
-                          <option value={5}>インターシップ</option>
+                        <Select native label="" value={data.yakushokuId}>
+                          {yakushokuValues.map((yakushoku, index) => (
+                            <option key={index} value={yakushoku.value}>
+                              {yakushoku.label}
+                            </option>
+                          ))}
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Select
-                          native
-                          label=""
-                          value={data.kyujitsuGroupId}
-                        >
-                          <option aria-label="None" />
-                          <option value={1}>常務</option>
-                          <option value={2}>部長</option>
-                          <option value={3}>マネージャー</option>
-                          <option value={4}>主任</option>
+                        <Select native label="" value={data.kyujitsuGroupId}>
+                          {kyuuzituValues.map((kyuuzitu, index) => (
+                            <option key={index} value={kyuuzitu.value}>
+                              {kyuuzitu.label}
+                            </option>
+                          ))}
                         </Select>
                       </TableCell>
                     </TableRow>
@@ -213,15 +249,34 @@ const ShainTourokuPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+            <div className="flex justify-between h-16 mt-5">
+              <ReloadButton />
+              <button
+                className="border rounded-full hover:bg-slate-100 bg-white text-[#556593] w-40 h-16"
+                onClick={() => toggleDrawer(true)}
+              >
+                新規追加
+              </button>
+            </div>
           </div>
         </div>
+        <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
+          <EditPage
+            socket={socket}
+            uid={uid}
+            onClose={() => {
+              toggleDrawer(false);
+            }}
+          />
+        </Drawer>
+        <Drawer
+          anchor="right"
+          open={stateAdd}
+          onClose={() => toggleAddDrawer(false)}
+        >
+          <AddPage socket={socket} onClose={() => toggleAddDrawer(false)} />
+        </Drawer>
       </div>
-      <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-        <EditPage socket={socket} uid={uid} onClose={()=>{toggleDrawer(false)}}/>
-      </Drawer>
-      <Drawer anchor="right" open={stateAdd} onClose={() => toggleAddDrawer(false)}>
-        <AddPage socket={socket} onClose={() => toggleAddDrawer(false)}/>
-      </Drawer>
     </div>
   );
 };

@@ -4,6 +4,10 @@ import { ProjectItem, sakugyoNaiyouItem } from "@/src/lib/report";
 const db = require("@/src/lib/database.ts");
 var dataBaseConnectionStr: string = "../../../db.sqlite3";
 
+if (process.env.NODE_ENV != "development") {
+  dataBaseConnectionStr = "../../db.sqlite3";
+}
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method == "POST" && req.body) {
     var body = JSON.parse(req.body);

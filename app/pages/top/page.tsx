@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import BasicCard, { cardColors } from "@/components/atmos/Card";
 import LoginAvatar from "@/components/atmos/Avatar";
-
 var socket: Socket;
 const sessions = require("@/src/lib/sessions");
 
@@ -30,7 +29,11 @@ const TopPage = () => {
       url: "/pages/top/business/ProjectReportEntry",
       tab: false,
     },
-    { label: "プロジェクト\n報告書出力", url: "", tab: false },
+    {
+      label: "プロジェクト\n報告書出力",
+      url: "/pages/top/business/ProjectReportOutput",
+      tab: false,
+    },
     {
       label: "プロジェクト\n登録",
       url: "/pages/top/business/ProjectEntry",
@@ -40,7 +43,7 @@ const TopPage = () => {
 
   const pageTitles3 = [
     { label: "引合物件一覧表\n出力", url: "", tab: false },
-    { label: "顧客登録", url: "", tab: false },
+    { label: "顧客登録", url: "/pages/top/business/ClientEntry", tab: false },
     { label: "サポート一覧\n出力", url: "", tab: false },
   ];
 
@@ -63,7 +66,7 @@ const TopPage = () => {
       <div className="flex flex-row h-screen p-10 bg-[#556593]">
         <Navigation subTitles={subTitle} />
         {/* ↓2023-1019 デザイン変更 */}
-        <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
+        <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
           <div className="flex flex-row justify-between">
             <h1 className="text-4xl text-white font-bold">通常業務</h1>
             <LoginAvatar

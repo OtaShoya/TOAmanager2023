@@ -18,16 +18,21 @@ import {
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./component/Edit";
-
+import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import LoginAvatar from "@/components/atmos/Avatar";
+import { Socket } from "socket.io-client";
+import CheckBox from "@/components/atmos/CheckBox";
+let socket: Socket;
 const columns = ["", "プロジェクト", "報告日"];
 
 const datas = [{ projectName: "", ReportDate: "" }];
+const formDesign = "border rounded-md p-5";
 
 const ProjectReportEntryPage = () => {
   const [state, setState] = React.useState(false);
   const [condition1, setCondition1] = React.useState("A");
-  const [condition4, setCondition4] = React.useState("");
-  const [condition5, setCondition5] = React.useState("");
+  const [condition2, setCondition2] = React.useState("");
+  const [condition3, setCondition3] = React.useState("");
 
   const toggleDrawer = (open: boolean) => {
     setState(open);
@@ -42,47 +47,41 @@ const ProjectReportEntryPage = () => {
   };
 
   React.useEffect(() => {
-    console.log(`${condition1} + ${condition4} + ${condition5}`);
-  }, [condition1, condition4, condition5]);
+    console.log(`${condition1} + ${condition2} + ${condition3}`);
+  }, [condition1, condition2, condition3]);
 
   return (
-    <div>
-      <div className="p-12">
-        <div>
-          <ReloadButton />
-          <ExitButton />
+    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+      <Navigation subTitles={subTitle} />
+      <div className="w-full mx-5 p-12 rounded-lg bg-white/[.07]">
+        {/* ↓ページタイトルとログイン情報 */}
+        <div className="flex flex-row justify-between">
+          <h1 className="text-4xl text-white font-bold">
+            プロジェクト報告書登録
+          </h1>
+          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
-        {/* ↓新規追加ボタンの作成 */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => toggleDrawer(true)}
-            className="border rounded-md border-indigo-600 text-indigo-600 hover:bg-slate-100 justify-self-end w-24 h-8"
-          >
-            新規登録
-          </button>
-        </div>
-        <div className="flex flex-col items-center mt-8">
+        <div className="flex flex-col items-center justify-center">
           {/* ↓フィルター */}
-          <div>
-            <div>
-              <input type="checkbox" onChange={changeHandler} />
-              <label>終了分は除く</label>
+          <div className="mt-10 w-2/5">
+            <div className="flex items-center">
+              <CheckBox label="終了分を除く" onchange={changeHandler} />
             </div>
-            <div className="">
+            <div className="flex space-x-3">
               <input
-                className="border"
+                className={formDesign}
                 placeholder={columns[1]}
-                onChange={(e) => setCondition4(e.target.value)}
-              ></input>
+                onChange={(e) => setCondition2(e.target.value)}
+              />
               <input
-                className="border"
+                className={formDesign}
                 placeholder={columns[2]}
-                onChange={(e) => setCondition5(e.target.value)}
-              ></input>
+                onChange={(e) => setCondition3(e.target.value)}
+              />
             </div>
           </div>
           {/* ↓テーブル */}
-          <div className="flex flex-row border mt-8">
+          <div className="flex flex-col mt-3 w-2/5">
             <TableContainer component={Paper} className="">
               <Table sx={{ maxWidth: 1920, minWidth: 1050 }}>
                 <TableHead>
@@ -107,6 +106,9 @@ const ProjectReportEntryPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+            <div className="flex justify-between h-16 mt-5">
+              <ReloadButton />
+            </div>
           </div>
         </div>
       </div>
