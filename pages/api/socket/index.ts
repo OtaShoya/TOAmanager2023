@@ -5,6 +5,7 @@ import fs from "fs";
 
 import { weekReport, ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
 import { time } from "console";
+import type { Project } from "@/src/lib/database";
 
 class Shain{
   id!: number|string|null;
@@ -228,6 +229,85 @@ const SocketHandler = (req: any, res: any) => {
         }
       })
 
+      socket.on("project-add", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "project-add",
+                  project: msg.project, 
+                  members: msg.members,
+                  tasks: msg.tasks,
+                }
+              ),
+            });
+
+            // const w = await res.json()
+
+            socket.emit("after-project-add")
+          }
+          
+          r();
+          
+        }
+      })
+
+
+      socket.on("project-update", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "project-update",
+                  project: msg.project, 
+                  members: msg.members,
+                  tasks: msg.tasks,
+                }
+              ),
+            });
+
+            // const w = await res.json()
+
+            socket.emit("after-project-update")
+          }
+          
+          r();
+          
+        }
+      })
+
+      socket.on("project-delete", (msg:any)=>{
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "project-delete",
+                  id: msg.id,
+                }
+              ),
+            });
+          }
+          
+          r();
+
+          socket.emit("after-project-delete")
+        }
+      })
+
       socket.on("shain-delete", (msg:any)=>{
         
         if( sessionStore.findSession( msg.sessionID ) == msg.userID )
@@ -249,25 +329,6 @@ const SocketHandler = (req: any, res: any) => {
 
           socket.emit("after-shain-delete")
         }
-      })
-
-      socket.on("project-add", (msg:any)=>{
-        const r = async ()=>{
-          const res =  await fetch("http://localhost:3000/api/db", 
-          { 
-            method: "POST", 
-            body: JSON.stringify(
-              {
-                type: "project-add",
-                project: msg.project,
-              }
-            ),
-          });
-        }
-        
-        r();
-
-        socket.emit("after-project-add")
       })
 
       socket.on("download-week", (msg:any)=>{

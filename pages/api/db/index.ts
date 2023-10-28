@@ -2,7 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { Kinmu, Shain } from '../../../src/lib/database'
 import { ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
 const db = require("@/src/lib/database.ts")
+
 var dataBaseConnectionStr:string = "../../../db.sqlite3";
+if(process.env.NODE_ENV != "development"){
+    dataBaseConnectionStr = "../../db.sqlite3";
+}
 
 export default function handler(req:NextApiRequest, res:NextApiResponse){
     if(req.method == "POST" && req.body){
@@ -50,7 +54,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 }
             case "kinmu-update":
                 {
-                    console.log("ees");
+                    
                     break;
                 }
             case "shain-list":
@@ -61,7 +65,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             (v:any)=>{
                                 res.status(200).json({shainList: v});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             } 
                         );
                     }
@@ -88,7 +92,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 {
                     const updateShain = async () => {
                         db.loadDb(dataBaseConnectionStr);
-                        console.log(body?.shain);
+                        // console.log(body?.shain);
                         const ser = await db.updateShain(body.shain).then( 
                             (v:any)=>{
                                 res.status(200).json({user: v});
@@ -131,27 +135,196 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     deleteShain();
                     break;
                 }
-            case "shuu-sakugyou-houkoku":
+            case "project-add":
+                {
+                    const addProjectf = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        await db.addProject(body.project).then( 
+                            (v:any)=>{
+                                if(body.members.length > 0){
+                                    body.members.forEach( (element:any, index:number) => {
 
-                const kinmuListFunc = async ()=> {
-                    db.loadDb(dataBaseConnectionStr);
-                    const ser = await db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then( 
-                        (v:any)=>{
-                            res.status(200).json({projectList: v});
-                            res.end();
-                            // console.log(v);
-                            db.closeDb(dataBaseConnectionStr);
-                        } 
-                    );
-                    
+                                        const addMembers = async () => {
+    
+                                            await db.addProjectMember( {shainId: element.projectMember}, v )
+                                        }
+                                        addMembers();
+                                    });
+                                }
+                               
+                                if(body.tasks.length > 0){
+                                    body.tasks.forEach( (element:any, index:number) =>{
+
+                                        const addTasks = async () => {
+    
+                                            await db.addProjectSakugyouNaiyou( element, v)
+    
+                                        }
+                                        addTasks();
+    
+                                    } )
+                                }
+                                
+                        
+                            } 
+                        );
+
+                        res.status(200).json({added: true});
+                        res.end();
+                        db.closeDb(dataBaseConnectionStr);
+                        
+                    }
+                    addProjectf();
+                    break;
                 }
-                kinmuListFunc();
-                // db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
-                //     (v:any)=>{
-                //         console.log(v)
-                //     }
-                // )
-                break
+            case "project-list":
+                {
+                    const getProjectListF = async ()=>{
+                        db.loadDb(dataBaseConnectionStr);
+                        await db.getProjectList().then( 
+                            (v:any)=>{
+                              
+                                res.status(200).json({projectList: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                    }
+
+                    getProjectListF();
+
+                    break;
+                }
+            case "project-delete":
+                {
+
+                    const deleteProject = async () => {
+                        
+                        db.loadDb(dataBaseConnectionStr);
+                        await db.deleteProject(body.id).then(
+                         
+                            (v:any)=>{
+                                console.log(body.id);
+                                db.cleanProjectMembers(body.id);
+                                db.cleanProjectSakugyouNaiyou(body.id);
+                                res.status(200).json({deleted: true});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+
+                            } 
+                        )
+
+                    }
+                    deleteProject();
+                    break;
+                }
+            case "project-get":
+                {
+                    const getProject = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        const project = await db.getProject(body.id).then( 
+                            (v:any)=>{
+                                return v;
+                            } 
+                        );
+                        const members = await db.getProjectMembers(body.id).then( 
+                            (v:any)=>{
+                                return v;
+                            } 
+                        );
+                        
+                        const sakugyouNaiyou = await db.getProjectSakugyouNaiyou(body.id).then( 
+                            (v:any)=>{
+                                return v;
+                            } 
+                        );
+
+                        res.status(200).json({project: project, members: members, sakugyouNaiyou: sakugyouNaiyou});
+                        res.end();
+                        db.closeDb(dataBaseConnectionStr);
+
+                    }
+                    getProject();
+                    break; 
+                }
+            case "project-update":
+                {
+                    const updateProject = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        const project = await db.updateProject(body.project).then( 
+                            (v:any)=>{
+                                return v;
+                            } 
+                        );
+                        await db.cleanProjectMembers(body.project.id)
+                        if(body.members.length > 0){
+                            
+                            await body.members.forEach( (element:any, index:number) => {
+
+                                const addMembers = async () => {
+
+                                    await db.addProjectMember( {shainId: element.projectMember}, body.project.id)
+                                }
+                                addMembers();
+                            });
+                        }
+                        await db.cleanProjectSakugyouNaiyou(body.project.id)
+                        if(body.tasks.length > 0){
+                            
+                            await body.tasks.forEach( (element:any, index:number) =>{
+                                
+                                const addTasks = async () => {
+                                    
+                                    await db.addProjectSakugyouNaiyou( element, body.project.id)
+
+                                }
+                                addTasks();
+
+                            } )
+                        }
+                        // const members = await db.updateProjectMembers(body.member).then( 
+                        //     (v:any)=>{
+                        //         return v;
+                        //     } 
+                        // );
+                        
+                        // const sakugyouNaiyou = await db.updateProjectSakugyouNaiyou(body.sakugyouNaiyou).then( 
+                        //     (v:any)=>{
+                        //         return v;
+                        //     } 
+                        // );
+
+                        res.status(200).json({updated: true});
+                        res.end();
+                        db.closeDb(dataBaseConnectionStr);
+                    }
+                    updateProject()
+
+                    break;
+                }
+            case "shuu-sakugyou-houkoku":
+                {
+                    const kinmuListFunc = async ()=> {
+                        db.loadDb(dataBaseConnectionStr);
+                        const ser = await db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then( 
+                            (v:any)=>{
+                                res.status(200).json({projectList: v});
+                                res.end();
+                                // console.log(v);
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                        
+                    }
+                    kinmuListFunc();
+                    // db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
+                    //     (v:any)=>{
+                    //         console.log(v)
+                    //     }
+                    // )
+                    break
+                }
+             
             default:
                 break;
         }

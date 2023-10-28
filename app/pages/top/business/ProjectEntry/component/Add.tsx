@@ -39,7 +39,7 @@ type FormType = {
   file1: string;
   file2: string;
   forms: {
-    projectMember: string;
+    projectMember: number;
   }[];
   forms2: {
     task: string;
@@ -77,34 +77,32 @@ function refreshShain(){
       }
   
       styleElement.innerHTML = styleString;
-  
-     
-  
+
     }
   }, 1 ) 
-
-  
   
 }
 
-const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, projectList}:any) => {
+const EditPage = ({ socket, members, projectList}:any) => {
   const [files, setFiles] = useState<File[]>([]);
   const [document, setDocument] = useState<File[]>([]);
-  const [selectedProject, setProject] = useState(
-    {
-    });
   const inputRef = useRef<HTMLInputElement>(null);
   const documentRef = useRef<HTMLInputElement>(null);
-  const { control, handleSubmit, register, reset, setValue, resetField } = useForm<FormType>({
-    defaultValues: selectedProject,
+  const { control, handleSubmit, register, reset } = useForm<FormType>({
+    defaultValues: {
+      // forms: [{ projectMember: 0 }],
+      // forms2: [
+      //   {
+      //     task: "",
+      //     work: "",
+      //     start: "",
+      //     finish: "",
+      //     costs: "",
+      //   },
+      // ],
+    },
   });
-  const deleteProject = ()=>{
-      socket.emit("project-delete", {
-        sessionID: localStorage.getItem("sessionID"),
-        userID: localStorage.getItem("userID"),
-        id: projectId,
-      })
-  }
+
   const onFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files == null) return;
@@ -128,24 +126,12 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
   );
 
   const onSubmit: SubmitHandler<FormType> = (data) => {
-    // let p = new Project();
-    var honkadouYoteiHi;
-    var kashibi;
-    var shuuryoubi;
-    if(data.scheduledDate){
-      honkadouYoteiHi = data.scheduledDate.toDateString()
-    }
-    if(data.startDate){
-      kashibi = data.startDate.toDateString()
-    }
-    if(data.endDate){
-      shuuryoubi = data.endDate.toDateString()
-    }
+    console.log(data);
+    
     let p:Project = {
-      id: projectId,
       kokyakuId: data.customer,
-      eigyouTantouId: data.pic,
       jyoutaiId: data.state,
+      eigyouTantouId: data.pic,
       jyuchuuRouteId: data.route,
       bangou: data.projectNo,
       oyaProjectId: data.projectPar,
@@ -155,21 +141,21 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
       yosa: data.budget,
       cousuu: data.costs1,
       keihi: data.expenses,
-      honkadouYoteiHi: honkadouYoteiHi,
-      kashibi:  kashibi,
-      shuuryoubi: shuuryoubi,
+      honkadouYoteiHi: data.scheduledDate.toDateString(),
+      kashibi:  data.startDate.toDateString(),
+      shuuryoubi: data.endDate.toDateString(),
       memo: data.memo,
       mitsumoriFile: "",
       documentFolder: "",
       shuuryuHoukoku: "",
     }
-    socket.emit("project-update", {
+    console.log( data.forms);
+    socket.emit("project-add", {
       sessionID: localStorage.getItem("sessionID"),
       userID: localStorage.getItem("userID"),
-     
       project: p,
-      members: forms,
-      tasks: forms2,
+      members: data.forms,
+      tasks: data.forms2,
     })
 
 
@@ -193,99 +179,30 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
     control,
   });
 
-  useEffect(()=>{
+  // useEffect(()=>{
 
-    const r = async () => {
+  //   const r = async () => {
 
-      if(loaded){
-        return;
-      }
+  //     if(loaded){
+  //       return;
+  //     }
 
-      const res2 = await fetch("http://localhost:3000/api/db", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "project-get",
-          id: projectId
-        }),
-      });
+  //   };
 
-      let s2 = await res2.json();
-
-      if(s2?.project){
-        setValue("customer", s2.project.kokyaku_id);
-        setValue("route", s2.project.jyuchuu_route_id);
-        setValue("pic", s2.project.eigyou_tantou_id);
-        setValue("state", s2.project.jyoutai_id);
-        setValue("projectNo", s2.project.bangou)
-        setValue("projectPar", s2.project.oya_project_id)
-        setValue("projectName", s2.project.na)
-        setValue("projectSummary", s2.project.gaiyou)
-        setValue("projectGoal", s2.project.mokuhyou)
-        setValue("budget",  s2.project.yosa); //yosan
-        setValue("costs1",  s2.project.cousuu);
-        setValue("expenses", s2.project.keihi);
-        setValue("scheduledDate", new Date(s2.project.honkadou_youtei_hi));
-        setValue("startDate", new Date(s2.project.kashibi));
-        setValue("endDate", new Date(s2.project.shuuryobi));
-        setValue("memo", s2.project.memo)
-        setValue("file1", "")
-        setValue("file2", "")
-
-        if(s2.members){
-          
-          formsRemove();
-          
-          s2.members.forEach((element:any, index:number)=> {
-            formsAppend({
-              projectMember: ""
-            })
-            
-            setValue(`forms.${index}.projectMember`,  element.shain_id)
-          });
-          refreshShain();
-        }
-
-        if(s2.sakugyouNaiyou){
-          
-          forms2Remove();
-
-          s2.sakugyouNaiyou.forEach((element:any, index:number)=> {
-            forms2Append({
-              task: element.task_id,
-              work:  element.sakugyou_naiyou,
-              start:  element.kaishi_yotei_hi,
-              finish: element.shuuryou_yotei_hi,
-              costs:  element.yotei_kousuu,
-            })
-            setValue(`forms2.${index}.task`,  element.task_id)
-            setValue(`forms2.${index}.work`,  element.sakugyou_naiyou)
-            setValue(`forms2.${index}.start`,  element.kaishi_yotei_hi)
-            setValue(`forms2.${index}.finish`,  element.shuuryou_yotei_hi)
-            setValue(`forms2.${index}.costs`,  element.yotei_kousuu)
-          })
-        }
-
-        setLoadedFunction(true);
-      }
-
-    };
-
-    r();
+  //   r();
     
-  })
+  // })
 
   return (
     <Box sx={{ width: widthGroup.drawer, p: 1 }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <h1 className="text-center text-2xl mt-16 my-8">
-          更新プロジェクト登録
+          新規プロジェクト登録
         </h1>
         <div className="flex justify-end space-x-4">
-          <button className="border border-indigo-600 hover:bg-slate-100 rounded-md w-16" onClick={()=>{
-            deleteProject();
-          }}>
+          {/* <button className="border border-indigo-600 hover:bg-slate-100 rounded-md w-16">
             削除
-          </button>
+          </button> */}
           <button
             type="submit"
             className="border border-indigo-600 hover:bg-slate-100 rounded-md w-16"
@@ -324,8 +241,8 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                 className="border border-indigo-600 ml-2 h-8 w-1/2"
                 {...register("pic")}
               >
-                 <option value="0"></option>
-                {members.map((member: any, i: any) => (
+                <option value="0"></option>
+                {members.map((member: any, i:any) => (
                   <option value={member.id} key={i}>
                     {member.shimei}
                   </option>
@@ -532,13 +449,11 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                       <InputLabel>メンバー</InputLabel>
                       <Select
                         label="メンバー"
-                        defaultValue={form.projectMember}
+                        defaultValue={0}
                         {...register(`forms.${index}.projectMember`)}
-                        onChange={(e:any)=>{
-                          forms[index].projectMember =  e.explicitOriginalTarget.getAttribute("data-value")
-                        }}
+                        onChange={(e)=>{ refreshShain() }}
                       >
-                        {members.map((member: any, i: any) => (
+                        {members.map((member: any, i:any) => (
                           <MenuItem value={member.id} key={i}>
                             {member.shimei}
                           </MenuItem>
@@ -551,7 +466,7 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                 <Button
                   onClick={() =>
                     formsAppend({
-                      projectMember: "",
+                      projectMember: 0,
                     })
                   }
                 >
@@ -569,11 +484,8 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                     <InputLabel>タスク</InputLabel>
                     <Select
                       label="タスク"
-                      defaultValue={form2.task}
+                      defaultValue=""
                       {...register(`forms2.${index}.task`)}
-                      onChange={(e:any)=>{
-                        forms2[index].task =  e.explicitOriginalTarget.getAttribute("data-value")
-                      }}
                     >
                       {taskItems.map((item: string, i) => (
                         <MenuItem value={i} key={i}>
@@ -587,36 +499,24 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                     label="作業内容"
                     variant={textBoxVariant}
                     sx={{ width: widthGroup.width2 }}
-                    onChange={(e:any)=>{
-                      forms2[index].work =  e.target.value
-                    }}
                   />
                   <TextField
                     {...register(`forms2.${index}.start`)}
                     label="開始予定日"
                     variant={textBoxVariant}
                     sx={{ width: widthGroup.width2 }}
-                    onChange={(e:any)=>{
-                      forms2[index].start =  e.target.value
-                    }}
                   />
                   <TextField
                     {...register(`forms2.${index}.finish`)}
                     label="終了予定日"
                     variant={textBoxVariant}
                     sx={{ width: widthGroup.width2 }}
-                    onChange={(e:any)=>{
-                      forms2[index].finish =  e.target.value
-                    }}
                   />
                   <TextField
                     {...register(`forms2.${index}.costs`)}
                     label="予定工数"
                     variant={textBoxVariant}
                     sx={{ width: widthGroup.width2 }}
-                    onChange={(e:any)=>{
-                      forms2[index].costs = e.target.value
-                    }}
                   />
                   <Button onClick={() =>{forms2Remove(index);}}>削除</Button>
                 </div>

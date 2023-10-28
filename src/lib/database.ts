@@ -74,8 +74,9 @@ class Shain{
 class Project{
     id?:number
     kokyakuId?:number //client
+    eigyouTantouId?:number
     jyoutaiId?:number
-    jyuchuuRootId?:number //accepting order root
+    jyuchuuRouteId?:number //accepting order root
     bangou?:string
     oyaProjectId?:number //parent project
     na?:string
@@ -349,7 +350,6 @@ const getShainList = function(){
     })
 };
 
-
 const getKinmuList = function(id:number){
     return new Promise((resolve, reject)=>{
        
@@ -392,7 +392,7 @@ const getKinmuList = function(id:number){
                             kinmu.shainId = element.shain_id;
                             kinmu.hidsuke = element.hidsuke;
                             //element.youbi;
-                            kinmu.kinmuKubun =element.kinmu_kubun;
+                            kinmu.kinmuKubun = element.kinmu_kubun;
                             kinmu.kinmuKeitai = element.kinmu_keitai;
                             kinmu.shusshaJikoku = shussha_jikoku_dt ;
                             kinmu.taishaJikoku = taisha_jikoku_dt;
@@ -410,7 +410,6 @@ const getKinmuList = function(id:number){
         })
     })
 };
-
 
 const updateKinmu = function(kinmu:Kinmu){
     // console.log(kinmu.id)
@@ -700,6 +699,408 @@ const deleteShain = (id:number) =>{
     })
 }
 
+const addProject = ( project:Project )=>{
+    return new Promise((resolve, reject)=>{     
+        let stm = db.prepare(
+            "INSERT INTO"
+            +" project"
+            +"("
+            +" kokyaku_id "
+            +",jyoutai_id"
+            +",eigyou_tantou_id"
+            +",jyuchuu_route_id"
+            +",bangou"
+            +",oya_project_id"
+            +",na"
+            +",gaiyou"
+            +",mokuhyou"
+            +",yosa"
+            +",cousuu"
+            +",keihi"
+            +",honkadou_youtei_hi"
+            +",kashibi"
+            +",shuuryobi"
+            +",memo"
+            +",mitsumori_file"
+            +",document_folder"
+            +",shuuryu_houkoku"
+            +")"
+            +" VALUES"
+            +"("
+            +" $kokyaku_id"
+            +",$jyoutai_id"
+            +",$eigyou_tantou_id"
+            +",$jyuchuu_route_id"
+            +",$bangou"
+            +",$oya_project_id"
+            +",$na"
+            +",$gaiyou"
+            +",$mokuhyou"
+            +",$yosa"
+            +",$cousuu"
+            +",$keihi"
+            +",date($honkadou_youtei_hi)"
+            +",$kashibi"
+            +",$shuuryobi"
+            +",$memo"
+            +",$mitsumori_file"
+            +",$document_folder"
+            +",$shuuryu_houkoku"
+            +")"
+            
+        )
+        stm.run({
+            $kokyaku_id: project.kokyakuId,
+            $jyoutai_id: project.jyoutaiId,
+            $eigyou_tantou_id: project.eigyouTantouId,
+            $jyuchuu_route_id: project.jyuchuuRouteId,
+            $bangou: project.bangou,
+            $oya_project_id: project.oyaProjectId,
+            $na: project.na,
+            $gaiyou: project.gaiyou,
+            $mokuhyou: project.mokuhyou,
+            $yosa: project.yosa,
+            $cousuu: project.cousuu,
+            $keihi: project.keihi,
+            $honkadou_youtei_hi: project.honkadouYoteiHi,
+            $kashibi: project.kashibi,
+            $shuuryobi: project.shuuryoubi,
+            $memo: project.memo,
+            $mitsumori_file: project.mitsumoriFile,
+            $document_folder: project.documentFolder,
+            $shuuryu_houkoku: project.shuuryuHoukoku,
+        },  function(error:any) {
+
+            stm.finalize();
+            // @ts-ignore
+            resolve(this.lastID)
+        })
+    
+    })
+}
+
+const updateProject = ( project:Project )=>{
+    return new Promise((resolve, reject)=>{ 
+        let stm = db.prepare(
+            "UPDATE"
+            +" project"
+            +" SET"
+            +" kokyaku_id = $kokyaku_id"
+            +",jyoutai_id = $jyoutai_id"
+            +",eigyou_tantou_id = $eigyou_tantou_id"
+            +",jyuchuu_route_id = $jyuchuu_route_id"
+            +",bangou = $bangou"
+            +",oya_project_id = $oya_project_id"
+            +",na = $na"
+            +",gaiyou = $gaiyou"
+            +",mokuhyou = $mokuhyou"
+            +",yosa = $yosa"
+            +",cousuu = $cousuu"
+            +",keihi = $keihi"
+            +",honkadou_youtei_hi = $honkadou_youtei_hi"
+            +",kashibi = $kashibi"
+            +",shuuryobi = $shuuryobi"
+            +",memo = $memo"
+            +",mitsumori_file = $mitsumori_file"
+            +",document_folder = $document_folder"
+            +",shuuryu_houkoku = $shuuryu_houkoku"
+            +" where"
+            +" id = $id"
+            
+        )
+        stm.run({
+            $kokyaku_id: project.kokyakuId,
+            $jyoutai_id: project.jyoutaiId,
+            $eigyou_tantou_id: project.eigyouTantouId,
+            $jyuchuu_route_id: project.jyuchuuRouteId,
+            $bangou: project.bangou,
+            $oya_project_id: project.oyaProjectId,
+            $na: project.na,
+            $gaiyou: project.gaiyou,
+            $mokuhyou: project.mokuhyou,
+            $yosa: project.yosa,
+            $cousuu: project.cousuu,
+            $keihi: project.keihi,
+            $honkadou_youtei_hi: project.honkadouYoteiHi,
+            $kashibi: project.kashibi,
+            $shuuryobi: project.shuuryoubi,
+            $memo: project.memo,
+            $mitsumori_file: project.mitsumoriFile,
+            $document_folder: project.documentFolder,
+            $shuuryu_houkoku: project.shuuryuHoukoku,
+            $id: project.id,
+        },  function(error:any) {
+
+            stm.finalize();
+            // @ts-ignore
+            resolve("")
+        })
+    
+    })
+}
+
+const deleteProject = (id:number)=>{
+    return new Promise( (resolve, reject)=>{
+        db.serialize(()=>{
+            let stm = db.prepare(
+                "Delete from"
+                +" project"
+                +" where"
+                +" id = $id"
+            );
+            stm.run({
+                $id: id
+            });
+            stm.finalize();
+            resolve("");
+        })
+    } )
+}
+
+const getProjectList = ()=>{
+    return new Promise((resolve, reject)=>{
+        db.all( 
+            //statement
+            "SELECT"
+            +" id"
+            +",kokyaku_id"
+            +",bangou"
+            +",na"
+            +",jyoutai_id"
+            +" FROM" 
+            +" project"
+            ,
+            //parameter
+            {},
+            //callbacks
+            (err:any, rows:any)=>{
+                var e:Array<any> = [];
+                if(rows){
+                   
+                    rows.forEach( (element:any) => {
+                        e.push({
+                            id: element.id,
+                            kokyakuId: element.kokyaku_id,
+                            bangou: element.bangou,
+                            na: element.na,
+                            jyoutaiId: element.jyoutai_id,
+                        })
+                    });
+                    
+                }
+                resolve(e)
+            }
+        )
+    })
+}
+
+const cleanProjectMembers = (projectId:number)=>{
+    return new Promise((resolve, reject)=>{
+
+        db.serialize(()=>{
+            let stm = db.prepare(
+                "DELETE FROM"
+                +" project_member"
+                +" where"
+                +" project_id = $project_id"
+            );
+    
+            stm.run({
+                $project_id: projectId,
+            })
+    
+            stm.finalize()
+            resolve("")
+        })
+
+    })
+}
+
+const cleanProjectSakugyouNaiyou = (projectId:number)=>{
+    return new Promise((resolve, reject)=>{
+
+        db.serialize(()=>{
+            let stm = db.prepare(
+                "DELETE FROM"
+                +" project_sakugyou_naiyou"
+                +" where"
+                +" project_id = $project_id"
+            );
+    
+            stm.run({
+                $project_id: projectId,
+            })
+    
+            stm.finalize()
+            resolve("")
+        })
+
+    })
+}
+
+const addProjectMember = (member:any, projectId:any)=>{
+    return new Promise((resolve, reject)=>{
+        db.serialize(()=>{
+
+            let stm = db.prepare(
+                "INSERT INTO"
+                +" project_member"
+                +"("
+                +" shain_id"
+                +",project_id"
+                +")"
+                +" VALUES"
+                +"("
+                +"$shain_id"
+                +",$project_id" 
+                +")"
+            );
+    
+            stm.run({
+                $shain_id: member.shainId,
+                $project_id: projectId,
+            }, (err:any)=>{
+                stm.finalize();
+                resolve("");
+            })
+    
+        })
+    })
+}
+
+const addProjectSakugyouNaiyou = (sakugyouNaiyou:any, projectId:number)=>{
+    return new Promise((resolve, reject)=>{
+        db.serialize(()=>{
+
+            let stm = db.prepare(
+                "INSERT INTO"
+                +" project_sakugyou_naiyou"
+                +"("
+                +" project_id"
+                +",task_id"
+                +",sakugyou_naiyou"
+                +",kaishi_yotei_hi"
+                +",shuuryou_yotei_hi"
+                +",yotei_kousuu"
+                +")"
+                +" VALUES"
+                +"("
+                +" $project_id"
+                +",$task_id" 
+                +",$sakugyou_naiyou" 
+                +",date($kaishi_yotei_hi)" 
+                +",date($shuuryou_yotei_hi)"
+                +",$yotei_kousuu" 
+                +")"
+            );
+    
+            stm.run({
+                $project_id: projectId,
+                $task_id: sakugyouNaiyou.task,
+                $sakugyou_naiyou: sakugyouNaiyou.work,
+                $kaishi_yotei_hi: sakugyouNaiyou.start,
+                $shuuryou_yotei_hi: sakugyouNaiyou.finish,
+                $yotei_kousuu: sakugyouNaiyou.costs,
+            }, (err:any)=>{
+                stm.finalize();
+                resolve("");
+            })
+    
+        })
+    })
+}
+
+const getProject = (id:number)=>{
+    return new Promise((resolve, reject)=>{ 
+        db.serialize(()=>{
+            db.get(
+            "SELECT" 
+            +" kokyaku_id "
+            +",jyoutai_id"
+            +",eigyou_tantou_id"
+            +",jyuchuu_route_id"
+            +",bangou"
+            +",oya_project_id"
+            +",na"
+            +",gaiyou"
+            +",mokuhyou"
+            +",yosa"
+            +",cousuu"
+            +",keihi"
+            +",honkadou_youtei_hi"
+            +",kashibi"
+            +",shuuryobi"
+            +",memo"
+            +",mitsumori_file"
+            +",document_folder"
+            +",shuuryu_houkoku"
+            +" FROM"
+            +" project"
+            +" WHERE"
+            +" id = $id"
+            ,
+            {
+                $id: id
+            },
+            (err:any, row:any)=>{
+                if(err)console.log(err);
+                resolve(row);
+            }) 
+        })
+    })
+}
+
+const getProjectMembers = (projectId:number)=>{
+    return new Promise((resolve, reject)=>{
+        db.serialize(()=>{
+            db.all(
+            "SELECT"
+            +" shain_id"
+            +" from" 
+            +" project_member"
+            +" where"
+            +" project_id = $project_id"
+            ,
+            {
+                $project_id: projectId
+            },
+            (err:any, rows:any)=>{
+                if(err)console.log(err);
+                resolve(rows);
+            }) 
+        })
+    })
+}
+
+const getProjectSakugyouNaiyou = (projectId:number)=>{
+    return new Promise((resolve, reject)=>{
+        db.serialize(()=>{
+            db.all(
+            "SELECT"
+            +" task_id"
+            +",sakugyou_naiyou"
+            +",kaishi_yotei_hi"
+            +",shuuryou_yotei_hi"
+            +",yotei_kousuu"
+            +" from" 
+            +" project_sakugyou_naiyou"
+            +" where"
+            +" project_id = $project_id"
+            ,
+            {
+                $project_id: projectId
+            },
+            (err:any, rows:any)=>{
+                if(err)console.log(err);
+                resolve(rows);
+            }) 
+        })
+    })
+
+
+   
+}
+
 const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
     return new Promise((resolve, reject)=>{ 
     
@@ -788,8 +1189,8 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
                             projectI2.sakugyoNaiyouList = new Array<sakugyoNaiyouItem>();
                             projectI2.id = projectI.id
 
-                            if(sgRows){
-                            
+                            if(sgRows.length > 0){
+
                                 var oldTitle = sgRows[0].sakugyou_naiyou;
                                 si.name = sgRows[0].sakugyou_naiyou;
 
@@ -836,6 +1237,7 @@ const getSakugyouNaiyou = (beginDate:Date, endDate:Date, shainId:number)=>{
 module.exports = {
     Kinmu: Kinmu,
     Shain: Shain,
+    Project: Project,
     loadDb: loadDb,
     createDb: createDb,
     addShain: addShain,
@@ -851,6 +1253,17 @@ module.exports = {
     checkCredentials: checkCredentials,
     // deleteDatabase: deleteDatabase,
     getSakugyouNaiyou: getSakugyouNaiyou,
+    addProject: addProject,
+    deleteProject: deleteProject,
+    getProjectList: getProjectList,
+    cleanProjectMembers: cleanProjectMembers,
+    cleanProjectSakugyouNaiyou: cleanProjectSakugyouNaiyou,
+    addProjectMember: addProjectMember,
+    addProjectSakugyouNaiyou: addProjectSakugyouNaiyou,
+    getProject: getProject,
+    getProjectSakugyouNaiyou: getProjectSakugyouNaiyou,
+    getProjectMembers: getProjectMembers,
+    updateProject: updateProject,
 }
 
-export {Kinmu , Shain}
+export {Kinmu , Shain, Project}
