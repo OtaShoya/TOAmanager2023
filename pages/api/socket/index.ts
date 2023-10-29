@@ -3,35 +3,35 @@ import { Server as ServerIO } from "socket.io";
 import { Server as NetServer } from "http";
 import fs from "fs";
 
-import { weekReport, ProjectItem, sakugyoNaiyouItem } from "@/src/lib/report";
+import { weekReport, ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
 import { time } from "console";
 
-class Shain {
-  id!: number | string | null;
-  bango!: number | string | null;
-  password!: number | string | null;
-  shimei!: string | null;
-  furigana!: string | null;
-  ryakushou!: string | null; //abreviation
-  bushoId!: number | string | null; //post //Select
-  shainKubunId!: number | string | null; //employee devision //Select
-  yakushokuId!: number | string | null; //manegerial position //Select
-  kyujitsuGroupId!: number | string | null; //day off group //Select
-  shayouKeitaiBango!: string | null; //Company's cellphone number
-  shayouKeitaiNaisenBango!: string | null; //Company's cellphone extension number
-  nyuushaNichi!: Date | string | null; //day entering the company
-  taishaNichi!: Date | string | null; //day of resignation
-  account!: string | null;
-  mailAddress!: string | null;
-  yubinBango!: string | null; //mailNumber
-  jyuusho!: string | null; //address
-  denwaBango!: string | null; //phone Number
-  keitaiBango!: string | null; //cellphone number
-  inkan!: string | null; //stamp // data/image
+class Shain{
+  id!: number|string|null;
+  bango!: number|string|null;
+  password!: number|string|null;
+  shimei!: string|null;
+  furigana!: string|null;
+  ryakushou!: string|null;//abreviation
+  bushoId!: number|string|null; //post //Select
+  shainKubunId!: number|string|null; //employee devision //Select
+  yakushokuId!: number|string|null; //manegerial position //Select
+  kyujitsuGroupId!: number|string|null; //day off group //Select
+  shayouKeitaiBango!: string|null; //Company's cellphone number
+  shayouKeitaiNaisenBango!: string|null; //Company's cellphone extension number
+  nyuushaNichi!: Date|string|null; //day entering the company
+  taishaNichi!: Date|string|null; //day of resignation
+  account!: string|null;
+  mailAddress!: string|null;
+  yubinBango!: string|null; //mailNumber
+  jyuusho!: string|null; //address
+  denwaBango!: string|null; //phone Number
+  keitaiBango!: string|null; //cellphone number
+  inkan!: string|null; //stamp // data/image
 }
 
-const db = require("@/src/lib/database.ts");
-var dataBaseConnectionStr: string = "../../../../db.sqlite3";
+const db = require("@/src/lib/database.ts")
+var dataBaseConnectionStr:string = "../../../../db.sqlite3";
 
 const randomId = function (length = 20) {
   return Math.random()
@@ -39,22 +39,23 @@ const randomId = function (length = 20) {
     .substring(2, length + 2);
 };
 
-class SessionStore {
-  sessions: Map<string, any>;
+class SessionStore{
+    
+  sessions:Map<string, any>;
 
   constructor() {
     this.sessions = new Map();
   }
-
-  removeSession(id: string) {
+  
+  removeSession(id:string){
     this.sessions.delete(id);
   }
 
-  findSession(id: string) {
+  findSession(id:string) {
     return this.sessions.get(id);
   }
-
-  saveSession(id: string, session: any) {
+  
+  saveSession(id:string, session:any) {
     this.sessions.set(id, session);
   }
 
@@ -112,7 +113,7 @@ const SocketHandler = (req: any, res: any) => {
               password: msg.password,
             }),
           });
-
+          
           const d = await res.json();
           if (d?.id) {
             socket.sessionID = randomId() + randomId() + randomId();
@@ -134,163 +135,249 @@ const SocketHandler = (req: any, res: any) => {
         if (sessionStore.findSession(msg.sessionID) == msg.userID) {
           console.log("ok");
         }
-      });
+      })
 
-      socket.on("shain-update", (msg: any) => {
-        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
-          var shain: Shain = new Shain();
+      socket.on("shain-update", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+         
+            var shain:Shain = new Shain();
+            
+            shain.id = msg.id;
 
-          shain.id = msg.id;
+            shain.bango = msg.bango;
+            shain.password = msg.password;
+            shain.shimei = msg.shimei;
+            shain.furigana = msg.furigana;
 
-          shain.bango = msg.bango;
-          shain.password = msg.password;
-          shain.shimei = msg.shimei;
-          shain.furigana = msg.furigana;
+            shain.bushoId = msg.bushoId;
+            shain.shainKubunId = msg.shainKubunId;
+            shain.yakushokuId = msg.yakushokuId;
+            shain.kyujitsuGroupId = msg.kyujitsuGroupId;
+   
+            shain.account = msg.account;
+            shain.mailAddress = msg.mailAddress;
+            shain.yubinBango = msg.yubinBango;
+            shain.jyuusho = msg.jyuusho;
+            shain.denwaBango = msg.denwaBango;
+            shain.keitaiBango = msg.keitaiBango;
 
-          shain.bushoId = msg.bushoId;
-          shain.shainKubunId = msg.shainKubunId;
-          shain.yakushokuId = msg.yakushokuId;
-          shain.kyujitsuGroupId = msg.kyujitsuGroupId;
+            const r = async ()=>{
+              const res =  await fetch("http://localhost:3000/api/db", 
+              { 
+                method: "POST", 
+                body: JSON.stringify(
+                  {
+                    type: "shain-update",
+                    shain: shain,
+                  }
+                ),
+              });
+            }
+            
+            r();
 
-          shain.account = msg.account;
-          shain.mailAddress = msg.mailAddress;
-          shain.yubinBango = msg.yubinBango;
-          shain.jyuusho = msg.jyuusho;
-          shain.denwaBango = msg.denwaBango;
-          shain.keitaiBango = msg.keitaiBango;
+            console.log("ok");
+        }
+      })
 
-          const r = async () => {
-            const res = await fetch("http://localhost:3000/api/db", {
-              method: "POST",
-              body: JSON.stringify({
-                type: "shain-update",
-                shain: shain,
-              }),
+      socket.on("shain-add", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+         
+            var shain:Shain = new Shain();
+            
+            shain.id = msg.userID;
+
+            shain.bango = msg.bango;
+            shain.password = msg.password;
+            shain.shimei = msg.shimei;
+            shain.furigana = msg.furigana;
+
+            shain.bushoId = msg.bushoId;
+            shain.shainKubunId = msg.shainKubunId;
+            shain.yakushokuId = msg.yakushokuId;
+            shain.kyujitsuGroupId = msg.kyujitsuGroupId;
+   
+            shain.account = msg.account;
+            shain.mailAddress = msg.mailAddress;
+            shain.yubinBango = msg.yubinBango;
+            shain.jyuusho = msg.jyuusho;
+            shain.denwaBango = msg.denwaBango;
+            shain.keitaiBango = msg.keitaiBango;
+
+            const r = async ()=>{
+              const res =  await fetch("http://localhost:3000/api/db", 
+              { 
+                method: "POST", 
+                body: JSON.stringify(
+                  {
+                    type: "shain-add",
+                    shain: shain,
+                  }
+                ),
+              });
+              socket.emit("after-shain-add")
+            }
+            
+            r();
+
+            
+        }
+      })
+
+      socket.on("project-add", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "project-add",
+                  project: msg.project, 
+                  members: msg.members,
+                  tasks: msg.tasks,
+                }
+              ),
             });
-          };
 
+            // const w = await res.json()
+
+            socket.emit("after-project-add")
+          }
+          
+          r();
+          
+        }
+      })
+
+
+      socket.on("project-update", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "project-update",
+                  project: msg.project, 
+                  members: msg.members,
+                  tasks: msg.tasks,
+                }
+              ),
+            });
+
+            // const w = await res.json()
+
+            socket.emit("after-project-update")
+          }
+          
+          r();
+          
+        }
+      })
+
+      socket.on("project-delete", (msg:any)=>{
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "project-delete",
+                  id: msg.id,
+                }
+              ),
+            });
+          }
+          
           r();
 
-          console.log("ok");
+          socket.emit("after-project-delete")
         }
-      });
+      })
 
-      socket.on("project-add", (msg: any) => {
-        const r = async () => {
-          const res = await fetch("http://localhost:3000/api/db", {
-            method: "POST",
-            body: JSON.stringify({
-              type: "project-add",
-              project: msg.project,
-            }),
-          });
-        };
+      socket.on("shain-delete", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "shain-delete",
+                  id: msg.userID,
+                }
+              ),
+            });
+          }
+          
+          r();
 
-        r();
+          socket.emit("after-shain-delete")
+        }
+      })
 
-        socket.emit("after-project-add");
-      });
+      socket.on("download-week", (msg:any)=>{
+        
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const weekReportFunction = async ()=>{
 
-      socket.on("download-week", (msg: any) => {
-        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
-          const weekReportFunction = async () => {
-            var bd = new Date(msg.tgDate);
-            if (bd.getDay() > 0) {
-              bd.setDate(bd.getDate() - (bd.getDay() - 1));
-            } else {
-              bd.setDate(bd.getDate() - 6);
+            var bd =  new Date(msg.tgDate)
+            if(bd.getDay() > 0){
+              bd.setDate( bd.getDate() - (bd.getDay() - 1) );
+            }else{
+              bd.setDate( bd.getDate() - 6 );
             }
-
-            var ed = new Date(bd);
-            ed.setDate(ed.getDate() + 6);
-
-            const res = await fetch("http://localhost:3000/api/db", {
-              method: "POST",
-              body: JSON.stringify({
-                type: "shuu-sakugyou-houkoku",
-                beginDate: new Date(bd),
-                endDate: new Date(ed),
-                shainId: msg.id,
-              }),
+            
+            var ed = new Date(bd)
+            ed.setDate(ed.getDate() + 6)
+  
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "shuu-sakugyou-houkoku",
+                  beginDate: new Date(bd),
+                  endDate: new Date(ed),
+                  shainId: msg.id,
+                }
+              ),
             });
             let pl = await res.json();
             let timeGet = new Date().getTime();
-            await weekReport(
-              "./temp/" + timeGet + "-temp.xlsx",
-              msg.name,
-              new Date(bd),
-              pl.projectList
-            ).then((msg) => {
-              const imgFile = fs.readFileSync(
-                "./temp/" + timeGet + "-temp.xlsx"
-              );
-              const imgBase64 = Buffer.from(imgFile).toString("base64");
-
-              socket.emit("download", imgBase64);
+            await weekReport("./temp/" + timeGet + "-temp.xlsx", msg.name, new Date(bd), pl.projectList).then((msg)=>{
+  
+              const imgFile = fs.readFileSync("./temp/" + timeGet + "-temp.xlsx");
+              const imgBase64 = Buffer.from(imgFile).toString('base64');
+           
+              socket.emit("download", imgBase64 )
               fs.unlinkSync("./temp/" + timeGet + "-temp.xlsx");
             });
-          };
-
+            
+          }
+        
           weekReportFunction();
         }
-      });
+        
+      })
+      
+    })
 
-      socket.on("shain-add", (msg: any) => {
-        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
-          var shain: Shain = new Shain();
-
-          shain.id = msg.userID;
-
-          shain.bango = msg.bango;
-          shain.password = msg.password;
-          shain.shimei = msg.shimei;
-          shain.furigana = msg.furigana;
-
-          shain.bushoId = msg.bushoId;
-          shain.shainKubunId = msg.shainKubunId;
-          shain.yakushokuId = msg.yakushokuId;
-          shain.kyujitsuGroupId = msg.kyujitsuGroupId;
-
-          shain.account = msg.account;
-          shain.mailAddress = msg.mailAddress;
-          shain.yubinBango = msg.yubinBango;
-          shain.jyuusho = msg.jyuusho;
-          shain.denwaBango = msg.denwaBango;
-          shain.keitaiBango = msg.keitaiBango;
-
-          const r = async () => {
-            const res = await fetch("http://localhost:3000/api/db", {
-              method: "POST",
-              body: JSON.stringify({
-                type: "shain-add",
-                shain: shain,
-              }),
-            });
-            socket.emit("after-shain-add");
-          };
-
-          r();
-        }
-      });
-
-      socket.on("shain-delete", (msg: any) => {
-        if (sessionStore.findSession(msg.sessionID) == msg.userID) {
-          const r = async () => {
-            const res = await fetch("http://localhost:3000/api/db", {
-              method: "POST",
-              body: JSON.stringify({
-                type: "shain-delete",
-                id: msg.userID,
-              }),
-            });
-          };
-
-          r();
-
-          socket.emit("after-shain-delete");
-        }
-      });
-    });
   }
 
   res.end();
