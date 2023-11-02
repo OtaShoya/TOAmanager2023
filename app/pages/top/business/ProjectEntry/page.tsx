@@ -99,9 +99,10 @@ const ProjectEntryPage = () => {
   }
 
   React.useEffect(() => {
-    loadProjects();
+   
     socket = sessions.connectSession();
     sessions.socketInitializer(socket);
+    loadProjects();
     socket.on("after-project-add", (msg)=>{
       toggleDrawer(false)
     })
@@ -221,21 +222,24 @@ const ProjectEntryPage = () => {
               </Table>
             </TableContainer>
           </div>
-          <div className="h-16 mt-5">
+          <div className="flex justify-between h-16 mt-5 w-96">
             <ReloadButton />
+            <button
+                className="border rounded-full hover:bg-slate-100 bg-white text-[#556593] w-40 h-16"
+                onClick={() => toggleDrawer(true)}
+              >
+              新規追加
+            </button>
           </div>
         </div>
         <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-          <EditPage />
+          <AddPage socket={socket} projectList={datas} members={members}/>
+        </Drawer>    
+        <Drawer anchor="right" open={stateEdit} onClose={() => toggleDrawerEdit(false, 0)}>
+          <EditPage socket={socket} projectId={projectSelected} loaded={newLoaded} setLoadedFunction={setNewLoaded} projectList={datas} members={members}/>
         </Drawer>
       </div>
-      <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-        <AddPage socket={socket} projectList={datas} members={members}/>
-      </Drawer>
       
-      <Drawer anchor="right" open={stateEdit} onClose={() => toggleDrawerEdit(false, 0)}>
-        <EditPage socket={socket} projectId={projectSelected} loaded={newLoaded} setLoadedFunction={setNewLoaded} projectList={datas} members={members}/>
-      </Drawer>
 
     </div>
   );

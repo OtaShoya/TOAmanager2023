@@ -7,6 +7,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Hidden,
 } from "@mui/material";
 import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-form";
 import DatePicker from "react-datepicker";
@@ -40,8 +41,10 @@ type FormType = {
   file2: string;
   forms: {
     projectMember: string;
+    mb_id: number;
   }[];
   forms2: {
+    sn_id: number;
     task: string;
     work: string;
     start: string;
@@ -77,8 +80,6 @@ function refreshShain(){
       }
   
       styleElement.innerHTML = styleString;
-  
-     
   
     }
   }, 1 ) 
@@ -172,7 +173,7 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
       tasks: forms2,
     })
 
-
+    // console.log(forms2);
   };
 
   const {
@@ -237,28 +238,33 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
           
           s2.members.forEach((element:any, index:number)=> {
             formsAppend({
-              projectMember: ""
+              projectMember: "",
+              mb_id: 0,
             })
             
             setValue(`forms.${index}.projectMember`,  element.shain_id)
+            setValue(`forms.${index}.mb_id`,  element.mb_id)
+            
           });
           refreshShain();
         }
 
-        if(s2.sakugyouNaiyou){
+        if(s2.sagyouNaiyou){
           
           forms2Remove();
 
-          s2.sakugyouNaiyou.forEach((element:any, index:number)=> {
+          s2.sagyouNaiyou.forEach((element:any, index:number)=> {
             forms2Append({
+              sn_id: element.sn_id,
               task: element.task_id,
-              work:  element.sakugyou_naiyou,
+              work:  element.sagyou_naiyou,
               start:  element.kaishi_yotei_hi,
               finish: element.shuuryou_yotei_hi,
               costs:  element.yotei_kousuu,
             })
+            setValue(`forms2.${index}.sn_id`,  element.sn_id)
             setValue(`forms2.${index}.task`,  element.task_id)
-            setValue(`forms2.${index}.work`,  element.sakugyou_naiyou)
+            setValue(`forms2.${index}.work`,  element.sagyou_naiyou)
             setValue(`forms2.${index}.start`,  element.kaishi_yotei_hi)
             setValue(`forms2.${index}.finish`,  element.shuuryou_yotei_hi)
             setValue(`forms2.${index}.costs`,  element.yotei_kousuu)
@@ -546,12 +552,17 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                       </Select>
                     </FormControl>
                     <Button onClick={() => {formsRemove(index); refreshShain(); } }>削除</Button>
+                    <div style={{display: "none"}}>
+                        <TextField value={forms[index].mb_id} 
+                        {...register(`forms.${index}.mb_id`)} />
+                    </div>
                   </div>
                 ))}
                 <Button
                   onClick={() =>
                     formsAppend({
                       projectMember: "",
+                      mb_id: 0,
                     })
                   }
                 >
@@ -582,6 +593,14 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
                       ))}
                     </Select>
                   </FormControl>
+                 
+                  <TextField
+                   defaultValue={forms2[index].sn_id}
+                    {...register(`forms2.${index}.sn_id`)} 
+                    value={forms2[index].sn_id}
+                    style={{display: "none"}}
+                    />
+                 
                   <TextField
                     {...register(`forms2.${index}.work`)}
                     label="作業内容"
@@ -624,6 +643,7 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
               <Button
                 onClick={() =>
                   forms2Append({
+                    sn_id: 0,
                     task: "",
                     work: "",
                     start: "",

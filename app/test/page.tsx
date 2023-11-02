@@ -157,14 +157,13 @@ function LoggedOrNot({logged}:any){
 
         return (
             <div>
-                
                 <input type="text" name="n1" id="n1"/>
                 <input type="text" name="n2" id="n2"/>
                 <input type="text" name="n3" id="n3" />
                 <input type="text" name="n4" id="n4" />
                 <button onClick={updateClick}>Update</button>
                 <br/>
-               <LoggedIn />
+                <LoggedIn />
             </div>
             );
     }else if(logged === false){

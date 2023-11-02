@@ -156,7 +156,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
 
                                         const addTasks = async () => {
     
-                                            await db.addProjectSakugyouNaiyou( element, v)
+                                            await db.addProjectSagyouNaiyou( element, v)
     
                                         }
                                         addTasks();
@@ -194,6 +194,26 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
 
                     break;
                 }
+            case "project-list-e":
+                {
+                    const getProjectListF = async ()=>{
+                        db.loadDb(dataBaseConnectionStr);
+                        await db.getProjectList().then( 
+                            (v:any)=>{
+                              
+                                res.status(200).json({projectList: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                        
+                    }
+
+                    getProjectListF();
+
+                    break;
+                    
+                }
             case "project-delete":
                 {
 
@@ -205,7 +225,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             (v:any)=>{
                                 console.log(body.id);
                                 db.cleanProjectMembers(body.id);
-                                db.cleanProjectSakugyouNaiyou(body.id);
+                                db.cleanProjectSagyouNaiyou(body.id);
                                 res.status(200).json({deleted: true});
                                 res.end();
                                 db.closeDb(dataBaseConnectionStr);
@@ -232,13 +252,13 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             } 
                         );
                         
-                        const sakugyouNaiyou = await db.getProjectSakugyouNaiyou(body.id).then( 
+                        const sagyouNaiyou = await db.getProjectSagyouNaiyou(body.id).then( 
                             (v:any)=>{
                                 return v;
                             } 
                         );
 
-                        res.status(200).json({project: project, members: members, sakugyouNaiyou: sakugyouNaiyou});
+                        res.status(200).json({project: project, members: members, sagyouNaiyou: sagyouNaiyou});
                         res.end();
                         db.closeDb(dataBaseConnectionStr);
 
@@ -255,7 +275,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 return v;
                             } 
                         );
-                        await db.cleanProjectMembers(body.project.id)
+                        // await db.cleanProjectMembers(body.project.id)
                         if(body.members.length > 0){
                             
                             await body.members.forEach( (element:any, index:number) => {
@@ -267,18 +287,20 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 addMembers();
                             });
                         }
-                        await db.cleanProjectSakugyouNaiyou(body.project.id)
-                        if(body.tasks.length > 0){
-                            
-                            await body.tasks.forEach( (element:any, index:number) =>{
-                                
+                        
+                        // await db.cleanProjectSagyouNaiyou(body.project.id)
+                        
+                        if(body.tasks.length > 0){                            
+                            await body.tasks.forEach( (element:any, index:number) =>{    
                                 const addTasks = async () => {
+                                    if(element.sn_id == 0){
+                                        await db.addProjectSagyouNaiyou( element, body.project.id)
+                                    }else{
+                                        await db.updateProjectSagyouNaiyou( element )
+                                    }
                                     
-                                    await db.addProjectSakugyouNaiyou( element, body.project.id)
-
                                 }
                                 addTasks();
-
                             } )
                         }
                         // const members = await db.updateProjectMembers(body.member).then( 
@@ -287,7 +309,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                         //     } 
                         // );
                         
-                        // const sakugyouNaiyou = await db.updateProjectSakugyouNaiyou(body.sakugyouNaiyou).then( 
+                        // const sagyouNaiyou = await db.updateProjectSagyouNaiyou(body.sagyouNaiyou).then( 
                         //     (v:any)=>{
                         //         return v;
                         //     } 
@@ -301,11 +323,11 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
 
                     break;
                 }
-            case "shuu-sakugyou-houkoku":
+            case "shuu-sagyou-houkoku":
                 {
                     const kinmuListFunc = async ()=> {
                         db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then( 
+                        const ser = await db.getSagyouNaiyou(body.beginDate, body.endDate, body.shainId).then( 
                             (v:any)=>{
                                 res.status(200).json({projectList: v});
                                 res.end();
@@ -316,14 +338,32 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                         
                     }
                     kinmuListFunc();
-                    // db.getSakugyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
+                    // db.getSagyouNaiyou(body.beginDate, body.endDate, body.shainId).then(
                     //     (v:any)=>{
                     //         console.log(v)
                     //     }
                     // )
                     break
                 }
-             
+            case "project-list-kinmu":
+                {
+                    const getProjectListF = async ()=>{
+                        db.loadDb(dataBaseConnectionStr);
+                        await db.getProjectListKinmu().then( 
+                            (v:any)=>{
+                              
+                                res.status(200).json({projectList: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                        
+                    }
+
+                    getProjectListF();
+
+                    break;
+                }
             default:
                 break;
         }

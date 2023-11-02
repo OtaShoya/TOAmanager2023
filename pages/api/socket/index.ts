@@ -351,7 +351,7 @@ const SocketHandler = (req: any, res: any) => {
               method: "POST", 
               body: JSON.stringify(
                 {
-                  type: "shuu-sakugyou-houkoku",
+                  type: "shuu-sagyou-houkoku",
                   beginDate: new Date(bd),
                   endDate: new Date(ed),
                   shainId: msg.id,

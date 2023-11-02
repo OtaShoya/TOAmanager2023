@@ -57,7 +57,7 @@ function styleCells(row: ExcelJS.Row, isProjectRow: boolean = false) {
   }
 }
 
-function format(toFormat: number) {
+function formatN(toFormat: number) {
   return toFormat > 9 ? toFormat : "0" + toFormat;
 }
 
@@ -81,9 +81,9 @@ const weekReport = (
     let shhetTitle =
       initialDate.getFullYear() +
       "." +
-      format(initialDate.getMonth() + 1) +
+      formatN(initialDate.getMonth() + 1) +
       "." +
-      format(initialDate.getDate());
+      formatN(initialDate.getDate());
     let sheet = workbook.getWorksheet(shhetTitle);
     let endDate = new Date(initialDate);
 
@@ -102,18 +102,18 @@ const weekReport = (
       "自　" +
       initialDate.getFullYear() +
       "年　" +
-      format(initialDate.getMonth() + 1) +
+      formatN(initialDate.getMonth() + 1) +
       "月　" +
-      format(initialDate.getDate()) +
+      formatN(initialDate.getDate()) +
       "日";
     startDateCell.style.font = { size: 13 };
     endDateCell.value =
       "至　" +
       endDate.getFullYear() +
       "年　" +
-      format(endDate.getMonth() + 1) +
+      formatN(endDate.getMonth() + 1) +
       "月　" +
-      format(endDate.getDate()) +
+      formatN(endDate.getDate()) +
       "日";
 
     //dates
@@ -186,8 +186,8 @@ const weekReport = (
       projectRow.commit();
       insertI++;
       var pjGoukei = 0;
-      item.sakugyoNaiyouList?.forEach((sakugyouItem) => {
-        var goukei = sakugyouItem.shuu.reduce(
+      item.sakugyoNaiyouList?.forEach((sagyouItem) => {
+        var goukei = sagyouItem.shuu.reduce(
           (accumulator, currentValue) => accumulator + currentValue
         );
         pjGoukei += goukei;
@@ -199,14 +199,14 @@ const weekReport = (
           [
             "",
             "",
-            sakugyouItem.name,
-            sakugyouItem.shuu[0] > 0 ? sakugyouItem.shuu[0] : "",
-            sakugyouItem.shuu[1] > 0 ? sakugyouItem.shuu[1] : "",
-            sakugyouItem.shuu[2] > 0 ? sakugyouItem.shuu[2] : "",
-            sakugyouItem.shuu[3] > 0 ? sakugyouItem.shuu[3] : "",
-            sakugyouItem.shuu[4] > 0 ? sakugyouItem.shuu[4] : "",
-            sakugyouItem.shuu[5] > 0 ? sakugyouItem.shuu[5] : "",
-            sakugyouItem.shuu[6] > 0 ? sakugyouItem.shuu[6] : "",
+            sagyouItem.name,
+            sagyouItem.shuu[0] > 0 ? sagyouItem.shuu[0] : "",
+            sagyouItem.shuu[1] > 0 ? sagyouItem.shuu[1] : "",
+            sagyouItem.shuu[2] > 0 ? sagyouItem.shuu[2] : "",
+            sagyouItem.shuu[3] > 0 ? sagyouItem.shuu[3] : "",
+            sagyouItem.shuu[4] > 0 ? sagyouItem.shuu[4] : "",
+            sagyouItem.shuu[5] > 0 ? sagyouItem.shuu[5] : "",
+            sagyouItem.shuu[6] > 0 ? sagyouItem.shuu[6] : "",
             goukei,
             "",
           ],
@@ -314,6 +314,7 @@ const weekReport = (
 };
 module.exports = {
   weekReport: weekReport,
+  formatN: formatN,
 };
 
-export { weekReport, ProjectItem, sakugyoNaiyouItem };
+export { weekReport, formatN, ProjectItem, sakugyoNaiyouItem };
