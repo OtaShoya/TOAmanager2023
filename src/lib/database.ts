@@ -1019,6 +1019,50 @@ const cleanProjectSagyouNaiyou = (projectId:number)=>{
     })
 }
 
+const deleteProjectSagyouNaiyou = (sgId:number)=>{
+    return new Promise((resolve, reject)=>{
+
+        db.serialize(()=>{
+            let stm = db.prepare(
+                "DELETE FROM"
+                +" project_sagyou_naiyou"
+                +" where"
+                +" id = $sg_id"
+            );
+    
+            stm.run({
+                $sg_id: sgId,
+            })
+    
+            stm.finalize()
+            resolve("")
+        })
+
+    })
+}
+
+const deleteProjectMembers = (mbId:number)=>{
+    return new Promise((resolve, reject)=>{
+
+        db.serialize(()=>{
+            let stm = db.prepare(
+                "DELETE FROM"
+                +" project_member"
+                +" where"
+                +" id = $mb_id"
+            );
+    
+            stm.run({
+                $mb_id: mbId,
+            })
+    
+            stm.finalize()
+            resolve("")
+        })
+
+    })
+}
+
 const addProjectMember = (member:any, projectId:any)=>{
     return new Promise((resolve, reject)=>{
         db.serialize(()=>{
@@ -1406,6 +1450,9 @@ module.exports = {
     updateProject: updateProject,
     getProjectListKinmu: getProjectListKinmu,
     updateProjectSagyouNaiyou: updateProjectSagyouNaiyou,
+    updateProjectMember: updateProjectMember,
+    deleteProjectSagyouNaiyou: deleteProjectSagyouNaiyou,
+    deleteProjectMembers: deleteProjectMembers,
 }
 
 export {Kinmu , Shain, Project}

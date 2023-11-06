@@ -269,6 +269,8 @@ const SocketHandler = (req: any, res: any) => {
                 {
                   type: "project-update",
                   project: msg.project, 
+                  snList: msg.snList,
+                  mbList: msg.mbList,
                   members: msg.members,
                   tasks: msg.tasks,
                 }

@@ -91,6 +91,8 @@ function refreshShain(){
 const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, projectList}:any) => {
   const [files, setFiles] = useState<File[]>([]);
   const [document, setDocument] = useState<File[]>([]);
+  const [sagyouNaiyou, setSagyouNaiyou] = useState(new Array<any>());
+  const [mbList, setMbList] = useState(new Array<any>());
   const [selectedProject, setProject] = useState(
     {
     });
@@ -167,7 +169,8 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
     socket.emit("project-update", {
       sessionID: localStorage.getItem("sessionID"),
       userID: localStorage.getItem("userID"),
-     
+      snList: sagyouNaiyou,
+      mbList: mbList,
       project: p,
       members: forms,
       tasks: forms2,
@@ -235,7 +238,7 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
         if(s2.members){
           
           formsRemove();
-          
+          let mList = new Array<any>()
           s2.members.forEach((element:any, index:number)=> {
             formsAppend({
               projectMember: "",
@@ -244,15 +247,18 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
             
             setValue(`forms.${index}.projectMember`,  element.shain_id)
             setValue(`forms.${index}.mb_id`,  element.mb_id)
-            
+            mList.push( element.mb_id )
           });
+
+          setMbList(mList)
+
           refreshShain();
         }
 
         if(s2.sagyouNaiyou){
           
           forms2Remove();
-
+          let snList = new Array<any>()
           s2.sagyouNaiyou.forEach((element:any, index:number)=> {
             forms2Append({
               sn_id: element.sn_id,
@@ -268,7 +274,9 @@ const EditPage = ({ socket, projectId, loaded, setLoadedFunction, members, proje
             setValue(`forms2.${index}.start`,  element.kaishi_yotei_hi)
             setValue(`forms2.${index}.finish`,  element.shuuryou_yotei_hi)
             setValue(`forms2.${index}.costs`,  element.yotei_kousuu)
+            snList.push(element.sn_id)
           })
+          setSagyouNaiyou(snList);
         }
 
         setLoadedFunction(true);

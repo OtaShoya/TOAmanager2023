@@ -278,19 +278,43 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                         // await db.cleanProjectMembers(body.project.id)
                         if(body.members.length > 0){
                             
+                            let deleteList = body.mbList.filter( (el:any)=>{
+                                return (body.members.find( (ell:any)=>ell.mb_id == el ) == undefined)
+                            } ) 
+                            
                             await body.members.forEach( (element:any, index:number) => {
 
                                 const addMembers = async () => {
-
-                                    await db.addProjectMember( {shainId: element.projectMember}, body.project.id)
+                                    
+                                    if(element.mb_id == 0){
+                                        await db.addProjectMember( {shainId: element.projectMember}, body.project.id)
+                                    }else{
+                                        await db.updateProjectMember( {mb_id: element.mb_id, shainId: element.projectMember})
+                                    }
+                                  
                                 }
                                 addMembers();
                             });
+
+                            await deleteList.forEach((element:any) => {
+                                const deleteMember = async () => {
+                                    await db.deleteProjectMembers( element ) 
+                                }
+                                deleteMember()
+                            });
+
                         }
                         
                         // await db.cleanProjectSagyouNaiyou(body.project.id)
                         
-                        if(body.tasks.length > 0){                            
+                        if(body.tasks.length > 0){       
+                            
+                            let deleteList = body.snList.filter( (el:any)=>{
+                                return (body.tasks.find( (ell:any)=>ell.sn_id == el ) == undefined)
+                            } ) 
+
+                            // console.log(deleteList);
+                            
                             await body.tasks.forEach( (element:any, index:number) =>{    
                                 const addTasks = async () => {
                                     if(element.sn_id == 0){
@@ -302,6 +326,14 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 }
                                 addTasks();
                             } )
+
+                            await deleteList.forEach((element:any) => {
+                                const deleteTasks = async () => {
+                                    await db.deleteProjectSagyouNaiyou( element ) 
+                                }
+                                deleteTasks()
+                            });
+
                         }
                         // const members = await db.updateProjectMembers(body.member).then( 
                         //     (v:any)=>{
