@@ -9,11 +9,14 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
-import { use, useEffect, useState } from "react";
+import { useForm, SubmitHandler, useFieldArray, set } from "react-hook-form";
+import { memo, use, useEffect, useState } from "react";
 import {formatN} from "@/src/lib/report";
+import type { Kinmu, KinmuSagyouNaiyou } from "@/src/lib/database";
+
 
 type FormType = {
+  date:Date;
   work_class: string;
   work_status: number;
   start_time: number;
@@ -31,6 +34,7 @@ type FormType = {
     project: number;
     work_detail: number;
     work_time2: number;
+    ksn_id: number;
   }[];
 };
 
@@ -63,15 +67,15 @@ const buttonVariant: ("text" | "contained" | "outlined")[] = [
 
 export const widthGroup = {
   drawer: 1500,
-  defalut: 240,
+  default: 240,
   width1: 750,
   width2: 480,
 };
 
 const Items = [
-  ["", "休日", "勤務", "午前休", "午後休", "休暇", "休日出勤"],
-  ["", "通常", "出張", "直出", "直帰", "直出直帰", "テレワーク"],
-  ["有給休暇", "特別休暇", "代休", "欠勤"],
+  ["　", "休日", "勤務", "午前休", "午後休", "休暇", "休日出勤"],
+  ["　", "通常", "出張", "直出", "直帰", "直出直帰", "テレワーク"],
+  ["　", "有給休暇", "特別休暇", "代休", "欠勤"],
 ];
 
 function populateTimes( bTime:Date, eTime:Date, timeIncriment:Date ){
@@ -88,61 +92,189 @@ function populateTimes( bTime:Date, eTime:Date, timeIncriment:Date ){
 
 }
 
-
-
-
-
-const EditPage = ({ projectList }:any) => {
+const EditPage = ({ socket, projectList, kinmuId, loaded, setLoaded, date }:any) => {
   
-  const [workTime, setWorktime] = useState(0)
-  const [overtime, setOvertime] = useState(0)
-  const [overtimeLate, setOvertimeLate] = useState(0)
-  const [workDetail, setWorkDetail] = useState([{ id:0 , na: "" }])
+  const [workTime, setWorktime] = useState(0);
+  const [overtime, setOvertime] = useState(0);
+  const [overtimeLate, setOvertimeLate] = useState(0);
+  const [workDetail, setWorkDetail] = useState([[{ id:0 , na: "" }]]);
+  const [total, setTotal] = useState(0);
+  const [ksnList, setKsnList] = useState(new Array<any>());
 
-  const { control, handleSubmit, register, reset, getValues } = useForm<FormType>({
+  const [projectSelected, setProjectSelected] = useState([]);
+  const [workDetailSelected, setWorkDetailSelected] = useState([]);
+
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
+  const [workClass, setWorkClass] = useState(0);
+  const [workStatus, setWorkStatus] = useState(0);
+  const [restClass, setRestClass] = useState(0);
+
+  const { control, handleSubmit, register, reset, getValues, setValue } = useForm<FormType>({
     defaultValues: {
-      forms: [{ project: 0, work_detail: 0, work_time2: 0 }],
+      forms: [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     name: "forms",
     control,
   });
 
-  // useEffect(()=>{
+  useEffect(()=>{
+    
 
-  //   async function fetchData() {
-  //     const res = await fetch("/api/db/",
-  //     {
-  //         method: "POST", 
-  //         body: JSON.stringify(
-  //             {
-  //                 type: "project-list-kinmu",
+    async function fetchData() {
+      
+      if(kinmuId == 0 || loaded){ 
+        setLoaded(true)
+        return; 
+      }
 
-  //             }
-  //         ),
-  //     });
-  //     const d = await res.json();
-  //     // setDatas(d.kinmuList);
-  //   }
+      const res = await fetch("/api/db/",
+      {
+          method: "POST", 
+          body: JSON.stringify(
+              {
+                id: kinmuId,
+                type: "kinmu-get",
+              }
+          ),
+      });
+      const d = await res.json();
+      if(d){
 
-  //   fetchData();
+       
+        
+        let startTimeDate = new Date( "2000-1-1 " + d.kinmu.shussha_jikoku);
+        let endTimeDate = new Date( "2000-1-1 " + d.kinmu.taisha_jikoku);
+        
+        setValue("work_class", d.kinmu.kinmu_kubun);
+        setWorkClass(d.kinmu.kinmu_kubun);
 
-  // })
+        setValue("work_status", d.kinmu.kinmu_keitai);
+        setWorkStatus( d.kinmu.kinmu_keitai);
+
+        setValue("start_time", startTimeDate.getHours() + startTimeDate.getMinutes()/60  );
+        setStartTime( startTimeDate.getHours() + startTimeDate.getMinutes()/60  );
+
+        setValue("end_time",   endTimeDate.getHours() + endTimeDate.getMinutes()/60 );
+        setEndTime( endTimeDate.getHours() + endTimeDate.getMinutes()/60  );
+
+        setValue("deduction_time", d.kinmu.koujyo_jikan);
+      
+        setValue("rest_class", d.kinmu.kyuuka_shubetsu);
+        setRestClass( d.kinmu.kyuuka_shubetsu);
+
+        setValue("rest_time", d.kinmu.kyuushutsu_jikan );
+
+        setValue("reason", d.kinmu.kyuuka_riyu)
+
+        setValue("memo", d.kinmu.memo);
+        if (d.sagyouNaiyouList?.length > 0){
+          console.log(d.sagyouNaiyouList)
+          remove();
+          let snList = new Array<any>();
+          d.sagyouNaiyouList.forEach((element:any, index:number)=> {
+            
+            append({
+              ksn_id: element.id,
+              project: element.project_id,
+              work_detail: element.sagyou_naiyou_id,
+              work_time2: element.sagyou_jikan
+            })
+            
+            // setValue(`forms.${index}.ksn_id`,  element.id);
+            // setValue(`forms.${index}.project`,  element.project_id);
+            // setValue(`forms.${index}.work_detail`,  element.sagyou_naiyou_id);
+            // setValue(`forms.${index}.work_time2`,  element.sagyou_jikan);
+            let newPS:any[] = projectSelected;
+            newPS[index] = element.project_id;
+            //@ts-ignore
+            setProjectSelected(newPS)
+
+            // let newWDS:any[] = workDetailSelected;
+            // newWDS[index] = element.sagyou_naiyou_id;
+            // //@ts-ignore
+            // setWorkDetailSelected(newWDS)
+
+            populateSagyouNaiyou(index, element.project_id,  element.sagyou_jikan, element.id, element.sagyou_naiyou_id)
+            
+
+            snList.push( element.id );
+            
+          });
+          setKsnList(snList);
+        }
+        
+        setLoaded(true)
+      }
+     
+    }
+
+    fetchData();
+
+  })
+
   const totalTime = ()=>{
     const f = getValues( "forms" );
     if(f && f?.length > 0){
       let total = 0;
       f.forEach((el:any)=>{
-        total += el.work_time2
+        total += parseInt( el.work_time2 )
       })
       return total
     }
 
   }
+
   const onSubmit: SubmitHandler<FormType> = (data) => {
-    console.log(data);
+
+    let upList:Array<KinmuSagyouNaiyou>  = []
+    data.forms.forEach( (val)=>{
+      upList.push({
+        id: val.ksn_id,
+        kinmuId: kinmuId,
+        projectId: val.project,
+        sagyouNaiyouId: val.work_detail,
+        sagyouJikan: val.work_time2,
+      })
+    } )
+    
+    console.log(upList)
+    
+    let kinmuK:Kinmu ={
+      hidsuke: date,
+      id: kinmuId,
+      shusshaJikoku: new Date(Date.UTC(2000,0,0, (data.start_time - (data.start_time%1) ),  (data.start_time%1) * 60 ) ),
+      taishaJikoku:  new Date(Date.UTC(2000,0,0, ( (data.end_time)  - (data.end_time%1)    ) , (data.end_time%1)   * 60) ),
+      kinmuKubun: data.work_class,
+      kinmuKeitai: data.work_status,
+      koujyoJikan: data.deduction_time,
+      memo: data.memo,
+      kyuushutsuJikan : data.rest_time,
+      kyuukaShubetsu: data.rest_class,
+      kyuukaRiyu: data.reason,
+      shainId: localStorage.getItem("userID"),
+      sagyouNaiyou: upList,
+    } 
+   
+    if(kinmuId == 0){
+      socket.emit("kinmu-add", {
+        sessionID: localStorage.getItem("sessionID"),
+        userID: localStorage.getItem("userID"),
+        kinmu: kinmuK,
+      })
+    }else{
+      socket.emit("kinmu-update", {
+        sessionID: localStorage.getItem("sessionID"),
+        userID: localStorage.getItem("userID"),
+        kinmu: kinmuK,
+        ksnList: ksnList,
+      })
+    }
+    
+
   };
 
   function updateTimes(){
@@ -164,19 +296,50 @@ const EditPage = ({ projectList }:any) => {
     
   }
 
-  const populateSagyouNaiyou = (projectId:number)=>{
-   
-    
+  const populateSagyouNaiyou = (index:number, projectId:number, workHour:any, id:number, workDetailId:number = 0)=>{
+
     let foundEl = projectList.find( (el:any)=>{
         return el.id == projectId
     } );
-    
-
     if(foundEl){
-      setWorkDetail( foundEl.sagyouNaiyouList );
+
+      let newArray = workDetail;
+      newArray[index] = foundEl.sagyouNaiyouList ;
+      setWorkDetail( newArray ); 
+
+      update(index, {
+        project: projectId, 
+        work_detail: workDetailId,
+        work_time2: workHour,
+        ksn_id: id,
+      })
+      let newP = projectSelected;
+      //@ts-ignore
+      newP[index] = projectId;
+      setProjectSelected(newP);
+        
+      setValue(`forms.${index}.project`, projectId);
+      
+
+      let newWDS:any[] = workDetailSelected;
+      newWDS[index] = workDetailId;
+      //@ts-ignore
+      setWorkDetailSelected(newWDS);
+      setValue(`forms.${index}.work_detail`, workDetailId);
     }
 
   }
+
+  if(!loaded){
+    return(  
+    <Box sx={{ width: widthGroup.drawer }}>
+      <div className="mt-16">
+        <h1 className="text-center text-2xl">作業報告登録</h1>
+      </div>
+    </Box>)
+  }
+  
+  setTimeout(()=>{updateTimes();}, 10)
 
   return (
     <Box sx={{ width: widthGroup.drawer }}>
@@ -187,12 +350,15 @@ const EditPage = ({ projectList }:any) => {
         <div className="mt-8 ml-24 mr-24">
           <div className="grid gap-y-2.5">
             <div className="grid gap-y-2.5">
-              <FormControl sx={{ width: widthGroup.defalut }}>
+              <FormControl sx={{ width: widthGroup.default }}>
                 <InputLabel>{FormlabelGroup.workClassName}</InputLabel>
                 <Select
                   label={FormlabelGroup.workClassName}
-                  defaultValue=""
+                  value={workClass}
                   {...register("work_class")}
+                  onChange={(e)=>{
+                    setWorkClass( typeof e.target.value == "number"?e.target.value:0 )
+                  }}
                 >
                   {Items[0].map((item: string, i) => (
                     <MenuItem value={i} key={i}>
@@ -201,12 +367,15 @@ const EditPage = ({ projectList }:any) => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl sx={{ width: widthGroup.defalut }}>
+              <FormControl sx={{ width: widthGroup.default }}>
                 <InputLabel>{FormlabelGroup.workStatusName}</InputLabel>
                 <Select
                   label={FormlabelGroup.workStatusName}
-                  defaultValue=""
+                  value={workStatus}
                   {...register("work_status")}
+                  onChange={(e)=>{
+                    setWorkStatus( typeof e.target.value == "number"?e.target.value:0 )
+                  }}
                 >
                   {Items[1]?.map((item, i) => (
                     <MenuItem value={i} key={i}>
@@ -217,15 +386,15 @@ const EditPage = ({ projectList }:any) => {
               </FormControl>
             </div>
             <div className="flex flex-row gap-x-8">
-              <FormControl sx={{ width: widthGroup.defalut }}>
+              <FormControl sx={{ width: widthGroup.default }}>
                 <InputLabel>{FormlabelGroup.startTime}</InputLabel>
                 <Select
                   label={FormlabelGroup.startTime}
-                  defaultValue=""
+                  value={ startTime }
                   {...register("start_time")}
-                  onChange={()=>{
+                  onChange={(e)=>{
+                    setStartTime( typeof e.target.value == "number"?e.target.value:0 )
                     setTimeout(()=>{updateTimes();}, 10)
-                    
                   }}
                 >
                   {populateTimes( new Date( "2000-1-1 00:00" ),  new Date( "2000-1-1 23:59" ),  new Date( "2000-1-1 00:30" )).map((item: any, i) => (
@@ -235,16 +404,16 @@ const EditPage = ({ projectList }:any) => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl sx={{ width: widthGroup.defalut }}>
+              <FormControl sx={{ width: widthGroup.default }}>
                 <InputLabel>{FormlabelGroup.endTime}</InputLabel>
                 <Select
                   label={FormlabelGroup.endTime}
-                  defaultValue=""
+                  value={ endTime }
                   
                   {...register("end_time")}
-                  onChange={()=>{
+                  onChange={(e)=>{
+                    setEndTime( typeof e.target.value == "number"?e.target.value:0  )
                     setTimeout(()=>{updateTimes();}, 10)
-                    
                   }}
                 >
                   {populateTimes( new Date( "2000-1-1 00:00" ),  new Date( "2000-1-1 23:59" ),  new Date( "2000-1-1 00:15" )).map((item: any, i) => (
@@ -258,16 +427,19 @@ const EditPage = ({ projectList }:any) => {
                 {...register("deduction_time")}
                 label={FormlabelGroup.deductionTime}
                 variant={textBoxVariant}
-                sx={{ width: widthGroup.defalut }}
+                sx={{ width: widthGroup.default }}
               />
             </div>
             <div className="grid gap-y-2.5">
-              <FormControl sx={{ width: widthGroup.defalut }}>
+              <FormControl sx={{ width: widthGroup.default }}>
                 <InputLabel>{FormlabelGroup.restClass}</InputLabel>
                 <Select
                   label={FormlabelGroup.restClass}
-                  defaultValue=""
+                  value={restClass}
                   {...register("rest_class")}
+                  onChange={(e)=>{
+                    setRestClass( typeof e.target.value == "number"?e.target.value:0 )
+                  }}
                 >
                   {Items[2].map((item: string, i) => (
                     <MenuItem value={i} key={i}>
@@ -288,28 +460,28 @@ const EditPage = ({ projectList }:any) => {
                 {...register("work_time")}
                 label={FormlabelGroup.workTime}
                 variant={textBoxVariant}
-                sx={{ width: widthGroup.defalut }}
+                sx={{ width: widthGroup.default }}
                 value={ workTime }
               />
               <TextField
                 {...register("overtime")}
                 label={FormlabelGroup.overTime}
                 variant={textBoxVariant}
-                sx={{ width: widthGroup.defalut }}
+                sx={{ width: widthGroup.default }}
                 value={overtime}
               />
               <TextField
                 {...register("overtime_late")}
                 label={FormlabelGroup.overTimeLate}
                 variant={textBoxVariant}
-                sx={{ width: widthGroup.defalut }}
+                sx={{ width: widthGroup.default }}
                 value={overtimeLate}
               />
               <TextField
                 {...register("rest_time")}
                 label={FormlabelGroup.restTime}
                 variant={textBoxVariant}
-                sx={{ width: widthGroup.defalut }}
+                sx={{ width: widthGroup.default }}
               />
             </div>
           </div>
@@ -322,11 +494,15 @@ const EditPage = ({ projectList }:any) => {
                     <InputLabel>{FormlabelGroup.project}</InputLabel>
                     <Select
                       label={FormlabelGroup.project}
-                      defaultValue=""
+                      value={projectSelected[index]}
                       {...register(`forms.${index}.project`)}
                       onChange={(e)=>{
                         let event:any = e;
-                        populateSagyouNaiyou(event.explicitOriginalTarget.getAttribute("data-value"));
+                        populateSagyouNaiyou(
+                          index, 
+                          event.explicitOriginalTarget.getAttribute("data-value"),
+                          event.explicitOriginalTarget.parentElement.parentElement.parentElement.parentElement.querySelector(`input[name="forms.${index}.work_time2`).value,
+                          event.explicitOriginalTarget.parentElement.parentElement.parentElement.parentElement.querySelector(`input[name="forms.${index}.ksn_id`).value);
                       }}
                     >
                       <MenuItem value={0}>
@@ -343,17 +519,27 @@ const EditPage = ({ projectList }:any) => {
                     <InputLabel>{FormlabelGroup.workDetail}</InputLabel>
                     <Select
                       label={FormlabelGroup.workDetail}
-                      defaultValue=""
+                      defaultValue={workDetailSelected[index]}
                       {...register(`forms.${index}.work_detail`)}
-                     
+                      onChange={
+                        (e)=>{
+                          let event:any = e;
+                          let newWDS:any[] = workDetailSelected;
+                          newWDS[index] =  event.explicitOriginalTarget.getAttribute("data-value");
+                          //@ts-ignore
+                          setWorkDetailSelected(newWDS);
+                          setValue(`forms.${index}.work_detail`, event.explicitOriginalTarget.getAttribute("data-value") );
+                          
+                        }
+                      }
                     >
                       <MenuItem value={0}>
                       </MenuItem>
-                      {workDetail.map((item: any, i:any) => (
+                      { index < workDetail.length?  workDetail[index].map((item: any, i:any) => (
                         <MenuItem value={item.id} key={i}>
                           {item.na}
                         </MenuItem>
-                      ))}
+                      )): ( <MenuItem value={0}> </MenuItem>) }
                       
 
                     </Select>
@@ -363,17 +549,35 @@ const EditPage = ({ projectList }:any) => {
                     label={FormlabelGroup.workTime2}
                     variant={textBoxVariant}
                     sx={{ width: widthGroup.width2 }}
+                    onInput={(e)=>{
+                     setTimeout(()=>{
+                      //@ts-ignore
+                      setTotal(totalTime());
+                     }, 10) 
+                    }}
                   />
+                  <div style={{display: "none"}}>
+                    <TextField
+                      {...register(`forms.${index}.ksn_id`)}
+                      variant={textBoxVariant}
+                      sx={{ width: widthGroup.width2 }}
+                    />
+                  </div>
                   <Button onClick={() => remove(index)}>削除</Button>
                 </div>
               ))}
               <Button
-                onClick={() =>
-                  append({
-                    project: 0,
-                    work_detail: 0,
-                    work_time2: 0,
-                  })
+                onClick={
+                  () =>{
+                    
+                    append({
+                      project: 0,
+                      work_detail: 0,
+                      work_time2: 0,
+                      ksn_id: 0,
+                    })
+                    
+                  }
                 }
               >
                 追加
@@ -391,7 +595,8 @@ const EditPage = ({ projectList }:any) => {
               {...register("total")}
               label={FormlabelGroup.total}
               variant={textBoxVariant}
-              sx={{ width: widthGroup.defalut }}
+              value={total}
+              sx={{ width: widthGroup.default }}
             />
           </div>
         </div>

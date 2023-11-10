@@ -36,6 +36,22 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     loginFunc();
                     break;
                 }
+            //kinmu
+            case "kinmu-add":{
+                const kinmuAdd = async ()=> {
+                    db.loadDb(dataBaseConnectionStr);
+                    // console.log(body.kinmu);
+                    const ser = await db.addKinmu(body.kinmu).then( 
+                        (v:any)=>{
+                            res.status(200).json({added: true});
+                            res.end();
+                            db.closeDb(dataBaseConnectionStr);
+                        } 
+                    );
+                }
+                kinmuAdd();
+                break;
+            }
             case "kinmu-list":
                 {
                     const kinmuListFunc = async ()=> {
@@ -53,9 +69,81 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 }
             case "kinmu-update":
                 {
-                    
+                    const kinmuUpdate = async ()=> {
+                        db.loadDb(dataBaseConnectionStr);
+                        console.log(body.kinmu);
+                        const ser = await db.updateKinmu(body.kinmu).then( 
+                            (v:any)=>{
+                              return v
+                            } 
+                            
+                        );
+
+
+                        if(body.kinmu.sagyouNaiyou.length > 0){
+
+                            let deleteList = body.ksnList.filter( (el:any)=>{
+                                return (body.kinmu.sagyouNaiyou.find( (ell:any)=>ell.id == el ) == undefined)
+                            } ) 
+                            
+                            await body.kinmu.sagyouNaiyou.forEach( (element:any, index:number) => {
+
+                                const addKSN = async () => {
+                                    
+                                    if(element.id == 0){
+                                        await db.addKinmuSagyouNaiyou( element, body.kinmu.id )
+                                    }else{
+                                        console.log(element )
+                                        await db.updateKinmuSagyouNaiyou( element )
+                                    }
+                                  
+                                }
+                                addKSN();
+                            });
+                            //deleteKinmuSagyouNaiyou
+
+                            await deleteList.forEach((element:any) => {
+                                const deleteMember = async () => {
+                                    await db.deleteKinmuSagyouNaiyou( element ) 
+                                }
+                                deleteMember()
+                            });
+                            
+                        }
+
+                        res.status(200).json({updated: true});
+                        res.end();
+                        db.closeDb(dataBaseConnectionStr);
+
+                    }
+                    kinmuUpdate()
                     break;
                 }
+            case "kinmu-get":
+                {
+                    const getKinmu = async () => {
+                        db.loadDb(dataBaseConnectionStr);
+                        const kinmuRes = await db.getKinmu(body.id).then( 
+                            (v:any)=>{
+                               return v;
+                            } 
+                        );
+
+                        const snList = await db.getKinmuSagyouNaiyouList(body.id).then( 
+                            (v:any)=>{
+                                return v;
+                            } 
+                        );
+
+                        res.status(200).json({kinmu: kinmuRes, sagyouNaiyouList: snList});
+                        res.end();
+                        db.closeDb(dataBaseConnectionStr);
+
+                    }
+                    getKinmu();
+                    break;
+                }
+            //shain
             case "shain-list":
                 {
                     const shainListFunc = async ()=> {
@@ -134,6 +222,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     deleteShain();
                     break;
                 }
+            //project
             case "project-add":
                 {
                     const addProjectf = async () => {
@@ -275,7 +364,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 return v;
                             } 
                         );
-                        // await db.cleanProjectMembers(body.project.id)
+
                         if(body.members.length > 0){
                             
                             let deleteList = body.mbList.filter( (el:any)=>{
@@ -304,9 +393,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             });
 
                         }
-                        
-                        // await db.cleanProjectSagyouNaiyou(body.project.id)
-                        
+                       
                         if(body.tasks.length > 0){       
                             
                             let deleteList = body.snList.filter( (el:any)=>{
@@ -335,23 +422,31 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             });
 
                         }
-                        // const members = await db.updateProjectMembers(body.member).then( 
-                        //     (v:any)=>{
-                        //         return v;
-                        //     } 
-                        // );
-                        
-                        // const sagyouNaiyou = await db.updateProjectSagyouNaiyou(body.sagyouNaiyou).then( 
-                        //     (v:any)=>{
-                        //         return v;
-                        //     } 
-                        // );
 
                         res.status(200).json({updated: true});
                         res.end();
                         db.closeDb(dataBaseConnectionStr);
                     }
                     updateProject()
+
+                    break;
+                }
+            case "project-list-kinmu":
+                {
+                    const getProjectListF = async ()=>{
+                        db.loadDb(dataBaseConnectionStr);
+                        await db.getProjectListKinmu().then( 
+                            (v:any)=>{
+                              
+                                res.status(200).json({projectList: v});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
+                        
+                    }
+
+                    getProjectListF();
 
                     break;
                 }
@@ -376,25 +471,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     //     }
                     // )
                     break
-                }
-            case "project-list-kinmu":
-                {
-                    const getProjectListF = async ()=>{
-                        db.loadDb(dataBaseConnectionStr);
-                        await db.getProjectListKinmu().then( 
-                            (v:any)=>{
-                              
-                                res.status(200).json({projectList: v});
-                                res.end();
-                                db.closeDb(dataBaseConnectionStr);
-                            } 
-                        );
-                        
-                    }
-
-                    getProjectListF();
-
-                    break;
                 }
             default:
                 break;

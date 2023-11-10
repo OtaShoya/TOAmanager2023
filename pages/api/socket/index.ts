@@ -332,6 +332,49 @@ const SocketHandler = (req: any, res: any) => {
         }
       })
 
+      socket.on("kinmu-add", (msg:any)=>{
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "kinmu-add",
+                  kinmu: msg.kinmu,
+                }
+              ),
+            });
+            socket.emit("after-kinmu-add")
+          
+          }
+          
+          r();
+        }
+      })
+      socket.on("kinmu-update", (msg:any)=>{
+        if( sessionStore.findSession( msg.sessionID ) == msg.userID )
+        {
+          const r = async ()=>{
+            const res =  await fetch("http://localhost:3000/api/db", 
+            { 
+              method: "POST", 
+              body: JSON.stringify(
+                {
+                  type: "kinmu-update",
+                  kinmu: msg.kinmu,
+                  ksnList:  msg.ksnList,
+                }
+              ),
+            });
+            socket.emit("after-kinmu-update")
+          
+          }
+          
+          r();
+        }
+      })
       socket.on("download-week", (msg:any)=>{
         
         if( sessionStore.findSession( msg.sessionID ) == msg.userID )

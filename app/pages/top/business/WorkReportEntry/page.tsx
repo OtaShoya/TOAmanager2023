@@ -86,20 +86,27 @@ const WorkReportEntry = () => {
   const [state, setState] = React.useState(false);
   const [date, setDate] = React.useState("");
   const [datas, setDatas] = React.useState( [] );
+  const [kinmuId, setKinmuId] = React.useState( 0 );
+  const [loadedEdit, setLoadedEdit] = React.useState(false);
   const [projects, setProjects] = React.useState([{
     id: 0,
     na: "",
     sagyouNaiyou: new Array<any>(),
   }])
+  const [kinmuDate, setKinmuDate] = React.useState(new Date());
   React.useEffect(()=>{
+
+    if(loaded){
+      return
+    }
+
     socket = sessions.connectSession();
     sessions.socketInitializer(socket);
     
+
     async function fetchData() {
 
-      if(loaded){
-        return
-      }
+     
 
       const res = await fetch("/api/db/",
       {
@@ -124,6 +131,7 @@ const WorkReportEntry = () => {
               }
           ),
       });
+      
       const d2 = await res2.json();
       
       setProjects(d2.projectList)
@@ -134,12 +142,28 @@ const WorkReportEntry = () => {
       // setDatas(d.kinmuList);
 
     }
+
+    socket.on("after-kinmu-update", ()=>{
+      toggleDrawer(false);
+      loaded = false;
+      fetchData();
+    })
+    socket.on("after-kinmu-add", ()=>{
+      toggleDrawer(false);
+      loaded = false;
+      fetchData();
+    })
+
+   
     
     fetchData()
 
   })
 
-  const toggleDrawer = (open: boolean) => {
+  const toggleDrawer = (open: boolean, id:number = 0, date:Date = new Date()) => {
+    setLoadedEdit(false)
+    setKinmuId(id)
+    setKinmuDate(date)
     setState(open);
   };
 
@@ -181,7 +205,8 @@ const WorkReportEntry = () => {
                 kinmuJikan: 0,
                 kyuushutsuJikan: 0,
                 sagyouJikanGoukei: 0,
-                memo: ""
+                memo: "",
+                id: 0,
                 });
         }
 
@@ -217,7 +242,7 @@ const WorkReportEntry = () => {
       return(
         <TableRow>
           <TableCell>
-            <IconButton onClick={() => toggleDrawer(true)}>
+            <IconButton onClick={() => toggleDrawer(true, val.id, new Date(val.hidsuke))}>
               <CreateIcon />
             </IconButton>
           </TableCell>
@@ -225,8 +250,8 @@ const WorkReportEntry = () => {
                <TableCell>{new Date(val.hidsuke).getFullYear()}/{format(new Date(val.hidsuke).getMonth() + 1)}/{format(new Date(val.hidsuke).getDate())} </TableCell>
               {/* 曜日 */}
                <TableCell>{getWeekDay(new Date(val.hidsuke).getDay())} </TableCell>
-              {/* 勤務区分
-               <TableCell>{val.kinmuKubun?val.kinmuKubun:0} </TableCell> */}
+              {/* 勤務区分*/}
+              {/*  <TableCell>{val.kinmuKubun?val.kinmuKubun:0} </TableCell> */}
               {/* 勤務形態 */}
                <TableCell>{ val.kinmuKeitai?val.kinmuKeitai:0} </TableCell>
               {/* 出社時刻 */}
@@ -247,6 +272,8 @@ const WorkReportEntry = () => {
                <TableCell>{sagyou > 0?sagyou.toFixed(2):""} </TableCell>
               {/* メモ */}
                <TableCell>{val.memo} </TableCell>
+               {/* ID */}
+               <TableCell style={{display: "none"}}>{val.id} </TableCell>
         </TableRow>
       )
 
@@ -301,7 +328,7 @@ const WorkReportEntry = () => {
           </TableContainer>
         </div>
         <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-          <EditPage projectList={projects} />
+          <EditPage socket={socket} projectList={projects} kinmuId={kinmuId} loaded={loadedEdit} setLoaded={setLoadedEdit} date={kinmuDate} />
         </Drawer>
       </div>
     </div>
