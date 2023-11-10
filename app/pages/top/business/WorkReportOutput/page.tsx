@@ -17,9 +17,13 @@ type DataType = {
 
 const labelDesign = "text-white text-2xl";
 const formDesign =
-  "border rounded-full h-12 w-64 ml-4 p-5 text-center text-[#556593] bg-white";
+  "border rounded-full h-12 w-64 ml-4 px-5 text-center text-[#556593] bg-white";
 
-const initialDate = new Date();
+const d = new Date();
+const year = d.getFullYear();
+const month = d.getMonth() + 1;
+const day = d.getDate();
+const initialDate = `${year}-${month}-${day}`;
 
 function base64ToArrayBuffer(base64: string) {
   var binaryString = window.atob(base64);

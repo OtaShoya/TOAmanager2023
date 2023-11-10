@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
-import EditPage from "./component/Edit";
+import EditPage from "./Edit";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import LoginAvatar from "@/components/atmos/Avatar";
 import { Socket } from "socket.io-client";
@@ -51,19 +51,19 @@ const ProjectReportEntryPage = () => {
   }, [condition1, condition2, condition3]);
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+    <div className="flex h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
       <div className="w-full mx-5 p-12 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
-        <div className="flex flex-row justify-between">
+        <div className="flex justify-between">
           <h1 className="text-4xl text-white font-bold">
             プロジェクト報告書登録
           </h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col justify-center max-w-[1920]">
           {/* ↓フィルター */}
-          <div className="mt-10 w-2/5">
+          <div className="mt-10">
             <div className="flex items-center">
               <CheckBox label="終了分を除く" onchange={changeHandler} />
             </div>
@@ -81,9 +81,9 @@ const ProjectReportEntryPage = () => {
             </div>
           </div>
           {/* ↓テーブル */}
-          <div className="flex flex-col mt-3 w-2/5">
-            <TableContainer component={Paper} className="">
-              <Table sx={{ maxWidth: 1920, minWidth: 1050 }}>
+          <div className="mt-3">
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 1050 }}>
                 <TableHead>
                   <TableRow>
                     {columns.map((column, i) => (
@@ -106,7 +106,7 @@ const ProjectReportEntryPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-            <div className="flex justify-between h-16 mt-5">
+            <div className="h-16 mt-5">
               <ReloadButton />
             </div>
           </div>

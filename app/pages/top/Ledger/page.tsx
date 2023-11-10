@@ -13,7 +13,11 @@ const pageTitles1 = [
 ];
 
 const pageTitles2 = [
-  { label: "社員別作業時間集計表", url: "/pages/top/Ledger/EmployeeWorkTimeTable", tab: false },
+  {
+    label: "社員別作業時間集計表",
+    url: "/pages/top/Ledger/EmployeeWorkTimeTable",
+    tab: false,
+  },
   { label: "プロジェクト\n一覧表", url: "", tab: false },
   { label: "プロジェクト別作業時間集計表", url: "", tab: false },
 ];
@@ -28,11 +32,11 @@ const FolderPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+    <div className="flex h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <div className="flex flex-row justify-between">
+        <div className="flex justify-between">
           <h1 className="text-4xl text-white font-bold">各種帳票</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
@@ -47,10 +51,11 @@ const FolderPage = () => {
                 shadowColor={cardColors[0].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group1.png"
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14 whitespace-pre-wrap">
+          <div className="flex space-x-14 whitespace-pre-wrap">
             {pageTitles2.map((page, index) => (
               <BasicCard
                 key={index}
@@ -60,6 +65,7 @@ const FolderPage = () => {
                 shadowColor={cardColors[1].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group2.png"
               />
             ))}
           </div>

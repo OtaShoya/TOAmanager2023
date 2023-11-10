@@ -53,16 +53,16 @@ const WebLinkPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+    <div className="flex h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <div className="flex flex-row justify-between">
+        <div className="flex justify-between">
           <h1 className="text-4xl text-white font-bold">Webリンク</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
         <div className="flex flex-col space-y-14">
-          <div className="flex flex-row space-x-14">
+          <div className="flex space-x-14">
             {pageTitles1.map((page, index) => (
               <BasicCard
                 key={index}
@@ -72,10 +72,11 @@ const WebLinkPage = () => {
                 shadowColor={cardColors[0].shadow}
                 url={page.url}
                 openNewTab={true}
+                image="/group1.png"
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14 whitespace-pre">
+          <div className="flex space-x-14 whitespace-pre">
             {pageTitles2.map((page, index) => (
               <BasicCard
                 key={index}
@@ -85,10 +86,11 @@ const WebLinkPage = () => {
                 shadowColor={cardColors[1].shadow}
                 url={page.url}
                 openNewTab={true}
+                image="/group2.png"
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14">
+          <div className="flex space-x-14">
             {pageTitles3.map((page, index) => (
               <BasicCard
                 key={index}
@@ -98,6 +100,7 @@ const WebLinkPage = () => {
                 shadowColor={cardColors[2].shadow}
                 url={page.url}
                 openNewTab={true}
+                image="/group3.png"
               />
             ))}
           </div>
