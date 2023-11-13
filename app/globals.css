@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .edit-title {
+    @apply text-center min-[1940px]:text-5xl text-3xl text-white font-bold min-[1940px]:my-24 my-10;
+  }
+  .edit-entry-button {
+    @apply text-[#556593] hover:text-white bg-white hover:bg-[#556593] border hover:border-white rounded-lg w-20 py-2;
+  }
+
+  .edit-label {
+    @apply text-white;
+  }
+
+  .edit-form {
+    @apply border min-[1940px]:h-14 h-10 text-black rounded p-1;
+  }
+}
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

@@ -15,9 +15,9 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import CreateIcon from "@mui/icons-material/Create";
-import EditPage from "./component/Edit";
-import AddPage from "./component/Add";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+import EditPage from "./Edit";
+import AddPage from "./Add";
 import { Socket } from "socket.io-client";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import LoginAvatar from "@/components/atmos/Avatar";
@@ -148,7 +148,7 @@ const ShainTourokuPage = () => {
         </div>
         <div className="flex flex-col items-center justify-center">
           {/* ↓フィルター */}
-          <div className="mt-10 w-2/5">
+          <div className="mt-10">
             <div className="flex items-center ">
               <CheckBox label="退職者も表示" onchange={changeHandler} />
             </div>
@@ -193,7 +193,7 @@ const ShainTourokuPage = () => {
             </div>
           </div>
           {/* ↓テーブル */}
-          <div className="flex flex-col mt-3 w-2/5 ">
+          <div className="flex flex-col mt-3">
             <TableContainer
               component={Paper}
               className="border rounded-lg shadow-lg"
@@ -213,7 +213,7 @@ const ShainTourokuPage = () => {
                         <IconButton
                           onClick={() => toggleDrawer(true, parseInt(data.id))}
                         >
-                          <CreateIcon />
+                          <PersonSearchIcon />
                         </IconButton>
                       </TableCell>
                       <TableCell>{data.shimei}</TableCell>

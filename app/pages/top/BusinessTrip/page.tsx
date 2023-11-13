@@ -11,7 +11,10 @@ const pageTitles1 = [
   { label: "出張登録", url: "", tab: false },
   { label: "出張申請", url: "", tab: false },
   { label: "出張報告", url: "/pages/top/master/syaintouroku", tab: false },
-  { label: "出張申請申請", url: "", tab: false },
+];
+
+const pageTitles2 = [
+  { label: "出張申請承認", url: "", tab: false },
   { label: "出張報告承認", url: "", tab: false },
 ];
 
@@ -33,18 +36,35 @@ const BusinessTripPage = () => {
           <h1 className="text-4xl text-white font-bold">出張</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
-        <div className="grid grid-cols-3 gap-y-14">
-          {pageTitles1.map((page, index) => (
-            <BasicCard
-              key={index}
-              title={page.label}
-              cardColor={cardColors[0].cardBg}
-              buttonColor={cardColors[0].buttonBg}
-              shadowColor={cardColors[0].shadow}
-              url={page.url}
-              openNewTab={false}
-            />
-          ))}
+        <div className="grid grid-cols-1 gap-14">
+          <div className="flex space-x-14">
+            {pageTitles1.map((page, index) => (
+              <BasicCard
+                key={index}
+                title={page.label}
+                cardColor={cardColors[0].cardBg}
+                buttonColor={cardColors[0].buttonBg}
+                shadowColor={cardColors[0].shadow}
+                url={page.url}
+                openNewTab={false}
+                image="/group1.png"
+              />
+            ))}
+          </div>
+          <div className="flex space-x-14">
+            {pageTitles2.map((page, index) => (
+              <BasicCard
+                key={index}
+                title={page.label}
+                cardColor={cardColors[1].cardBg}
+                buttonColor={cardColors[1].buttonBg}
+                shadowColor={cardColors[1].shadow}
+                url={page.url}
+                openNewTab={false}
+                image="/group2.png"
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

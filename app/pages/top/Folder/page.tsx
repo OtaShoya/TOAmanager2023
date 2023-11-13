@@ -54,6 +54,7 @@ const FolderPage = () => {
                 shadowColor={cardColors[0].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group1.png"
               />
             ))}
           </div>
@@ -67,6 +68,7 @@ const FolderPage = () => {
                 shadowColor={cardColors[1].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group2.png"
               />
             ))}
           </div>
@@ -80,6 +82,7 @@ const FolderPage = () => {
                 shadowColor={cardColors[2].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group3.png"
               />
             ))}
           </div>
