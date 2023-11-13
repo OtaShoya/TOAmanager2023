@@ -43,11 +43,33 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     // console.log(body.kinmu);
                     const ser = await db.addKinmu(body.kinmu).then( 
                         (v:any)=>{
-                            res.status(200).json({added: true});
-                            res.end();
-                            db.closeDb(dataBaseConnectionStr);
+                            
+                            if(body.kinmu.sagyouNaiyou.length > 0){
+                                let p = new Promise((resolve, reject)=>{
+                                    body.kinmu.sagyouNaiyou.forEach( (element:any, index:number) => {
+
+                                        const addKSN = async () => {
+                                            await db.addKinmuSagyouNaiyou( element, v )
+                                        }
+                                        addKSN();
+                                    });
+                                    resolve("")
+                                })
+                                p.then((val)=>{
+                                    res.status(200).json({added: true});
+                                    res.end();
+                                    db.closeDb(dataBaseConnectionStr);
+                                } )
+                            }else{
+                                res.status(200).json({added: true});
+                                res.end();
+                                db.closeDb(dataBaseConnectionStr);
+                            }   
+
+                          
                         } 
                     );
+                    
                 }
                 kinmuAdd();
                 break;
@@ -71,7 +93,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 {
                     const kinmuUpdate = async ()=> {
                         db.loadDb(dataBaseConnectionStr);
-                        console.log(body.kinmu);
                         const ser = await db.updateKinmu(body.kinmu).then( 
                             (v:any)=>{
                               return v
@@ -93,7 +114,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                     if(element.id == 0){
                                         await db.addKinmuSagyouNaiyou( element, body.kinmu.id )
                                     }else{
-                                        console.log(element )
                                         await db.updateKinmuSagyouNaiyou( element )
                                     }
                                   
@@ -312,7 +332,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                         await db.deleteProject(body.id).then(
                          
                             (v:any)=>{
-                                console.log(body.id);
                                 db.cleanProjectMembers(body.id);
                                 db.cleanProjectSagyouNaiyou(body.id);
                                 res.status(200).json({deleted: true});

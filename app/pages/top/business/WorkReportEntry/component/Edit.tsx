@@ -143,8 +143,6 @@ const EditPage = ({ socket, projectList, kinmuId, loaded, setLoaded, date }:any)
       });
       const d = await res.json();
       if(d){
-
-       
         
         let startTimeDate = new Date( "2000-1-1 " + d.kinmu.shussha_jikoku);
         let endTimeDate = new Date( "2000-1-1 " + d.kinmu.taisha_jikoku);

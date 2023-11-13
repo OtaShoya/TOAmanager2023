@@ -249,8 +249,6 @@ const addKinmu = function(nKinmu:Kinmu){
                 +",$memo"
                 +")"
                 )
-            
-            console.log(nKinmu);
             stm.run({
                 $shain_id: nKinmu.shainId
                 ,$hidsuke: nKinmu.hidsuke
@@ -337,7 +335,6 @@ const getKinmuList = function(id:number){
                                 kyuushutsuJikan: element.kyuushutsu_jikan,
                                 memo: element.memo,
                             };
-                            // console.log(kinmu.hidsuke);
                             e.push(kinmu)
     
                         });
