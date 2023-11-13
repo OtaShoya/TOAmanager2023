@@ -63,7 +63,7 @@ const TopPage = () => {
 
   if (data?.session_found === true) {
     return (
-      <div className="flex flex-row h-screen p-10 bg-[#556593]">
+      <div className="flex h-screen p-10 bg-[#556593]">
         <Navigation subTitles={subTitle} />
         {/* ↓2023-1019 デザイン変更 */}
         <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
@@ -77,7 +77,7 @@ const TopPage = () => {
             />
           </div>
           <div className="grid grid-cols-1 gap-14">
-            <div className="flex flex-row space-x-14">
+            <div className="flex space-x-14">
               {pageTitles1.map((page, index) => (
                 <BasicCard
                   key={index}
@@ -87,10 +87,11 @@ const TopPage = () => {
                   shadowColor={cardColors[0].shadow}
                   url={page.url}
                   openNewTab={false}
+                  image="/group1.png"
                 />
               ))}
             </div>
-            <div className="flex flex-row space-x-14 whitespace-pre">
+            <div className="flex space-x-14 whitespace-pre">
               {pageTitles2.map((page, index) => (
                 <BasicCard
                   key={index}
@@ -100,10 +101,11 @@ const TopPage = () => {
                   shadowColor={cardColors[1].shadow}
                   url={page.url}
                   openNewTab={false}
+                  image="/group2.png"
                 />
               ))}
             </div>
-            <div className="flex flex-row space-x-14 whitespace-pre">
+            <div className="flex space-x-14 whitespace-pre">
               {pageTitles3.map((page, index) => (
                 <BasicCard
                   key={index}
@@ -113,6 +115,7 @@ const TopPage = () => {
                   shadowColor={cardColors[2].shadow}
                   url={page.url}
                   openNewTab={false}
+                  image="/group3.png"
                 />
               ))}
             </div>

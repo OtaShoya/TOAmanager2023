@@ -11,11 +11,13 @@ const pageTitles1 = [
   { label: "製品登録", url: "", tab: false },
   { label: "部署登録", url: "", tab: false },
   { label: "社員登録", url: "/pages/top/master/syaintouroku", tab: false },
-  { label: "業種登録", url: "", tab: false },
-  { label: "カレンダー登録", url: "", tab: false },
 ];
 
-const pageTitles2 = [{ label: "メール設定", url: "", tab: false }];
+const pageTitles2 = [
+  { label: "業種登録", url: "", tab: false },
+  { label: "カレンダー登録", url: "", tab: false },
+  { label: "メール設定", url: "", tab: false },
+];
 
 let socket: Socket;
 
@@ -27,16 +29,16 @@ const MasterPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
+    <div className="flex h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
       {/* ↓2023-1019 デザイン変更 */}
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <div className="flex flex-row justify-between">
+        <div className="flex justify-between">
           <h1 className="text-4xl text-white font-bold">マスタ保守</h1>
           <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
         </div>
-        <div className="flex flex-col space-y-14">
-          <div className="grid grid-cols-3 gap-y-14">
+        <div className="grid grid-cols-1 gap-14">
+          <div className="flex space-x-14">
             {pageTitles1.map((page, index) => (
               <BasicCard
                 key={index}
@@ -46,10 +48,11 @@ const MasterPage = () => {
                 shadowColor={cardColors[0].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group1.png"
               />
             ))}
           </div>
-          <div>
+          <div className="flex space-x-14">
             {pageTitles2.map((page, index) => (
               <BasicCard
                 key={index}
@@ -59,6 +62,7 @@ const MasterPage = () => {
                 shadowColor={cardColors[1].shadow}
                 url={page.url}
                 openNewTab={false}
+                image="/group2.png"
               />
             ))}
           </div>
