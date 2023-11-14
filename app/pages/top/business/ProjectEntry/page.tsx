@@ -14,14 +14,14 @@ import {
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import AddIcon from "@mui/icons-material/Add";
-import EditPage from "./component/Edit";
+import EditPage from "./Edit";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import LoginAvatar from "@/components/atmos/Avatar";
 import { Socket } from "socket.io-client";
 import CheckBox from "@/components/atmos/CheckBox";
 import ReloadButton from "@/components/molecule/RelodeButton";
-import AddPage from "./component/Add";
-import { Edit } from "@mui/icons-material";
+import AddPage from "./Add";
+// import { Edit } from "@mui/icons-material";
 
 var socket: Socket;
 const sessions = require("@/src/lib/sessions");
@@ -35,7 +35,7 @@ const ProjectEntryPage = () => {
   const [stateAdd, setStateAdd] = React.useState(false);
   const [projectSelected, setProjectSelected] = React.useState(0);
   const [newLoaded, setNewLoaded] = React.useState(false);
-  const [members, setMembers] = React.useState(); //[{shimei: "", id: 0}]
+  const [members, setMembers] = React.useState([{shimei: "", id: 0}]); //[{shimei: "", id: 0}]
   const [datas, setDatas] = React.useState([
     { id: 0, kokyakuId: "", bangou: "", na: "", jyoutaiId: "" },
   ]); //
@@ -128,9 +128,10 @@ const ProjectEntryPage = () => {
         });
 
         let s = await res.json();
-
+       
         if (s?.shainList) {
-          setMembers(s.shainList);
+          
+          setMembers(s?.shainList);
         }
       };
       r();
@@ -263,34 +264,26 @@ const ProjectEntryPage = () => {
             open={stateAdd}
             onClose={() => toggleAddDrawer(false)}
           >
-            <AddPage />
+            <AddPage socket={socket} projectList={datas} members={members} />
           </Drawer>
           <Drawer
-            anchor="right"
-            open={state}
-            onClose={() => toggleDrawer(false)}
-          >
-            <EditPage />
-          </Drawer>
-        </div>
-        <Drawer anchor="right" open={state} onClose={() => toggleDrawer(false)}>
-          <AddPage socket={socket} projectList={datas} members={members} />
-        </Drawer>
-
-        <Drawer
           anchor="right"
           open={stateEdit}
           onClose={() => toggleDrawerEdit(false, 0)}
-        >
-          <EditPage
-            socket={socket}
-            projectId={projectSelected}
-            loaded={newLoaded}
-            setLoadedFunction={setNewLoaded}
-            projectList={datas}
-            members={members}
-          />
-        </Drawer>
+          >
+            <EditPage
+              socket={socket}
+              projectId={projectSelected}
+              loaded={newLoaded}
+              setLoadedFunction={setNewLoaded}
+              projectList={datas}
+              members={members}
+            />
+          </Drawer>
+        </div>
+  
+
+       
       </div>
     );
   };

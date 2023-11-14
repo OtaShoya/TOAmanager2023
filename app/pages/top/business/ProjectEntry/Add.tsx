@@ -1,25 +1,27 @@
 "use client";
 import { Button } from "@mui/material";
-import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-form";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useCallback, useRef, useState } from "react";
+import DatePicker from "react-datepicker";
+import type { Project } from "@/src/lib/database";
 
 type FormType = {
-  custmer: string;
-  route: string;
-  pic: string;
-  state: string;
+  customer: number;
+  route: number;
+  pic: number;
+  state: number;
   projectNo: string;
-  projectPar: string;
+  projectPar: number;
   projectName: string;
   projectSummary: string;
   projectGoal: string;
-  budget: string;
-  costs1: string;
-  expenses: string;
-  scheduledDate: string;
-  startDate: string;
-  endDate: string;
+  budget: number;
+  costs1: number;
+  expenses: number;
+  scheduledDate: Date;
+  startDate: Date;
+  endDate: Date;
   memo: string;
   file1: string;
   file2: string;
@@ -35,28 +37,51 @@ type FormType = {
   }[];
 };
 
-const menbers = ["太田翔哉", "chiago"];
 const taskItems = ["A", "B", "C"];
 const commonFormDesign = "border min-[1940px]:h-14 h-10 text-black rounded p-1";
 const commonLabelDesign = "text-white flex flex-col";
 
-const AddPage = () => {
+function refreshShain(){
+
+  setTimeout( ()=>{
+    let styleElement = document.getElementById("func-style");
+
+    if(styleElement){
+      let styleString = "";
+      let memberForm =  document.getElementById("form-member");
+      if(memberForm){
+        let memberInputs = memberForm.querySelectorAll("select")
+        if(memberInputs.length > 0){
+          memberInputs.forEach( ( el, index )=>{
+            //@ts-ignore
+            if(el.getAttribute("name") && el.getAttribute("name").includes("form1")){
+              let inputElement:any = el;
+              styleString += "#form-member option[value='" + inputElement.value + "']";
+              if(index < (memberInputs.length - 1)){
+                styleString += ",";
+              }
+            }
+            
+          } )
+          styleString += "{display: none;}"
+        }
+  
+      }
+  
+      styleElement.innerHTML = styleString;
+
+    }
+  }, 1 ) 
+  
+}
+
+const AddPage = ({socket,members, projectList}:any) => {
   const [files, setFiles] = useState<File[]>([]);
   const [document, setDocument] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const documentRef = useRef<HTMLInputElement>(null);
   const { control, handleSubmit, register } = useForm<FormType>({
     defaultValues: {
-      form1: [{ projectMenber: "" }],
-      form2: [
-        {
-          task: "",
-          work: "",
-          start: "",
-          finish: "",
-          costs: "",
-        },
-      ],
     },
   });
 
@@ -84,6 +109,37 @@ const AddPage = () => {
 
   const onSubmit: SubmitHandler<FormType> = (data) => {
     console.log(data);
+    
+    let p:Project = {
+      kokyakuId: data.customer,
+      jyoutaiId: data.state,
+      eigyouTantouId: data.pic,
+      jyuchuuRouteId: data.route,
+      bangou: data.projectNo,
+      oyaProjectId: data.projectPar,
+      na: data.projectName,
+      gaiyou: data.projectSummary,
+      mokuhyou: data.projectGoal,
+      yosa: data.budget,
+      cousuu: data.costs1,
+      keihi: data.expenses,
+      honkadouYoteiHi: data.scheduledDate?data.scheduledDate.toDateString():new Date().toDateString(),
+      kashibi:  data.startDate?data.startDate.toDateString():new Date().toDateString(),
+      shuuryoubi: data.endDate?data.endDate.toDateString():new Date().toDateString(),
+      memo: data.memo,
+      mitsumoriFile: "",
+      documentFolder: "",
+      shuuryuHoukoku: "",
+    }
+    console.log( data.form1);
+    socket.emit("project-add", {
+      sessionID: localStorage.getItem("sessionID"),
+      userID: localStorage.getItem("userID"),
+      project: p,
+      members: data.form1,
+      tasks: data.form2,
+    })
+
   };
 
   const {
@@ -115,26 +171,35 @@ const AddPage = () => {
         <div className="flex justify-between">
           <label className="edit-label flex flex-col">
             顧客
-            <select className="edit-form" {...register("custmer")}>
-              <option value="">123456789</option>
+            <select className="edit-form" {...register("customer")}>
+              <option value="0"></option>
+              <option value="1">123456789</option>
             </select>
           </label>
           <label className="edit-label flex flex-col">
             受注ルート
             <select className="edit-form" {...register("route")}>
-              <option value="">123456789</option>
+              <option value="0"></option>
+              <option value="1">123456789</option>
             </select>
           </label>
           <label className="edit-label flex flex-col">
             営業担当
-            <select className="edit-form" {...register("pic")}>
-              <option value="">123456789</option>
+            <select className="edit-form" {...register("pic")}
+            >
+              <option value="0"></option>
+                {members.map((member: any, i:any) => (
+                  <option value={member.id} key={i}>
+                    {member.shimei}
+                  </option>
+                ))}
             </select>
           </label>
           <label className="edit-label flex flex-col">
             状態
             <select className="edit-form" {...register("state")}>
-              <option value="">123456789</option>
+            <option value="0"></option>
+              <option value="1">123456789</option>
             </select>
           </label>
         </div>
@@ -150,28 +215,26 @@ const AddPage = () => {
               <select
                 className="edit-form"
                 {...register("projectPar")}
-              ></select>
+              >
+                <option value="0"></option>
+                  {projectList.map((project: any, i:any) => (
+                    <option value={project.id} key={i}>
+                      {project.na}
+                    </option>
+                  ))}
+              </select>
             </label>
             <label className="edit-label flex flex-col">
               プロジェクト名
-              <select
-                className="edit-form"
-                {...register("projectName")}
-              ></select>
+               <input className="edit-form" {...register("projectName")} />
             </label>
             <label className="edit-label flex flex-col">
               プロジェクト概要
-              <select
-                className="edit-form"
-                {...register("projectSummary")}
-              ></select>
+               <input className="edit-form" {...register("projectSummary")} />
             </label>
             <label className="edit-label flex flex-col">
               プロジェクト目標
-              <select
-                className="edit-form"
-                {...register("projectGoal")}
-              ></select>
+              <input className="edit-form" {...register("projectGoal")} />
             </label>
             <div className="flex justify-between">
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
@@ -190,15 +253,54 @@ const AddPage = () => {
             <div className="flex justify-between">
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
                 本稼働予定日
-                <input className="edit-form" />
+                <Controller
+                    control={control}
+                   
+                    name="scheduledDate"
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker
+                        dateFormat="yyyy/MM/dd"
+                        className="edit-form"
+                        selected={value}
+                        onChange={onChange}
+                        id="bDate"
+                      />
+                    )}  
+                  />
               </label>
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
                 開始日
-                <input className="edit-form" />
+                <Controller
+                    control={control}
+                   
+                    name="startDate"
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker
+                        dateFormat="yyyy/MM/dd"
+                        className="edit-form"
+                        selected={value}
+                        onChange={onChange}
+                        id="bDate"
+                      />
+                    )}  
+                  />
               </label>
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
                 終了日
-                <input className="edit-form" />
+                <Controller
+                    control={control}
+                   
+                    name="endDate"
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker
+                        dateFormat="yyyy/MM/dd"
+                        className="edit-form"
+                        selected={value}
+                        onChange={onChange}
+                        id="bDate"
+                      />
+                    )}  
+                  />
               </label>
             </div>
             <label className="edit-label flex flex-col">
@@ -259,21 +361,26 @@ const AddPage = () => {
             <label className="text-white place-items-center justify-self-center">
               プロジェクトメンバー
             </label>
-            <div className="w-auto p-2 flex flex-col gap-y-2 border">
+           
+            <div className="w-auto p-2 flex flex-col gap-y-2 border" id="form-member">
+              <style id="func-style"></style>
               {form1.map((form, index) => (
-                <div className="flex " key={form.id}>
+                <div className="flex " key={form.id} >
                   <select
                     {...register(`form1.${index}.projectMenber`)}
                     className="w-full"
+                    onChange={()=>{refreshShain()}}
                   >
-                    {menbers.map((menber: string, i) => (
-                      <option value={i} key={i}>
-                        {menber}
+                    {members.map((member: any, i:number) => (
+                      <option value={member.id} key={i}>
+                        {member.shimei}
                       </option>
                     ))}
                   </select>
                   <button
-                    onClick={() => form1Remove(index)}
+                    onClick={() => {
+                      form1Remove(index); 
+                      refreshShain();}}
                     className="text-white bg-indigo-600 w-12 inline-flex items-center justify-center border"
                   >
                     <svg

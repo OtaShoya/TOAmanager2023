@@ -1,32 +1,36 @@
 "use client";
 import { Button } from "@mui/material";
-import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
+import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-form";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import type { Project } from "@/src/lib/database";
 
 type FormType = {
-  custmer: string;
-  route: string;
-  pic: string;
-  state: string;
+  customer: number;
+  route: number;
+  pic: number;
+  state: number;
   projectNo: string;
-  projectPar: string;
+  projectPar: number;
   projectName: string;
   projectSummary: string;
   projectGoal: string;
-  budget: string;
-  costs1: string;
-  expenses: string;
-  scheduledDate: string;
-  startDate: string;
-  endDate: string;
+  budget: number;
+  costs1: number;
+  expenses: number;
+  scheduledDate: Date;
+  startDate: Date;
+  endDate: Date;
   memo: string;
   file1: string;
   file2: string;
   form1: {
-    projectMenber: string;
+    projectMember: string;
+    mb_id: number
   }[];
   form2: {
+    sn_id:number;
     task: string;
     work: string;
     start: string;
@@ -35,28 +39,65 @@ type FormType = {
   }[];
 };
 
-const menbers = ["太田翔哉", "chiago"];
 const taskItems = ["A", "B", "C"];
+const commonFormDesign = "border min-[1940px]:h-14 h-10 text-black rounded p-1";
+const commonLabelDesign = "text-white flex flex-col";
 
-const EditPage = () => {
+function refreshShain(){
+
+  setTimeout( ()=>{
+    let styleElement = document.getElementById("func-style");
+
+    if(styleElement){
+      let styleString = "";
+      let memberForm =  document.getElementById("form-member");
+      if(memberForm){
+        let memberInputs = memberForm.querySelectorAll("select")
+        if(memberInputs.length > 0){
+          memberInputs.forEach( ( el, index )=>{
+            //@ts-ignore
+            if(el.getAttribute("name") && el.getAttribute("name").includes("form1")){
+              let inputElement:any = el;
+              styleString += "#form-member option[value='" + inputElement.value + "']";
+              if(index < (memberInputs.length - 1)){
+                styleString += ",";
+              }
+            }
+            
+          } )
+          styleString += "{display: none;}"
+        }
+  
+      }
+  
+      styleElement.innerHTML = styleString;
+
+    }
+  }, 1 ) 
+  
+}
+
+const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projectList}:any) => {
   const [files, setFiles] = useState<File[]>([]);
   const [document, setDocument] = useState<File[]>([]);
+  const [sagyouNaiyou, setSagyouNaiyou] = useState(new Array<any>());
+  const [mbList, setMbList] = useState(new Array<any>());
+
   const inputRef = useRef<HTMLInputElement>(null);
   const documentRef = useRef<HTMLInputElement>(null);
-  const { control, handleSubmit, register } = useForm<FormType>({
+  const { control, handleSubmit, register, setValue } = useForm<FormType>({
     defaultValues: {
-      form1: [{ projectMenber: "" }],
-      form2: [
-        {
-          task: "",
-          work: "",
-          start: "",
-          finish: "",
-          costs: "",
-        },
-      ],
     },
   });
+
+
+  const deleteProject = ()=>{
+    socket.emit("project-delete", {
+      sessionID: localStorage.getItem("sessionID"),
+      userID: localStorage.getItem("userID"),
+      id: projectId,
+    })
+}
 
   const onFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +123,51 @@ const EditPage = () => {
 
   const onSubmit: SubmitHandler<FormType> = (data) => {
     console.log(data);
+    
+    var honkadouYoteiHi;
+    var kashibi;
+    var shuuryoubi;
+    if(data.scheduledDate){
+      honkadouYoteiHi = data.scheduledDate.toDateString()
+    }
+    if(data.startDate){
+      kashibi = data.startDate.toDateString()
+    }
+    if(data.endDate){
+      shuuryoubi = data.endDate.toDateString()
+    }
+    let p:Project = {
+      id: projectId,
+      kokyakuId: data.customer,
+      eigyouTantouId: data.pic,
+      jyoutaiId: data.state,
+      jyuchuuRouteId: data.route,
+      bangou: data.projectNo,
+      oyaProjectId: data.projectPar,
+      na: data.projectName,
+      gaiyou: data.projectSummary,
+      mokuhyou: data.projectGoal,
+      yosa: data.budget,
+      cousuu: data.costs1,
+      keihi: data.expenses,
+      honkadouYoteiHi: honkadouYoteiHi,
+      kashibi:  kashibi,
+      shuuryoubi: shuuryoubi,
+      memo: data.memo,
+      mitsumoriFile: "",
+      documentFolder: "",
+      shuuryuHoukoku: "",
+    }
+    socket.emit("project-update", {
+      sessionID: localStorage.getItem("sessionID"),
+      userID: localStorage.getItem("userID"),
+      snList: sagyouNaiyou,
+      mbList: mbList,
+      project: p,
+      members: form1,
+      tasks: form2,
+    })
+
   };
 
   const {
@@ -102,37 +188,137 @@ const EditPage = () => {
     control,
   });
 
+   useEffect(()=>{
+
+    const r = async () => {
+
+      if(loaded){
+        return;
+      }
+
+      const res2 = await fetch("http://localhost:3000/api/db", {
+        method: "POST",
+        body: JSON.stringify({
+          type: "project-get",
+          id: projectId
+        }),
+      });
+
+      let s2 = await res2.json();
+
+      if(s2?.project){
+        setValue("customer", s2.project.kokyaku_id);
+        setValue("route", s2.project.jyuchuu_route_id);
+        setValue("pic", s2.project.eigyou_tantou_id);
+        setValue("state", s2.project.jyoutai_id);
+        setValue("projectNo", s2.project.bangou)
+        setValue("projectPar", s2.project.oya_project_id)
+        setValue("projectName", s2.project.na)
+        setValue("projectSummary", s2.project.gaiyou)
+        setValue("projectGoal", s2.project.mokuhyou)
+        setValue("budget",  s2.project.yosa); //yosan
+        setValue("costs1",  s2.project.cousuu);
+        setValue("expenses", s2.project.keihi);
+        setValue("scheduledDate", new Date(s2.project.honkadou_youtei_hi));
+        setValue("startDate", new Date(s2.project.kashibi));
+        setValue("endDate", new Date(s2.project.shuuryobi));
+        setValue("memo", s2.project.memo)
+        setValue("file1", "")
+        setValue("file2", "")
+
+        if(s2.members){
+          
+          form1Remove();
+          let mList = new Array<any>()
+          s2.members.forEach((element:any, index:number)=> {
+            form1Append({
+              projectMember: "",
+              mb_id: 0,
+            })
+            
+            setValue(`form1.${index}.projectMember`,  element.shain_id)
+            setValue(`form1.${index}.mb_id`,  element.mb_id)
+            mList.push( element.mb_id )
+          });
+
+          setMbList(mList)
+
+          refreshShain();
+        }
+
+        if(s2.sagyouNaiyou){
+          
+          form2Remove();
+          let snList = new Array<any>()
+          s2.sagyouNaiyou.forEach((element:any, index:number)=> {
+            form2Append({
+              sn_id: element.sn_id,
+              task: element.task_id,
+              work:  element.sagyou_naiyou,
+              start:  element.kaishi_yotei_hi,
+              finish: element.shuuryou_yotei_hi,
+              costs:  element.yotei_kousuu,
+            })
+            setValue(`form2.${index}.sn_id`,  element.sn_id)
+            setValue(`form2.${index}.task`,  element.task_id)
+            setValue(`form2.${index}.work`,  element.sagyou_naiyou)
+            setValue(`form2.${index}.start`,  element.kaishi_yotei_hi)
+            setValue(`form2.${index}.finish`,  element.shuuryou_yotei_hi)
+            setValue(`form2.${index}.costs`,  element.yotei_kousuu)
+            snList.push(element.sn_id)
+          })
+          setSagyouNaiyou(snList);
+        }
+
+        setLoadedFunction(true);
+      }
+
+    };
+
+    r();
+    
+  })
+
   return (
     <form
       className="px-8 pb-8 bg-[#556593] min-[1940px]:h-full h-max"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <h1 className="edit-title">プロジェクト詳細</h1>
+      <h1 className="edit-title">新規プロジェクト登録</h1>
       <div className="flex flex-col space-y-5">
         {/* フォーム1 */}
         <div className="flex justify-between">
           <label className="edit-label flex flex-col">
             顧客
-            <select className="edit-form" {...register("custmer")}>
-              <option value="">123456789</option>
+            <select className="edit-form" {...register("customer")}>
+              <option value="0"></option>
+              <option value="1">123456789</option>
             </select>
           </label>
           <label className="edit-label flex flex-col">
             受注ルート
             <select className="edit-form" {...register("route")}>
-              <option value="">123456789</option>
+              <option value="0"></option>
+              <option value="1">123456789</option>
             </select>
           </label>
           <label className="edit-label flex flex-col">
             営業担当
-            <select className="edit-form" {...register("pic")}>
-              <option value="">123456789</option>
+            <select className="edit-form" {...register("pic")}
+            >
+              <option value="0"></option>
+                {members.map((member: any, i:any) => (
+                  <option value={member.id} key={i}>
+                    {member.shimei}
+                  </option>
+                ))}
             </select>
           </label>
           <label className="edit-label flex flex-col">
             状態
             <select className="edit-form" {...register("state")}>
-              <option value="">123456789</option>
+            <option value="0"></option>
+              <option value="1">123456789</option>
             </select>
           </label>
         </div>
@@ -148,28 +334,26 @@ const EditPage = () => {
               <select
                 className="edit-form"
                 {...register("projectPar")}
-              ></select>
+              >
+                <option value="0"></option>
+                  {projectList.map((project: any, i:any) => (
+                    <option value={project.id} key={i}>
+                      {project.na}
+                    </option>
+                  ))}
+              </select>
             </label>
             <label className="edit-label flex flex-col">
               プロジェクト名
-              <select
-                className="edit-form"
-                {...register("projectName")}
-              ></select>
+               <input className="edit-form" {...register("projectName")} />
             </label>
             <label className="edit-label flex flex-col">
               プロジェクト概要
-              <select
-                className="edit-form"
-                {...register("projectSummary")}
-              ></select>
+               <input className="edit-form" {...register("projectSummary")} />
             </label>
             <label className="edit-label flex flex-col">
               プロジェクト目標
-              <select
-                className="edit-form"
-                {...register("projectGoal")}
-              ></select>
+              <input className="edit-form" {...register("projectGoal")} />
             </label>
             <div className="flex justify-between">
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
@@ -188,20 +372,59 @@ const EditPage = () => {
             <div className="flex justify-between">
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
                 本稼働予定日
-                <input className="edit-form" />
+                <Controller
+                    control={control}
+                   
+                    name="scheduledDate"
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker
+                        dateFormat="yyyy/MM/dd"
+                        className="edit-form"
+                        selected={value}
+                        onChange={onChange}
+                        id="bDate"
+                      />
+                    )}  
+                  />
               </label>
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
                 開始日
-                <input className="edit-form" />
+                <Controller
+                    control={control}
+                   
+                    name="startDate"
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker
+                        dateFormat="yyyy/MM/dd"
+                        className="edit-form"
+                        selected={value}
+                        onChange={onChange}
+                        id="bDate"
+                      />
+                    )}  
+                  />
               </label>
               <label className="edit-label flex flex-col min-[1940px]:w-64 w-44">
                 終了日
-                <input className="edit-form" />
+                <Controller
+                    control={control}
+                   
+                    name="endDate"
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker
+                        dateFormat="yyyy/MM/dd"
+                        className="edit-form"
+                        selected={value}
+                        onChange={onChange}
+                        id="bDate"
+                      />
+                    )}  
+                  />
               </label>
             </div>
             <label className="edit-label flex flex-col">
               メモ（状況及び今後の予定）
-              <input className="border rounded text-black h-32" />
+              <input className="border text-black h-32" />
             </label>
             <div className="flex items-end">
               <label className="edit-label flex flex-col">
@@ -257,21 +480,26 @@ const EditPage = () => {
             <label className="text-white place-items-center justify-self-center">
               プロジェクトメンバー
             </label>
-            <div className="w-auto p-2 flex flex-col gap-y-2 border">
+           
+            <div className="w-auto p-2 flex flex-col gap-y-2 border" id="form-member">
+              <style id="func-style"></style>
               {form1.map((form, index) => (
-                <div className="flex" key={form.id}>
+                <div className="flex " key={form.id} >
                   <select
-                    {...register(`form1.${index}.projectMenber`)}
+                    {...register(`form1.${index}.projectMember`)}
                     className="w-full"
+                    onChange={()=>{refreshShain()}}
                   >
-                    {menbers.map((menber: string, i) => (
-                      <option value={i} key={i}>
-                        {menber}
+                    {members.map((member: any, i:number) => (
+                      <option value={member.id} key={i}>
+                        {member.shimei}
                       </option>
                     ))}
                   </select>
                   <button
-                    onClick={() => form1Remove(index)}
+                    onClick={() => {
+                      form1Remove(index); 
+                      refreshShain();}}
                     className="text-white bg-indigo-600 w-12 inline-flex items-center justify-center border"
                   >
                     <svg
@@ -289,12 +517,17 @@ const EditPage = () => {
                       />
                     </svg>
                   </button>
+                  <div style={{display: "none"}}>
+                      <input value={form1[index].mb_id} 
+                      {...register(`form1.${index}.mb_id`)} />
+                  </div>
                 </div>
               ))}
               <button
                 onClick={() =>
                   form1Append({
-                    projectMenber: "",
+                    projectMember: "",
+                    mb_id: 0,
                   })
                 }
                 className="text-white bg-indigo-600 rounded w-20 py-1 place-self-center"
@@ -396,6 +629,7 @@ const EditPage = () => {
             <button
               onClick={() =>
                 form2Append({
+                  sn_id: 0,
                   task: "",
                   work: "",
                   start: "",
@@ -412,6 +646,12 @@ const EditPage = () => {
         {/* 追加ボタン */}
         <button type="submit" className="edit-entry-button">
           登録
+        </button>
+        <button className="edit-entry-button" 
+          onClick={()=>{
+            deleteProject();
+          }}>
+        削除
         </button>
       </div>
     </form>
