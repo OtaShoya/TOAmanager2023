@@ -52,10 +52,6 @@ const ProjectEntryPage = () => {
 
   const toggleAddDrawer = (open: boolean) => {
     setStateAdd(open);
-  };
-
-  const toggleDrawer = (open: boolean) => {
-    setState(open);
     setNewLoaded(false);
     loadProjects();
   };
@@ -111,7 +107,7 @@ const ProjectEntryPage = () => {
       socket = sessions.connectSession();
       sessions.socketInitializer(socket);
       socket.on("after-project-add", (msg) => {
-        toggleDrawer(false);
+        toggleAddDrawer(false);
       });
       socket.on("after-project-update", (msg) => {
         toggleDrawerEdit(false, 0);

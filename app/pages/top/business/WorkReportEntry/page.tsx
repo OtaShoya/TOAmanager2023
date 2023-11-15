@@ -10,7 +10,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { Drawer, IconButton } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
-import EditPage from "./component/Edit";
+import EditPage from "./Edit";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import LoginAvatar from "@/components/atmos/Avatar";
 import io, { Socket } from "socket.io-client";
@@ -229,7 +229,7 @@ const WorkReportEntry = () => {
 
       var opts:Array<OptionElement> =
       [
-          {name: "", id: 0},
+          {name: "",  id: 0},
           {name: "A", id: 1},
           {name: "B", id: 2},
           {name: "C", id: 3},
@@ -245,7 +245,7 @@ const WorkReportEntry = () => {
       }
 
       return(
-        <TableRow>
+        <TableRow key={index}>
           <TableCell>
             <IconButton onClick={() => toggleDrawer(true, val.id, new Date(val.hidsuke))}>
               <CreateIcon />

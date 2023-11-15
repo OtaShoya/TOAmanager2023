@@ -238,9 +238,7 @@ const EditPage = ({ socket, projectList, kinmuId, loaded, setLoaded, date }:any)
         sagyouJikan: val.work_time2,
       })
     } )
-    
-    console.log(upList)
-    
+        
     let kinmuK:Kinmu ={
       hidsuke: date,
       id: kinmuId,
@@ -264,6 +262,7 @@ const EditPage = ({ socket, projectList, kinmuId, loaded, setLoaded, date }:any)
         kinmu: kinmuK,
       })
     }else{
+      
       socket.emit("kinmu-update", {
         sessionID: localStorage.getItem("sessionID"),
         userID: localStorage.getItem("userID"),

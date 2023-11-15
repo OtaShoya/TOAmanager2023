@@ -91,6 +91,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 }
             case "kinmu-update":
                 {
+                    
                     const kinmuUpdate = async ()=> {
                         db.loadDb(dataBaseConnectionStr);
                         const ser = await db.updateKinmu(body.kinmu).then( 
@@ -100,9 +101,9 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             
                         );
 
-
+                           
                         if(body.kinmu.sagyouNaiyou.length > 0){
-
+                            
                             let deleteList = body.ksnList.filter( (el:any)=>{
                                 return (body.kinmu.sagyouNaiyou.find( (ell:any)=>ell.id == el ) == undefined)
                             } ) 
