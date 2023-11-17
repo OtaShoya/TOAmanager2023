@@ -4,7 +4,9 @@ import { useForm, SubmitHandler, useFieldArray, Controller } from "react-hook-fo
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useCallback, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import type { Project } from "@/src/lib/database";
+
 
 type FormType = {
   customer: number;
@@ -26,10 +28,10 @@ type FormType = {
   file1: string;
   file2: string;
   form1: {
-    projectMenber: string;
+    projectMember: string;
   }[];
   form2: {
-    task: string;
+    task: number;
     work: string;
     start: string;
     finish: string;
@@ -80,7 +82,7 @@ const AddPage = ({socket,members, projectList}:any) => {
   const [document, setDocument] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const documentRef = useRef<HTMLInputElement>(null);
-  const { control, handleSubmit, register } = useForm<FormType>({
+  const { control, handleSubmit, register,setValue } = useForm<FormType>({
     defaultValues: {
     },
   });
@@ -108,8 +110,6 @@ const AddPage = ({socket,members, projectList}:any) => {
   );
 
   const onSubmit: SubmitHandler<FormType> = (data) => {
-    console.log(data);
-    
     let p:Project = {
       kokyakuId: data.customer,
       jyoutaiId: data.state,
@@ -131,7 +131,7 @@ const AddPage = ({socket,members, projectList}:any) => {
       documentFolder: "",
       shuuryuHoukoku: "",
     }
-    console.log( data.form1);
+    
     socket.emit("project-add", {
       sessionID: localStorage.getItem("sessionID"),
       userID: localStorage.getItem("userID"),
@@ -367,9 +367,14 @@ const AddPage = ({socket,members, projectList}:any) => {
               {form1.map((form, index) => (
                 <div className="flex " key={form.id} >
                   <select
-                    {...register(`form1.${index}.projectMenber`)}
+                    {...register(`form1.${index}.projectMember`)}
                     className="w-full"
-                    onChange={()=>{refreshShain()}}
+                    onChange={(e)=>{
+                      setValue(`form1.${index}.projectMember`, e.target.value)
+                      form1[index].projectMember = e.target.value;
+                     
+                      refreshShain()
+                    }}
                   >
                     {members.map((member: any, i:number) => (
                       <option value={member.id} key={i}>
@@ -401,10 +406,13 @@ const AddPage = ({socket,members, projectList}:any) => {
                 </div>
               ))}
               <button
-                onClick={() =>
+                onClick={(e) =>{
+                  e.preventDefault();
                   form1Append({
-                    projectMenber: "",
+                    projectMember: "",
                   })
+                }
+
                 }
                 className="text-white bg-indigo-600 rounded w-20 py-1 place-self-center"
               >
@@ -445,9 +453,15 @@ const AddPage = ({socket,members, projectList}:any) => {
                       <select
                         className="w-full min-[1940px]:h-14 h-10"
                         {...register(`form2.${index}.task`)}
+                        onChange={(e)=>{
+                          form2[index].task = parseInt( e.target.value )
+                        }}
                       >
+                        <option value={0}>
+                        
+                        </option>
                         {taskItems.map((item: string, i) => (
-                          <option value={i} key={i}>
+                          <option value={i + 1} key={i}>
                             {item}
                           </option>
                         ))}
@@ -457,24 +471,36 @@ const AddPage = ({socket,members, projectList}:any) => {
                       <input
                         {...register(`form2.${index}.work`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].work = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
                       <input
                         {...register(`form2.${index}.start`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].start = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
                       <input
                         {...register(`form2.${index}.finish`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].finish = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
                       <input
                         {...register(`form2.${index}.costs`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].costs = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
@@ -503,14 +529,17 @@ const AddPage = ({socket,members, projectList}:any) => {
               </tbody>
             </table>
             <button
-              onClick={() =>
+              onClick={(e) =>{
+                e.preventDefault();
                 form2Append({
-                  task: "",
+                  task: 0,
                   work: "",
                   start: "",
                   finish: "",
                   costs: "",
                 })
+              }
+                
               }
               className="text-white bg-indigo-600 rounded w-20 py-1 place-self-center"
             >

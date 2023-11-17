@@ -21,7 +21,8 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 
                                 if(result){
                                     res.status(200).json({
-                                        id: result.id
+                                        id: result.id,
+                                        bango: result.bango,
                                     })
                                 }else{
                                     res.status(400).json({

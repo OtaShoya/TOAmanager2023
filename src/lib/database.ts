@@ -583,6 +583,7 @@ const checkCredentials = function(user:string, password:string){
             db.get(
             "SELECT" 
             +" id"
+            +",bango"
             +" FROM"
             +" shain"
             +" WHERE"

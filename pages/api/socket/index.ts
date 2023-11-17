@@ -118,11 +118,13 @@ const SocketHandler = (req: any, res: any) => {
           if (d?.id) {
             socket.sessionID = randomId() + randomId() + randomId();
             socket.userID = d?.id;
+            socket.username = d?.bango;
             sessionStore.saveSession(socket.sessionID, socket.userID);
             logged = true;
             await socket.emit("session_created", {
               sessionID: socket?.sessionID,
               userID: socket?.userID,
+              username: socket?.username,
             });
           }
           socket.emit("logged", logged);

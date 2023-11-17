@@ -31,7 +31,7 @@ type FormType = {
   }[];
   form2: {
     sn_id:number;
-    task: string;
+    task: number;
     work: string;
     start: string;
     finish: string;
@@ -122,7 +122,6 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
   );
 
   const onSubmit: SubmitHandler<FormType> = (data) => {
-    console.log(data);
     
     var honkadouYoteiHi;
     var kashibi;
@@ -158,6 +157,7 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
       documentFolder: "",
       shuuryuHoukoku: "",
     }
+    console.log(form2);
     socket.emit("project-update", {
       sessionID: localStorage.getItem("sessionID"),
       userID: localStorage.getItem("userID"),
@@ -251,6 +251,7 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
           form2Remove();
           let snList = new Array<any>()
           s2.sagyouNaiyou.forEach((element:any, index:number)=> {
+            console.log(element)
             form2Append({
               sn_id: element.sn_id,
               task: element.task_id,
@@ -488,7 +489,10 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
                   <select
                     {...register(`form1.${index}.projectMember`)}
                     className="w-full"
-                    onChange={()=>{refreshShain()}}
+                    onChange={(e)=>{
+                      form1[index].projectMember = e.target.value;
+                      refreshShain()
+                    }}
                   >
                     {members.map((member: any, i:number) => (
                       <option value={member.id} key={i}>
@@ -524,11 +528,14 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
                 </div>
               ))}
               <button
-                onClick={() =>
+                onClick={(e) =>{
+                  e.preventDefault();
                   form1Append({
                     projectMember: "",
                     mb_id: 0,
                   })
+                }
+                  
                 }
                 className="text-white bg-indigo-600 rounded w-20 py-1 place-self-center"
               >
@@ -569,9 +576,15 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
                       <select
                         className="w-full min-[1940px]:h-14 h-10"
                         {...register(`form2.${index}.task`)}
+                        onChange={(e)=>{
+                          form2[index].task = parseInt( e.target.value )
+                        }}
                       >
+                        <option value={0}>
+                        
+                        </option>
                         {taskItems.map((item: string, i) => (
-                          <option value={i} key={i}>
+                          <option value={i + 1} key={i}>
                             {item}
                           </option>
                         ))}
@@ -581,24 +594,36 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
                       <input
                         {...register(`form2.${index}.work`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].work = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
                       <input
                         {...register(`form2.${index}.start`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].start = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
                       <input
                         {...register(`form2.${index}.finish`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].finish = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
                       <input
                         {...register(`form2.${index}.costs`)}
                         className="w-full min-[1940px]:h-14 h-10"
+                        onChange={(e)=>{
+                          form2[index].costs = e.target.value;
+                        }}
                       />
                     </td>
                     <td>
@@ -627,15 +652,18 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
               </tbody>
             </table>
             <button
-              onClick={() =>
+              onClick={(e) =>{
+                e.preventDefault();
                 form2Append({
                   sn_id: 0,
-                  task: "",
+                  task: 0,
                   work: "",
                   start: "",
                   finish: "",
                   costs: "",
                 })
+              }
+                
               }
               className="text-white bg-indigo-600 rounded w-20 py-1 place-self-center"
             >

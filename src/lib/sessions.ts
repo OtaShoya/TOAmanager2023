@@ -29,6 +29,7 @@ const socketInitializer = async (socket:Socket) => {
     socket.on("session_created", msg=>{
         localStorage.setItem("sessionID", msg.sessionID);
         localStorage.setItem("userID", msg.userID);
+        localStorage.setItem("username", msg.username);
     });
     
 }

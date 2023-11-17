@@ -26,7 +26,7 @@ const LoginAvatar = ({ imgLabel, imgUrl, loginId, socket }: PropsType) => {
   };
   return (
     <div className="flex flex-row items-center space-x-6">
-      <label className="text-white text-xl">{loginId}</label>
+      <label className="text-white text-xl">{localStorage.getItem("username")}</label>
       <button onClick={handleClick}>
         <Avatar alt={imgLabel} src={imgUrl} sx={{ width: 56, height: 56 }} />
       </button>

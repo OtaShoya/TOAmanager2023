@@ -151,7 +151,8 @@ const ProjectEntryPage = () => {
             <LoginAvatar
               imgLabel=""
               imgUrl=""
-              loginId="adachi"
+              //@ts-ignore
+              loginId={localStorage.getItem("userID") === null?localStorage.getItem("userID"):""}
               socket={socket}
             />
           </div>
