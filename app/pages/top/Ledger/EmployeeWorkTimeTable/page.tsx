@@ -35,7 +35,7 @@ const Page = () => {
           <h1 className="text-4xl text-white font-bold">
             社員別作業時間集計表
           </h1>
-          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
+          <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         {/* ↓フォーム */}
         <form

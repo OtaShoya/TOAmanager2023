@@ -72,7 +72,6 @@ const TopPage = () => {
             <LoginAvatar
               imgLabel=""
               imgUrl=""
-              loginId="adachi"
               socket={socket}
             />
           </div>

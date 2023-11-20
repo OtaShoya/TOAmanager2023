@@ -59,7 +59,7 @@ const WebLinkPage = () => {
       <div className="w-full mx-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         <div className="flex justify-between">
           <h1 className="text-4xl text-white font-bold">Webリンク</h1>
-          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
+          <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         <div className="flex flex-col space-y-14">
           <div className="flex space-x-14">

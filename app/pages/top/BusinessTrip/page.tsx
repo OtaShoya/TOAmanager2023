@@ -34,7 +34,7 @@ const BusinessTripPage = () => {
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         <div className="flex flex-row justify-between">
           <h1 className="text-4xl text-white font-bold">出張</h1>
-          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
+          <LoginAvatar imgLabel="" imgUrl=""  socket={socket} />
         </div>
         <div className="grid grid-cols-1 gap-14">
           <div className="flex space-x-14">

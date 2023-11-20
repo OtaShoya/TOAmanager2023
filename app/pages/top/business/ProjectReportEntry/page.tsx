@@ -59,7 +59,7 @@ const ProjectReportEntryPage = () => {
           <h1 className="text-4xl text-white font-bold">
             プロジェクト報告書登録
           </h1>
-          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
+          <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         <div className="flex flex-col justify-center max-w-[1920]">
           {/* ↓フィルター */}

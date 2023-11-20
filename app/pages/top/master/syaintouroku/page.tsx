@@ -144,7 +144,7 @@ const ShainTourokuPage = () => {
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex flex-row justify-between">
           <h1 className="text-4xl text-white font-bold">社員登録</h1>
-          <LoginAvatar imgLabel="" imgUrl="" loginId="adachi" socket={socket} />
+          <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         <div className="flex flex-col items-center justify-center">
           {/* ↓フィルター */}
