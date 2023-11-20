@@ -529,7 +529,7 @@ const EditPage = ({socket, projectList, kinmuId, loaded, setLoaded, date }:any )
                         {...register(`forms.${index}.work_detail`)}
                       >
                       <option value={0}></option>
-                        { index < workDetail.length?  workDetail[index].map((item: any, i:any) => (
+                        { index < workDetail.length && workDetail[index] &&  workDetail[index].length > 0?  workDetail[index].map((item: any, i:any) => (
                           <option value={item.id} key={i}>
                             {item.na}
                           </option>
