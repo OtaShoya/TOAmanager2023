@@ -574,13 +574,16 @@ const EditPage = ({socket, projectList, kinmuId, loaded, setLoaded, date }:any )
             </table>
             <button
               className="mt-2 text-[#556593] hover:text-white bg-white hover:bg-[#556593] border hover:border-white rounded-lg w-20 py-2 place-self-center"
-              onClick={() =>
+              onClick={(e) =>{
+                e.preventDefault();
                 append({
                   ksn_id: 0,
                   project: 0,
                   work_detail: 0,
                   work_time2: 0,
                 })
+              }
+                
               }
             >
               追加

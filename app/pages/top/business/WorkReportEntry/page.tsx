@@ -24,7 +24,9 @@ const sessions = require("@/src/lib/sessions");
 const kyuukeiJikan = 1;
 const sagyouJikan = 8;
 
-var beginingDate = new Date("2023-08-21"); //"2023-08-21"
+ //"2023-08-21"
+
+//new Date( document.querySelector("input[type='month']").value + "-21" )
 
 var shinyaJi: Date = new Date();
 shinyaJi.setUTCHours(22);
@@ -85,7 +87,7 @@ const month = today.getMonth() + 1;
 
 const WorkReportEntry = () => {
   const [state, setState] = React.useState(false);
-  const [date, setDate] = React.useState(`${year}-${month}`);
+  const [beginingDate, setDate] = React.useState(`${year}-${month}`);
   const [datas, setDatas] = React.useState([]);
   const [kinmuId, setKinmuId] = React.useState(0);
   const [loadedEdit, setLoadedEdit] = React.useState(false);
@@ -96,12 +98,14 @@ const WorkReportEntry = () => {
       sagyouNaiyou: new Array<any>(),
     },
   ]);
+  // var beginingDate = new Date("2023-08-21");
+  // const [beginingDate, setBeginingDate] = React.useState( new Date("2023-08-21"))
   const [kinmuDate, setKinmuDate] = React.useState(new Date());
   React.useEffect(() => {
     if (loaded) {
       return;
     }
-
+   
     socket = sessions.connectSession();
     sessions.socketInitializer(socket);
 
@@ -159,8 +163,8 @@ const WorkReportEntry = () => {
   };
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(e.target.value);
-    console.log(e.target.value);
+    setDate(e.target.value );
+    
   };
 
   const entryDate = () => {};
@@ -168,7 +172,9 @@ const WorkReportEntry = () => {
   const reportOutput = () => {};
 
   const Rows = () => {
-    let endDate = new Date(beginingDate.toString());
+    let beginingDateArray = beginingDate.split("-")
+    let nBeginingDate  = new Date(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
+    let endDate = new Date(nBeginingDate.toString());
     endDate.setMonth(endDate.getMonth() + 1);
     var rows: Array<any> = [];
 
@@ -177,7 +183,7 @@ const WorkReportEntry = () => {
     }
 
     for (
-      let date = new Date(beginingDate.toString());
+      let date = new Date(nBeginingDate.toString());
       date.getTime() < endDate.getTime();
       date.setDate(date.getDate() + 1)
     ) {
@@ -328,7 +334,7 @@ const WorkReportEntry = () => {
         <div className="flex justify-between">
           <input
             type="month"
-            value={date}
+            value={beginingDate}
             className="text-lg border rounded-lg h-16 p-5"
             onChange={(e) => changeHandler(e)}
           />
