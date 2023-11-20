@@ -30,7 +30,6 @@ let socket: Socket;
 const FolderPage = () => {
   useEffect(() => {
     socket = sessions.connectSession();
-
     sessions.socketInitializer(socket);
   }, []);
 
