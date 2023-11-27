@@ -83,7 +83,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             (v:any)=>{
                                 res.status(200).json({kinmuList: v});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             } 
                         );
                     }
@@ -156,10 +156,10 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 return v;
                             } 
                         );
-
+                        // const snList:any[] = [];
                         res.status(200).json({kinmu: kinmuRes, sagyouNaiyouList: snList});
                         res.end();
-                        db.closeDb(dataBaseConnectionStr);
+                        // db.closeDb(dataBaseConnectionStr);
 
                     }
                     getKinmu();

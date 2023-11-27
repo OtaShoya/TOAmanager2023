@@ -28,6 +28,7 @@ class Shain{
   denwaBango!: string|null; //phone Number
   keitaiBango!: string|null; //cellphone number
   inkan!: string|null; //stamp // data/image
+  shashin?: ArrayBuffer;
 }
 
 const db = require("@/src/lib/database.ts")
@@ -152,7 +153,7 @@ const SocketHandler = (req: any, res: any) => {
             shain.password = msg.password;
             shain.shimei = msg.shimei;
             shain.furigana = msg.furigana;
-
+            shain.shashin = msg.shashin;
             shain.bushoId = msg.bushoId;
             shain.shainKubunId = msg.shainKubunId;
             shain.yakushokuId = msg.yakushokuId;

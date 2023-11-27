@@ -66,6 +66,7 @@ class Shain{
     denwaBango?: string|null; //phone Number
     keitaiBango?: string|null; //cellphone number
     inkan?: string|null; //stamp // data/image
+    shashin?: ArrayBuffer;
 }
 
 class Project{
@@ -668,6 +669,7 @@ const getShain = function(id:number){
             +",denwa_bango"
             +",keitai_bango"
             +",inkan"
+            +",shashin"
             +" FROM"
             +" shain"
             +" WHERE"
@@ -713,7 +715,7 @@ const updateShain = function(shain:Shain){
             +",denwa_bango = $denwa_bango "
             +",keitai_bango = $keitai_bango "
             // +",inkan = $inkan "
-
+            +",shashin = $shashin"
             +" WHERE id = $id"
             )
             stm.run({
@@ -738,7 +740,7 @@ const updateShain = function(shain:Shain){
                 $denwa_bango: shain.denwaBango,
                 $keitai_bango: shain.keitaiBango,
                 // $inkan: shain.inkan,
-                            
+                $shashin: shain.shashin,           
                 $id:  shain.id,
             })
 

@@ -4,11 +4,24 @@
 import { Controller, useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import { Box, Button, FormControl, InputLabel, Select } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useRouter } from "next/navigation";
 import { Socket } from "socket.io-client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import BasicModal from "@/components/atmos/Modal";
+
+function _arrayBufferToBase64( buffer:any ) {
+  var binary = '';
+  var bytes = new Uint8Array( buffer );
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+     binary += String.fromCharCode( bytes[ i ] );
+  }
+  return window.btoa( binary );
+}
+
+
 
 type DataType = {
   ID: string;
@@ -32,7 +45,28 @@ type DataType = {
 const EditPage = ({ socket, uid, onClose }: any) => {
   const { control, handleSubmit, register } = useForm<DataType>();
   const [open, setOpen] = useState(false);
-
+  const [photo, setPhoto] = useState<File[]>([]);
+  const [photoSrc, setPhotoSrc] = useState("");
+  const documentRef = useRef<HTMLInputElement>(null);
+  const onDocumentChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files == null) return;
+      setPhoto([]);
+      const documents = Array.from(e.target.files);
+      setPhoto((current) => current.concat(documents));
+      if (documentRef.current) documentRef.current.value = "";
+      console.log(e.target.files)
+      if(e.target.files.length > 0){
+        e.target.files[0].arrayBuffer().then( (v)=>{ 
+         
+          setPhotoSrc( "data:image/jpg;base64," + _arrayBufferToBase64(v) ); 
+        })
+      }
+     
+      
+    },
+    []
+  );
   const delFunction = () => {
     const r = async () => {
       const res = await fetch("http://localhost:3000/api/db", {
@@ -49,7 +83,23 @@ const EditPage = ({ socket, uid, onClose }: any) => {
   };
 
   const onSubmit = (data: DataType) => {
-    console.log(data);
+    console.log(photo);
+
+  
+
+   
+
+    if(photo.length > 0){
+      photo[0].arrayBuffer().then(
+        (v)=>{
+          
+          console.log(_arrayBufferToBase64(v))
+        }
+        //data:image/jpg;base64,
+      )
+    }
+
+
 
     let idIput: any = document.querySelector("input[name='ID']");
     let passInput: any = document.querySelector("input[name='pass']");
@@ -71,30 +121,42 @@ const EditPage = ({ socket, uid, onClose }: any) => {
     let addressInput: any = document.querySelector("input[name='address']");
     let homePhoneInput: any = document.querySelector("input[name='homePhone']");
     let telephoneInput: any = document.querySelector("input[name='telhone']");
+    
+    const ei = async ()=>{
+      let s = await photo[0].arrayBuffer().then((v)=>{
+return _arrayBufferToBase64(v)
+      })
 
-    socket.emit("shain-update", {
-      sessionID: localStorage.getItem("sessionID"),
-      userID: localStorage.getItem("userID"),
 
-      id: uid,
+      socket.emit("shain-update", {
+        sessionID: localStorage.getItem("sessionID"),
+        userID: localStorage.getItem("userID"),
+  
+        id: uid,
+  
+        bango: idIput.value,
+        password: passInput.value,
+        shimei: nameInput.value,
+        furigana: furinaganaInput.value,
+  
+        bushoId: departmentInput.value,
+        shainKubunId: classInput.value,
+        yakushokuId: postInput.value,
+        kyujitsuGroupId: groupInput.value,
+  
+        account: accountInput.value,
+        mailAddress: mailInput.value,
+        yubinBango: postalCodeInput.value,
+        jyuusho: addressInput.value,
+        denwaBango: homePhoneInput.value,
+        keitaiBango: telephoneInput.value,
+  
+        shashin: s,
+      });
+    }
 
-      bango: idIput.value,
-      password: passInput.value,
-      shimei: nameInput.value,
-      furigana: furinaganaInput.value,
-
-      bushoId: departmentInput.value,
-      shainKubunId: classInput.value,
-      yakushokuId: postInput.value,
-      kyujitsuGroupId: groupInput.value,
-
-      account: accountInput.value,
-      mailAddress: mailInput.value,
-      yubinBango: postalCodeInput.value,
-      jyuusho: addressInput.value,
-      denwaBango: homePhoneInput.value,
-      keitaiBango: telephoneInput.value,
-    });
+    ei();
+    
   };
 
   const handleOpen = () => {
@@ -144,6 +206,14 @@ const EditPage = ({ socket, uid, onClose }: any) => {
         setAddressValue(s?.user?.jyuusho);
         setHomePhoneValue(s?.user?.denwa_bango);
         setTelephoneValue(s?.user?.keitai_bango);
+
+        console.log(s?.user?.shashin);
+        // setPhotoSrc( "data:image/jpg;base64," + _arrayBufferToBase64(s?.user?.shashin) );
+        // s?.user?.shashin.arrayBuffer().then( (v:any)=>{ 
+         
+        //    
+        // })
+
       }
     };
 
@@ -179,6 +249,30 @@ const EditPage = ({ socket, uid, onClose }: any) => {
                 onChange={(e) => setPassValue(e.target.value)}
               />
             )}
+          />
+        </div>
+        <div className="flex justify-between">
+          <label className="edit-label flex flex-col">
+            ドキュメントフォルダ
+            <img src={  photoSrc } alt="" />
+            <input className="edit-form" value={photo[0]?.name} />
+
+          </label>
+          <Button
+            className="ml-4 min-[1940px]:h-14 h-10"
+            component="label"
+            variant="contained"
+            onClick={() => documentRef.current?.click()}
+            startIcon={<CloudUploadIcon />}
+          >
+            UPLOAD FILE
+          </Button>
+          <input
+            hidden
+            ref={documentRef}
+            type="file"
+            //multiple
+            onChange={onDocumentChange}
           />
         </div>
         {/* ↓氏名、フリガナ、部署 */}
