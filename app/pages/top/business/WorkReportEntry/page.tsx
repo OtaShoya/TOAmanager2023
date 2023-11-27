@@ -8,13 +8,23 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Drawer, IconButton } from "@mui/material";
+import {
+  Drawer,
+  IconButton,
+  TextField,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./Edit";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
 import LoginAvatar from "@/components/atmos/Avatar";
 import io, { Socket } from "socket.io-client";
 import ReloadButton from "@/components/molecule/RelodeButton";
+import { DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
 
 var socket: Socket;
 
@@ -24,7 +34,7 @@ const sessions = require("@/src/lib/sessions");
 const kyuukeiJikan = 1;
 const sagyouJikan = 8;
 
- //"2023-08-21"
+//"2023-08-21"
 
 //new Date( document.querySelector("input[type='month']").value + "-21" )
 
@@ -88,6 +98,7 @@ const month = today.getMonth() + 1;
 const WorkReportEntry = () => {
   const [state, setState] = React.useState(false);
   const [beginingDate, setDate] = React.useState(`${year}-${month}`);
+  const [value, setValue] = React.useState<Dayjs | null>(dayjs());
   const [datas, setDatas] = React.useState([]);
   const [kinmuId, setKinmuId] = React.useState(0);
   const [loadedEdit, setLoadedEdit] = React.useState(false);
@@ -105,7 +116,7 @@ const WorkReportEntry = () => {
     if (loaded) {
       return;
     }
-   
+
     socket = sessions.connectSession();
     sessions.socketInitializer(socket);
 
@@ -163,8 +174,11 @@ const WorkReportEntry = () => {
   };
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(e.target.value );
-    
+    setDate(e.target.value);
+  };
+
+  const handleChange = (newValue: Dayjs | null) => {
+    setValue(newValue);
   };
 
   const entryDate = () => {};
@@ -172,8 +186,10 @@ const WorkReportEntry = () => {
   const reportOutput = () => {};
 
   const Rows = () => {
-    let beginingDateArray = beginingDate.split("-")
-    let nBeginingDate  = new Date(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
+    let beginingDateArray = beginingDate.split("-");
+    let nBeginingDate = new Date(
+      beginingDateArray[0] + "-" + beginingDateArray[1] + "-21"
+    );
     let endDate = new Date(nBeginingDate.toString());
     endDate.setMonth(endDate.getMonth() + 1);
     var rows: Array<any> = [];
@@ -321,6 +337,17 @@ const WorkReportEntry = () => {
     });
   };
 
+  const theme = createTheme({
+    palette: {
+      background: {
+        paper: "#fff",
+      },
+      text: {
+        primary: "#000000",
+      },
+    },
+  });
+
   return (
     <div className="flex h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
@@ -328,16 +355,21 @@ const WorkReportEntry = () => {
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex justify-between">
           <h1 className="text-4xl text-white font-bold">作業報告登録</h1>
-          <LoginAvatar imgLabel="" imgUrl=""  socket={socket} />
+          <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         {/* ↓年月日選択と各ボタン */}
         <div className="flex justify-between">
-          <input
-            type="month"
-            value={beginingDate}
-            className="text-lg border rounded-lg h-16 p-5"
-            onChange={(e) => changeHandler(e)}
-          />
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={value}
+                onChange={handleChange}
+                views={["year", "month"]}
+                format="YYYY/MM"
+                sx={{ bgcolor: "background.paper", color: "text.primary" }}
+              />
+            </LocalizationProvider>
+          </ThemeProvider>
           <div className="space-x-4">
             <ReloadButton />
             <button className={buttonDesign} onClick={entryDate}>
