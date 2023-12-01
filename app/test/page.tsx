@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from "react";
 import PopulatedTable from "../../src/modules/PopulatedTable/PopulatedTable";
 import {Socket} from "socket.io-client";
+import EditPage from "./Edit"
 
 const sessions =  require("../../src/lib/sessions");
 // const report = require("../../src/lib/report");
@@ -54,7 +55,9 @@ function updateClick(){
         })
     }
 }
+const setLoadedEdit = ()=>{
 
+}
 class LoggedIn extends React.Component{
     state = {
         date: date,
@@ -72,7 +75,7 @@ class LoggedIn extends React.Component{
             date: date, 
         })
     }
-
+   
     render(): React.ReactNode {
 
         return (
@@ -82,7 +85,15 @@ class LoggedIn extends React.Component{
                 <button onClick={this.prevClick}> Prev </button>
                 <button onClick={this.nextClick}> Next </button>
                 <br/>
-                <table>
+                <EditPage 
+                 socket={socket}
+                 projectList={[]}
+                 kinmuId={1}
+                 loaded={false}
+                 setLoaded={setLoadedEdit}
+                 date={new Date()}
+                />
+                {/* <table>
                     <thead>
                     <tr>
                         <th>日付</th>
@@ -103,7 +114,7 @@ class LoggedIn extends React.Component{
                     <tbody>
                         <PopulatedTable beginingDate={date} />
                     </tbody>
-                </table>    
+                </table>     */}
             </>
             );
     }

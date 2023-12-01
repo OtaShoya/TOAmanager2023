@@ -30,6 +30,7 @@ const socketInitializer = async (socket:Socket) => {
         localStorage.setItem("sessionID", msg.sessionID);
         localStorage.setItem("userID", msg.userID);
         localStorage.setItem("username", msg.username);
+        localStorage.setItem("kyujitsuGroup", msg.kyujitsuGroup);
     });
     
 }

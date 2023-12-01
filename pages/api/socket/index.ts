@@ -111,7 +111,7 @@ const SocketHandler = (req: any, res: any) => {
             body: JSON.stringify({
               type: "login",
               user: msg.user,
-              password: msg.password,
+              password: msg.password
             }),
           });
           
@@ -120,12 +120,15 @@ const SocketHandler = (req: any, res: any) => {
             socket.sessionID = randomId() + randomId() + randomId();
             socket.userID = d?.id;
             socket.username = d?.bango;
+            socket.kyujitsuGroup = d?.kyujitsuGroup;
             sessionStore.saveSession(socket.sessionID, socket.userID);
             logged = true;
             await socket.emit("session_created", {
               sessionID: socket?.sessionID,
               userID: socket?.userID,
               username: socket?.username,
+              kyujitsuGroup: socket?.kyujitsuGroup,
+
             });
           }
           socket.emit("logged", logged);

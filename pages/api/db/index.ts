@@ -23,6 +23,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                     res.status(200).json({
                                         id: result.id,
                                         bango: result.bango,
+                                        kyujitsuGroup: result.kyujitsu_group_id,
                                     })
                                 }else{
                                     res.status(400).json({
@@ -143,6 +144,8 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 }
             case "kinmu-get":
                 {
+                    
+
                     const getKinmu = async () => {
                         db.loadDb(dataBaseConnectionStr);
                         const kinmuRes = await db.getKinmu(body.id).then( 
@@ -151,13 +154,17 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             } 
                         );
 
-                        const snList = await db.getKinmuSagyouNaiyouList(body.id).then( 
-                            (v:any)=>{
-                                return v;
-                            } 
-                        );
-                        // const snList:any[] = [];
-                        res.status(200).json({kinmu: kinmuRes, sagyouNaiyouList: snList});
+                        // const snList = await db.getKinmuSagyouNaiyouList(body.id).then( 
+                        //     (v:any)=>{
+                        //         return v;
+                        //     } 
+                        // );
+
+                        const snList:any[] = [];
+                        res.status(200).json({
+                            kinmu: kinmuRes, 
+                            sagyouNaiyouList: snList
+                        });
                         res.end();
                         // db.closeDb(dataBaseConnectionStr);
 

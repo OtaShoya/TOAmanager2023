@@ -142,7 +142,6 @@ const EditPage = ({socket, projectList, kinmuId, loaded, setLoaded, date }:any )
 
   useEffect(()=>{
     
-
     async function fetchData() {
       
       if(kinmuId == 0 || loaded){ 
@@ -150,6 +149,7 @@ const EditPage = ({socket, projectList, kinmuId, loaded, setLoaded, date }:any )
         return; 
       }
 
+      console.log("called it")
       const res = await fetch("/api/db/",
       {
           method: "POST", 

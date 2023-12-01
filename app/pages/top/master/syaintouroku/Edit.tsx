@@ -124,7 +124,7 @@ const EditPage = ({ socket, uid, onClose }: any) => {
     
     const ei = async ()=>{
       let s = await photo[0].arrayBuffer().then((v)=>{
-return _arrayBufferToBase64(v)
+        return _arrayBufferToBase64(v)
       })
 
 

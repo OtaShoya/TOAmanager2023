@@ -585,6 +585,7 @@ const checkCredentials = function(user:string, password:string){
             "SELECT" 
             +" id"
             +",bango"
+            +",kyujitsu_group_id"
             +" FROM"
             +" shain"
             +" WHERE"
