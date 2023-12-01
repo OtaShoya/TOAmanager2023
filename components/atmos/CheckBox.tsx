@@ -12,6 +12,7 @@ const CheckBox = ({ label, onchange }: PropsType) => {
         color="blue"
         className="border rounded-md w-7 h-7"
         onChange={onchange}
+        defaultChecked
       />
       <label className="text-white text-2xl font-semibold">{label}</label>
     </div>

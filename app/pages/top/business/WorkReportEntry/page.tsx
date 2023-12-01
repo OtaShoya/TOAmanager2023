@@ -8,7 +8,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Drawer, IconButton } from "@mui/material";
+import { Drawer, IconButton, ThemeProvider, createTheme } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./Edit";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
@@ -16,6 +16,11 @@ import LoginAvatar from "@/components/atmos/Avatar";
 import io, { Socket } from "socket.io-client";
 import ReloadButton from "@/components/molecule/RelodeButton";
 import "./style.css"
+import { DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
+import { Items } from "./Edit";
 
 var socket: Socket;
 
@@ -25,18 +30,9 @@ const sessions = require("@/src/lib/sessions");
 const kyuukeiJikan = 1;
 const sagyouJikan = 8;
 
- //"2023-08-21"
-
-//new Date( document.querySelector("input[type='month']").value + "-21" )
-
 var shinyaJi: Date = new Date();
 shinyaJi.setUTCHours(22);
 shinyaJi.setUTCMinutes(30);
-
-class OptionElement {
-  name!: string;
-  id!: number;
-}
 
 function format(toFormat: number) {
   return toFormat > 9 ? toFormat : "0" + toFormat;
@@ -67,6 +63,7 @@ const columns = [
   "",
   "日付",
   "曜日",
+  "勤務区分",
   "勤務形態",
   "出社時刻",
   "退社時刻",
@@ -84,11 +81,12 @@ const buttonDesign =
 
 const today = new Date();
 const year = today.getFullYear();
-const month = today.getMonth() + 1;
+const month = today.getMonth();
 
 const WorkReportEntry = () => {
   const [state, setState] = React.useState(false);
   const [beginingDate, setDate] = React.useState(`${year}-${month}`);
+  const [value, setValue] = React.useState<Dayjs | null>(dayjs());
   const [datas, setDatas] = React.useState([]);
   const [kinmuId, setKinmuId] = React.useState(0);
   const [loadedEdit, setLoadedEdit] = React.useState(false);
@@ -141,7 +139,6 @@ const WorkReportEntry = () => {
       if (d || d2) {
         loaded = true;
       }
-      // setDatas(d.kinmuList);
     }
 
     socket.on("after-kinmu-update", () => {
@@ -171,9 +168,8 @@ const WorkReportEntry = () => {
     setState(open);
   };
 
-  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(e.target.value );
-    
+  const handleChange = (newValue: Dayjs | null) => {
+    setValue(newValue);
   };
 
   const entryDate = () => {};
@@ -246,14 +242,6 @@ const WorkReportEntry = () => {
         (val.koujyoJikan ? val.koujyoJikan : 0) -
         (val.kyuushutsuJikan ? val.kyuukeiJikan : 0);
 
-      var opts: Array<OptionElement> = [
-        { name: "", id: 0 },
-        { name: "A", id: 1 },
-        { name: "B", id: 2 },
-        { name: "C", id: 3 },
-        { name: "D", id: 4 },
-      ];
-
       var shusshaString =
         format(new Date(val.shusshaJikoku).getUTCHours()) +
         ":" +
@@ -304,9 +292,13 @@ const WorkReportEntry = () => {
           {/* 曜日*/}
           <TableCell className={ wdClass }>{getWeekDay(wd)} </TableCell>
           {/* 勤務区分*/}
-          {/*  <TableCell>{val.kinmuKubun?val.kinmuKubun:0} </TableCell> */}
+          <TableCell>
+            {val.kinmuKubun ? Items[0][val.kinmuKubun] : Items[0][0]}{" "}
+          </TableCell>
           {/* 勤務形態 */}
-          <TableCell>{val.kinmuKeitai ? val.kinmuKeitai : 0} </TableCell>
+          <TableCell>
+            {val.kinmuKeitai ? Items[1][val.kinmuKeitai] : Items[1][0]}{" "}
+          </TableCell>
           {/* 出社時刻 */}
           <TableCell>
             {shusshaString == taishaString || shusshaString == "00:00"
@@ -348,6 +340,17 @@ const WorkReportEntry = () => {
     });
   };
 
+  const theme = createTheme({
+    palette: {
+      background: {
+        paper: "#fff",
+      },
+      text: {
+        primary: "#000000",
+      },
+    },
+  });
+
   return (
     <div className="flex h-screen p-10 bg-[#556593]">
       <Navigation subTitles={subTitle} />
@@ -359,12 +362,21 @@ const WorkReportEntry = () => {
         </div>
         {/* ↓年月日選択と各ボタン */}
         <div className="flex justify-between">
-          <input
-            type="month"
-            value={beginingDate}
-            className="text-lg border rounded-lg h-16 p-5"
-            onChange={(e) => changeHandler(e)}
-          />
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                value={value}
+                onChange={handleChange}
+                views={["year", "month"]}
+                format="YYYY/MM"
+                sx={{
+                  bgcolor: "background.paper",
+                  color: "text.primary",
+                  borderRadius: 2,
+                }}
+              />
+            </LocalizationProvider>
+          </ThemeProvider>
           <div className="space-x-4">
             <ReloadButton />
             <button className={buttonDesign} onClick={entryDate}>
@@ -409,7 +421,7 @@ const WorkReportEntry = () => {
           style={{ maxHeight: "calc(100% - 180px)" }}
         >
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }}>
+            <Table sx={{ minWidth: 650 }} stickyHeader>
               <TableHead>
                 <TableRow>
                   {columns.map((column, i) => (
