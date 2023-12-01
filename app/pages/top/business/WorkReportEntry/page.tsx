@@ -8,13 +8,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import {
-  Drawer,
-  IconButton,
-  TextField,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import { Drawer, IconButton, ThemeProvider, createTheme } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./Edit";
 import Navigation, { subTitle } from "@/components/atmos/Drawer";
@@ -25,6 +19,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
+import { Items } from "./Edit";
 
 var socket: Socket;
 
@@ -34,18 +29,9 @@ const sessions = require("@/src/lib/sessions");
 const kyuukeiJikan = 1;
 const sagyouJikan = 8;
 
-//"2023-08-21"
-
-//new Date( document.querySelector("input[type='month']").value + "-21" )
-
 var shinyaJi: Date = new Date();
 shinyaJi.setUTCHours(22);
 shinyaJi.setUTCMinutes(30);
-
-class OptionElement {
-  name!: string;
-  id!: number;
-}
 
 function format(toFormat: number) {
   return toFormat > 9 ? toFormat : "0" + toFormat;
@@ -76,6 +62,7 @@ const columns = [
   "",
   "日付",
   "曜日",
+  "勤務区分",
   "勤務形態",
   "出社時刻",
   "退社時刻",
@@ -93,7 +80,7 @@ const buttonDesign =
 
 const today = new Date();
 const year = today.getFullYear();
-const month = today.getMonth() + 1;
+const month = today.getMonth();
 
 const WorkReportEntry = () => {
   const [state, setState] = React.useState(false);
@@ -109,8 +96,6 @@ const WorkReportEntry = () => {
       sagyouNaiyou: new Array<any>(),
     },
   ]);
-  // var beginingDate = new Date("2023-08-21");
-  // const [beginingDate, setBeginingDate] = React.useState( new Date("2023-08-21"))
   const [kinmuDate, setKinmuDate] = React.useState(new Date());
   React.useEffect(() => {
     if (loaded) {
@@ -145,7 +130,6 @@ const WorkReportEntry = () => {
       if (d || d2) {
         loaded = true;
       }
-      // setDatas(d.kinmuList);
     }
 
     socket.on("after-kinmu-update", () => {
@@ -171,10 +155,6 @@ const WorkReportEntry = () => {
     setKinmuId(id);
     setKinmuDate(date);
     setState(open);
-  };
-
-  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(e.target.value);
   };
 
   const handleChange = (newValue: Dayjs | null) => {
@@ -253,14 +233,6 @@ const WorkReportEntry = () => {
         (val.koujyoJikan ? val.koujyoJikan : 0) -
         (val.kyuushutsuJikan ? val.kyuukeiJikan : 0);
 
-      var opts: Array<OptionElement> = [
-        { name: "", id: 0 },
-        { name: "A", id: 1 },
-        { name: "B", id: 2 },
-        { name: "C", id: 3 },
-        { name: "D", id: 4 },
-      ];
-
       var shusshaString =
         format(new Date(val.shusshaJikoku).getUTCHours()) +
         ":" +
@@ -293,9 +265,13 @@ const WorkReportEntry = () => {
           {/* 曜日 */}
           <TableCell>{getWeekDay(new Date(val.hidsuke).getDay())} </TableCell>
           {/* 勤務区分*/}
-          {/*  <TableCell>{val.kinmuKubun?val.kinmuKubun:0} </TableCell> */}
+          <TableCell>
+            {val.kinmuKubun ? Items[0][val.kinmuKubun] : Items[0][0]}{" "}
+          </TableCell>
           {/* 勤務形態 */}
-          <TableCell>{val.kinmuKeitai ? val.kinmuKeitai : 0} </TableCell>
+          <TableCell>
+            {val.kinmuKeitai ? Items[1][val.kinmuKeitai] : Items[1][0]}{" "}
+          </TableCell>
           {/* 出社時刻 */}
           <TableCell>
             {shusshaString == taishaString || shusshaString == "00:00"
@@ -366,7 +342,11 @@ const WorkReportEntry = () => {
                 onChange={handleChange}
                 views={["year", "month"]}
                 format="YYYY/MM"
-                sx={{ bgcolor: "background.paper", color: "text.primary" }}
+                sx={{
+                  bgcolor: "background.paper",
+                  color: "text.primary",
+                  borderRadius: 2,
+                }}
               />
             </LocalizationProvider>
           </ThemeProvider>
@@ -414,7 +394,7 @@ const WorkReportEntry = () => {
           style={{ maxHeight: "calc(100% - 180px)" }}
         >
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }}>
+            <Table sx={{ minWidth: 650 }} stickyHeader>
               <TableHead>
                 <TableRow>
                   {columns.map((column, i) => (
