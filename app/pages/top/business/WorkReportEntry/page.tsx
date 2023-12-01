@@ -170,6 +170,7 @@ const WorkReportEntry = () => {
 
   const handleChange = (newValue: Dayjs | null) => {
     setValue(newValue);
+    setDate(newValue?.year() + "-" + (newValue?.month()?newValue?.month() + 1: 0))
   };
 
   const entryDate = () => {};
@@ -177,7 +178,7 @@ const WorkReportEntry = () => {
   const reportOutput = () => {};
 
   const Rows = () => {
-    let beginingDateArray = beginingDate.split("-")
+    let beginingDateArray = beginingDate.split("-");
     let nBeginingDate  = new Date(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
     let endDate = new Date(nBeginingDate.toString());
     endDate.setMonth(endDate.getMonth() + 1);
