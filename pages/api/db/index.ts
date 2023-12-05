@@ -154,13 +154,13 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             } 
                         );
 
-                        // const snList = await db.getKinmuSagyouNaiyouList(body.id).then( 
-                        //     (v:any)=>{
-                        //         return v;
-                        //     } 
-                        // );
+                        const snList = await db.getKinmuSagyouNaiyouList(body.id).then( 
+                            (v:any)=>{
+                                return v;
+                            } 
+                        );
 
-                        const snList:any[] = [];
+                        // const snList:any[] = [];
                         res.status(200).json({
                             kinmu: kinmuRes, 
                             sagyouNaiyouList: snList
@@ -465,7 +465,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                         db.loadDb(dataBaseConnectionStr);
                         await db.getProjectListKinmu().then( 
                             (v:any)=>{
-                              
                                 res.status(200).json({projectList: v});
                                 res.end();
                                 db.closeDb(dataBaseConnectionStr);
@@ -501,6 +500,9 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     break
                 }
             default:
+                {
+                    res.status(400).end();
+                }
                 break;
         }
     }else{

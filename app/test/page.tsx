@@ -88,7 +88,7 @@ class LoggedIn extends React.Component{
                 <EditPage 
                  socket={socket}
                  projectList={[]}
-                 kinmuId={1}
+                 kinmuId={3}
                  loaded={false}
                  setLoaded={setLoadedEdit}
                  date={new Date()}

@@ -189,8 +189,9 @@ const EditPage = ({socket, projectList, kinmuId, loaded, setLoaded, date }:any )
         setValue("reason", d.kinmu.kyuuka_riyu)
 
         setValue("memo", d.kinmu.memo);
+        console.log(d.sagyouNaiyouList)
         if (d.sagyouNaiyouList?.length > 0){
-          console.log(d.sagyouNaiyouList)
+       
           remove();
           let snList = new Array<any>();
           d.sagyouNaiyouList.forEach((element:any, index:number)=> {

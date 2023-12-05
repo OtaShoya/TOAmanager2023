@@ -25,6 +25,7 @@ import { Items } from "./Edit";
 var socket: Socket;
 
 var loaded = false;
+var first = true;
 
 const sessions = require("@/src/lib/sessions");
 const kyuukeiJikan = 1;
@@ -102,8 +103,26 @@ const WorkReportEntry = () => {
   // var beginingDate = new Date("2023-08-21");
   // const [beginingDate, setBeginingDate] = React.useState( new Date("2023-08-21"))
   const [kinmuDate, setKinmuDate] = React.useState(new Date());
-  React.useEffect(() => {
+  const [kinmuData, setKinmuData] = React.useState<any|null>( null )
 
+
+  async function fetchListData() {
+    const res = await fetch("/api/db/", {
+      method: "POST",
+      body: JSON.stringify({
+        type: "kinmu-list",
+        id: localStorage.getItem("userID"),
+      }),
+    });
+    const d = await res.json();
+    setDatas(d.kinmuList);
+
+    if (d) {
+      loaded = true;
+    }
+  }
+
+  React.useEffect(() => {
     //@ts-ignore
     setKyujitsuGroup( localStorage.getItem("kyujitsuGroup") !== null?localStorage.getItem("kyujitsuGroup"):0 )
 
@@ -114,47 +133,15 @@ const WorkReportEntry = () => {
     socket = sessions.connectSession();
     sessions.socketInitializer(socket);
 
-    async function fetchData() {
-      const res = await fetch("/api/db/", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "kinmu-list",
-          id: localStorage.getItem("userID"),
-        }),
-      });
-      const d = await res.json();
-      setDatas(d.kinmuList);
-
-      const res2 = await fetch("/api/db/", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "project-list-kinmu",
-        }),
-      });
-
-      const d2 = await res2.json();
-
-      setProjects(d2.projectList);
-
-      if (d || d2) {
-        loaded = true;
-      }
-    }
-
     socket.on("after-kinmu-update", () => {
       toggleDrawer(false);
-      loaded = false;
-      fetchData();
+      fetchListData();
     });
     socket.on("after-kinmu-add", () => {
       toggleDrawer(false);
-      loaded = false;
-      fetchData();
+      fetchListData();
     });
-
-    
-   
-    fetchData();
+    fetchListData();
   });
 
   const toggleDrawer = (
@@ -166,6 +153,25 @@ const WorkReportEntry = () => {
     setKinmuId(id);
     setKinmuDate(date);
     setState(open);
+
+    const fetchData = async ()=>{
+      if(open && first){
+        const res2 = await fetch("/api/db/", {
+          method: "POST",
+          body: JSON.stringify({
+            type: "project-list-kinmu",
+          }),
+        });
+
+        const d2 = await res2.json();
+
+        setProjects(d2.projectList);
+        first = false;
+      }
+     
+    }
+    fetchData();
+
   };
 
   const handleChange = (newValue: Dayjs | null) => {

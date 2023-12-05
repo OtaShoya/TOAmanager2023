@@ -170,7 +170,7 @@ const EditPage = ({
 
         setValue("memo", d.kinmu.memo);
         if (d.sagyouNaiyouList?.length > 0) {
-          console.log(d.sagyouNaiyouList);
+       
           remove();
           let snList = new Array<any>();
           d.sagyouNaiyouList.forEach((element: any, index: number) => {
