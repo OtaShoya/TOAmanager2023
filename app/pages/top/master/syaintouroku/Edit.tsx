@@ -11,17 +11,15 @@ import { Socket } from "socket.io-client";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import BasicModal from "@/components/atmos/Modal";
 
-function _arrayBufferToBase64( buffer:any ) {
-  var binary = '';
-  var bytes = new Uint8Array( buffer );
+function _arrayBufferToBase64(buffer: any) {
+  var binary = "";
+  var bytes = new Uint8Array(buffer);
   var len = bytes.byteLength;
   for (var i = 0; i < len; i++) {
-     binary += String.fromCharCode( bytes[ i ] );
+    binary += String.fromCharCode(bytes[i]);
   }
-  return window.btoa( binary );
+  return window.btoa(binary);
 }
-
-
 
 type DataType = {
   ID: string;
@@ -55,15 +53,12 @@ const EditPage = ({ socket, uid, onClose }: any) => {
       const documents = Array.from(e.target.files);
       setPhoto((current) => current.concat(documents));
       if (documentRef.current) documentRef.current.value = "";
-      console.log(e.target.files)
-      if(e.target.files.length > 0){
-        e.target.files[0].arrayBuffer().then( (v)=>{ 
-         
-          setPhotoSrc( "data:image/jpg;base64," + _arrayBufferToBase64(v) ); 
-        })
+      console.log(e.target.files);
+      if (e.target.files.length > 0) {
+        e.target.files[0].arrayBuffer().then((v) => {
+          setPhotoSrc("data:image/jpg;base64," + _arrayBufferToBase64(v));
+        });
       }
-     
-      
     },
     []
   );
@@ -85,21 +80,14 @@ const EditPage = ({ socket, uid, onClose }: any) => {
   const onSubmit = (data: DataType) => {
     console.log(photo);
 
-  
-
-   
-
-    if(photo.length > 0){
+    if (photo.length > 0) {
       photo[0].arrayBuffer().then(
-        (v)=>{
-          
-          console.log(_arrayBufferToBase64(v))
+        (v) => {
+          console.log(_arrayBufferToBase64(v));
         }
         //data:image/jpg;base64,
-      )
+      );
     }
-
-
 
     let idIput: any = document.querySelector("input[name='ID']");
     let passInput: any = document.querySelector("input[name='pass']");
@@ -121,42 +109,40 @@ const EditPage = ({ socket, uid, onClose }: any) => {
     let addressInput: any = document.querySelector("input[name='address']");
     let homePhoneInput: any = document.querySelector("input[name='homePhone']");
     let telephoneInput: any = document.querySelector("input[name='telhone']");
-    
-    const ei = async ()=>{
-      let s = await photo[0].arrayBuffer().then((v)=>{
-        return _arrayBufferToBase64(v)
-      })
 
+    const ei = async () => {
+      let s = await photo[0].arrayBuffer().then((v) => {
+        return _arrayBufferToBase64(v);
+      });
 
       socket.emit("shain-update", {
         sessionID: localStorage.getItem("sessionID"),
         userID: localStorage.getItem("userID"),
-  
+
         id: uid,
-  
+
         bango: idIput.value,
         password: passInput.value,
         shimei: nameInput.value,
         furigana: furinaganaInput.value,
-  
+
         bushoId: departmentInput.value,
         shainKubunId: classInput.value,
         yakushokuId: postInput.value,
         kyujitsuGroupId: groupInput.value,
-  
+
         account: accountInput.value,
         mailAddress: mailInput.value,
         yubinBango: postalCodeInput.value,
         jyuusho: addressInput.value,
         denwaBango: homePhoneInput.value,
         keitaiBango: telephoneInput.value,
-  
+
         shashin: s,
       });
-    }
+    };
 
     ei();
-    
   };
 
   const handleOpen = () => {
@@ -209,11 +195,10 @@ const EditPage = ({ socket, uid, onClose }: any) => {
 
         console.log(s?.user?.shashin);
         // setPhotoSrc( "data:image/jpg;base64," + _arrayBufferToBase64(s?.user?.shashin) );
-        // s?.user?.shashin.arrayBuffer().then( (v:any)=>{ 
-         
-        //    
-        // })
+        // s?.user?.shashin.arrayBuffer().then( (v:any)=>{
 
+        //
+        // })
       }
     };
 
@@ -254,9 +239,8 @@ const EditPage = ({ socket, uid, onClose }: any) => {
         <div className="flex justify-between">
           <label className="edit-label flex flex-col">
             ドキュメントフォルダ
-            <img src={  photoSrc } alt="" />
+            <img src={photoSrc} alt="" />
             <input className="edit-form" value={photo[0]?.name} />
-
           </label>
           <Button
             className="ml-4 min-[1940px]:h-14 h-10"
@@ -376,6 +360,7 @@ const EditPage = ({ socket, uid, onClose }: any) => {
                   <option value={2}>部長</option>
                   <option value={3}>マネージャー</option>
                   <option value={4}>主任</option>
+                  <option value={5}>なし</option>
                 </Select>
               </FormControl>
             )}
