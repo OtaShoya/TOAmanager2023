@@ -234,11 +234,23 @@ const WorkReportEntry = () => {
       var shusshaJikokuJikan =
         new Date(val.shusshaJikoku).getUTCHours() +
         new Date(val.shusshaJikoku).getUTCMinutes() / 60;
-      7;
+      
+      if(taishaJikokuJikan  >= 19 && taishaJikokuJikan <= 19.5){
+        taishaJikokuJikan = 19;
+      }
+      if(taishaJikokuJikan >= 22 && taishaJikokuJikan <= 22.5){
+        taishaJikokuJikan = 22;
+      }
+
+      if(taishaJikokuJikan  > 19.5){
+        taishaJikokuJikan -= 0.5;
+      }
+
       var kinmuJikan =
         (taishaJikokuJikan >= 13
           ? taishaJikokuJikan - kyuukeiJikan
           : taishaJikokuJikan) - shusshaJikokuJikan;
+     
       var zangyouJikan = kinmuJikan - sagyouJikan;
       var zangyouJikanShinya =
         taishaJikokuJikan -
