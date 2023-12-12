@@ -244,6 +244,7 @@ const ShainTourokuPage = () => {
                           <option value={2}>部長</option>
                           <option value={3}>マネージャー</option>
                           <option value={4}>主任</option>
+                          <option value={5}>なし</option>
                         </Select>
                       </TableCell>
                       <TableCell>
@@ -265,7 +266,7 @@ const ShainTourokuPage = () => {
               <ReloadButton />
               <button
                 className="border rounded-full hover:bg-slate-100 bg-white text-[#556593] w-40 h-16"
-                onClick={() => toggleDrawer(true)}
+                onClick={() => toggleAddDrawer(true)}
               >
                 新規追加
               </button>

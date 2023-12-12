@@ -71,6 +71,8 @@ const EditPage = ({
     useForm<FormType>({
       defaultValues: {
         forms: [],
+        start_time: "08:30",
+        end_time: "17:30",
       },
     });
 
@@ -348,14 +350,23 @@ const EditPage = ({
     }
   };
 
-  const changeTest = (e: any) => {
-    if (e === "1" || e === "5") {
-      setDisable(true);
-    } else {
-      setDisable(false);
+  const changeView = (e: any) => {
+    switch (e) {
+      case "1":
+      case "5":
+        setValue("start_time", "");
+        setValue("end_time", "");
+        setDisable(true);
+        break;
+      case "3":
+        setValue("start_time", "13:00");
+        if (disable == true) {
+          setDisable(false);
+        }
+        break;
+      case "4":
+        setValue("end_time", "12:00");
     }
-    console.log(e);
-    console.log(disable);
   };
 
   return (
@@ -372,7 +383,7 @@ const EditPage = ({
             <select
               className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
               {...register("work_class")}
-              onChange={(e) => changeTest(e.target.value)}
+              onChange={(e) => changeView(e.target.value)}
             >
               {Items[0].map((item: string, i) => (
                 <option value={i} key={i}>
@@ -403,7 +414,6 @@ const EditPage = ({
               className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
               {...register("start_time")}
               onChange={(e) => getStartTimes(e.target.value)}
-              defaultValue={"08:30"}
               disabled={disable}
             >
               {populateTimes(
@@ -423,7 +433,6 @@ const EditPage = ({
               className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
               {...register("end_time")}
               onChange={(e) => getEndTimes(e.target.value)}
-              defaultValue={"17:30"}
               disabled={disable}
             >
               {populateTimes(
