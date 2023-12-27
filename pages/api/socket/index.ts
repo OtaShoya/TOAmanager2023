@@ -184,6 +184,8 @@ const SocketHandler = (req: any, res: any) => {
             
             r();
 
+            socket.emit("")
+
             console.log("ok");
         }
       })

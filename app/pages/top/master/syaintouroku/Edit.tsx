@@ -123,9 +123,9 @@ const EditPage = ({ socket, uid, onClose }: any) => {
     let telephoneInput: any = document.querySelector("input[name='telhone']");
     
     const ei = async ()=>{
-      let s = await photo[0].arrayBuffer().then((v)=>{
-        return _arrayBufferToBase64(v)
-      })
+      // let s = await photo[0].arrayBuffer().then((v)=>{
+      //   return _arrayBufferToBase64(v)
+      // })
 
 
       socket.emit("shain-update", {
@@ -151,7 +151,7 @@ const EditPage = ({ socket, uid, onClose }: any) => {
         denwaBango: homePhoneInput.value,
         keitaiBango: telephoneInput.value,
   
-        shashin: s,
+        // shashin: s,
       });
     }
 

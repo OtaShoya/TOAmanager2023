@@ -81,6 +81,21 @@ const EditPage = ({
 
   const [disable, setDisable] = useState(false);
 
+  const populateKinmu = (
+    index: number,
+    projectId: number,
+  )=>{
+    let foundEl = projectList.find((el: any) => {
+      return el.id == projectId;
+    });
+    if(foundEl){
+      let newArray = workDetail;
+      newArray[index] = foundEl.sagyouNaiyouList;
+      setWorkDetail(newArray);
+    }
+
+  }
+
   const populateSagyouNaiyou = (
     index: number,
     projectId: number,
@@ -95,8 +110,10 @@ const EditPage = ({
       let newArray = workDetail;
       newArray[index] = foundEl.sagyouNaiyouList;
       setWorkDetail(newArray);
+      console.log(foundEl.sagyouNaiyouList)
 
-      update(index, {
+      update(index, 
+        {
         project: projectId,
         work_detail: workDetailId,
         work_time2: workHour,
@@ -585,7 +602,14 @@ const EditPage = ({
                     <td>
                       <button
                         className="text-white hover:text-blue-900 ml-2"
-                        onClick={() => remove(index)}
+                        onClick={(event) => {
+                          remove(index); 
+                          populateKinmu(
+                            index,
+                            getValues(`forms.${index}.project`)
+                          );
+                        }
+                      }
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
