@@ -137,8 +137,8 @@ const EditPage = ({ socket, uid, onClose }: any) => {
         jyuusho: addressInput.value,
         denwaBango: homePhoneInput.value,
         keitaiBango: telephoneInput.value,
-
-        shashin: s,
+  
+        // shashin: s,
       });
     };
 

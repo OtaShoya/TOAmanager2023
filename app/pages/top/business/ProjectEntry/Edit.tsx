@@ -425,7 +425,7 @@ const EditPage = ({socket, projectId, loaded, setLoadedFunction, members, projec
             </div>
             <label className="edit-label flex flex-col">
               メモ（状況及び今後の予定）
-              <input className="border text-black h-32" />
+              <input className="border text-black h-32"  {...register("memo")}/>
             </label>
             <div className="flex items-end">
               <label className="edit-label flex flex-col">

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { ProjectItem, sakugyoNaiyouItem } from '@/src/lib/report';
 const db = require("@/src/lib/database.ts")
+const dbTest = require("@/src/lib/database_new.ts")
 
 var dataBaseConnectionStr:string = "../../../db.sqlite3";
 if(process.env.NODE_ENV != "development"){
@@ -14,10 +15,10 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "login":
                 {
                     const loginFunc = async ()=>{
-                        db.loadDb(dataBaseConnectionStr);
-                        db.checkCredentials(body.user, body.password).then(
+                       
+                        dbTest.checkCredentials(body.user, body.password).then(
                             (result:any)=>{
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                                 
                                 if(result){
                                     res.status(200).json({
@@ -41,9 +42,9 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             //kinmu
             case "kinmu-add":{
                 const kinmuAdd = async ()=> {
-                    db.loadDb(dataBaseConnectionStr);
+                    // db.loadDb(dataBaseConnectionStr);
                     // console.log(body.kinmu);
-                    const ser = await db.addKinmu(body.kinmu).then( 
+                    const ser = await dbTest.addKinmu(body.kinmu).then( 
                         (v:any)=>{
                             
                             if(body.kinmu.sagyouNaiyou.length > 0){
@@ -51,7 +52,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                     body.kinmu.sagyouNaiyou.forEach( (element:any, index:number) => {
 
                                         const addKSN = async () => {
-                                            await db.addKinmuSagyouNaiyou( element, v )
+                                            await dbTest.addKinmuSagyouNaiyou( element, v, index + 1)
                                         }
                                         addKSN();
                                     });
@@ -60,12 +61,12 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                                 p.then((val)=>{
                                     res.status(200).json({added: true});
                                     res.end();
-                                    db.closeDb(dataBaseConnectionStr);
+                                    // db.closeDb(dataBaseConnectionStr);
                                 } )
                             }else{
                                 res.status(200).json({added: true});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             }   
 
                           
@@ -80,8 +81,9 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 {
                     const kinmuListFunc = async ()=> {
                         db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.getKinmuList(body.id).then( 
+                        const ser = await dbTest.getKinmuList(body.id).then( 
                             (v:any)=>{
+                                // console.log(v)
                                 res.status(200).json({kinmuList: v});
                                 res.end();
                                 // db.closeDb(dataBaseConnectionStr);
@@ -95,29 +97,37 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 {
                     
                     const kinmuUpdate = async ()=> {
-                        db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.updateKinmu(body.kinmu).then( 
+                        await dbTest.updateKinmu(body.kinmu).then( 
                             (v:any)=>{
                               return v
                             } 
                             
                         );
 
-                           
+                        if(body.ksnList.length > body.kinmu.sagyouNaiyou.length){
+                            await body.ksnList.forEach(
+                                (el:any, index:number)=>{
+                                    if(index > body.kinmu.sagyouNaiyou.length - 1){
+                                        dbTest.deleteKinmuSagyouNaiyou(index + 1, body.kinmu.id)
+                                    }
+                                }
+                            )
+                        }
+                         
                         if(body.kinmu.sagyouNaiyou.length > 0){
-                            
-                            let deleteList = body.ksnList.filter( (el:any)=>{
-                                return (body.kinmu.sagyouNaiyou.find( (ell:any)=>ell.id == el ) == undefined)
-                            } ) 
-                            
+
+
                             await body.kinmu.sagyouNaiyou.forEach( (element:any, index:number) => {
 
                                 const addKSN = async () => {
                                     
-                                    if(element.id == 0){
-                                        await db.addKinmuSagyouNaiyou( element, body.kinmu.id )
+                                    if(index > body.ksnList.length - 1)
+                                    {
+                                       
+                                        await dbTest.addKinmuSagyouNaiyou( element, body.kinmu.id, index + 1 )
                                     }else{
-                                        await db.updateKinmuSagyouNaiyou( element )
+                                        element.id = index + 1;
+                                        await dbTest.updateKinmuSagyouNaiyou( element, body.kinmu.id  )
                                     }
                                   
                                 }
@@ -125,19 +135,12 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                             });
                             //deleteKinmuSagyouNaiyou
 
-                            await deleteList.forEach((element:any) => {
-                                const deleteMember = async () => {
-                                    await db.deleteKinmuSagyouNaiyou( element ) 
-                                }
-                                deleteMember()
-                            });
+                       
                             
                         }
 
                         res.status(200).json({updated: true});
                         res.end();
-                        db.closeDb(dataBaseConnectionStr);
-
                     }
                     kinmuUpdate()
                     break;
@@ -147,14 +150,14 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                     
 
                     const getKinmu = async () => {
-                        db.loadDb(dataBaseConnectionStr);
-                        const kinmuRes = await db.getKinmu(body.id).then( 
+                        // db.loadDb(dataBaseConnectionStr);
+                        const kinmuRes = await dbTest.getKinmu(body.id).then( 
                             (v:any)=>{
                                return v;
                             } 
                         );
 
-                        const snList = await db.getKinmuSagyouNaiyouList(body.id).then( 
+                        const snList = await dbTest.getKinmuSagyouNaiyouList(body.id).then( 
                             (v:any)=>{
                                 return v;
                             } 
@@ -176,8 +179,8 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "shain-list":
                 {
                     const shainListFunc = async ()=> {
-                        db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.getShainList().then( 
+                        // db.loadDb(dataBaseConnectionStr);
+                        const ser = await dbTest.getShainList().then( 
                             (v:any)=>{
                                 res.status(200).json({shainList: v});
                                 res.end();
@@ -192,12 +195,12 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "shain-get":
                 {
                     const getShain = async () => {
-                        db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.getShain(body.id).then( 
+                       
+                        const ser = await dbTest.getShain(body.id).then( 
                             (v:any)=>{
                                 res.status(200).json({user: v});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // dbTest.closeDb();
                             } 
                         );
                     }
@@ -207,13 +210,13 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "shain-update":
                 {
                     const updateShain = async () => {
-                        db.loadDb(dataBaseConnectionStr);
+                        // db.loadDb(dataBaseConnectionStr);
                         // console.log(body?.shain);
-                        const ser = await db.updateShain(body.shain).then( 
+                        const ser = await dbTest.updateShain(body.shain).then( 
                             (v:any)=>{
                                 res.status(200).json({user: v});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             } 
                         );
                     }
@@ -223,12 +226,12 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "shain-add":
                 {
                     const addShain = async () => {
-                        db.loadDb(dataBaseConnectionStr);
-                        const ser = await db.addShain(body.shain).then( 
+                        // db.loadDb(dataBaseConnectionStr);
+                        const ser = await dbTest.addShain(body.shain).then( 
                             (v:any)=>{
                                 res.status(200).json({added: true});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             } 
                         );
                     }
@@ -255,15 +258,15 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "project-add":
                 {
                     const addProjectf = async () => {
-                        db.loadDb(dataBaseConnectionStr);
-                        await db.addProject(body.project).then( 
+                        // db.loadDb(dataBaseConnectionStr);
+                        await dbTest.addProject(body.project).then( 
                             (v:any)=>{
                                 if(body.members.length > 0){
                                     body.members.forEach( (element:any, index:number) => {
 
                                         const addMembers = async () => {
     
-                                            await db.addProjectMember( {shainId: element.projectMember}, v )
+                                            await dbTest.addProjectMember( {shainId: element.projectMember}, v )
                                         }
                                         addMembers();
                                     });
@@ -274,7 +277,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
 
                                         const addTasks = async () => {
     
-                                            await db.addProjectSagyouNaiyou( element, v)
+                                            await dbTest.addProjectSagyouNaiyou( element, v, index + 1)
     
                                         }
                                         addTasks();
@@ -288,7 +291,7 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
 
                         res.status(200).json({added: true});
                         res.end();
-                        db.closeDb(dataBaseConnectionStr);
+                        // db.closeDb(dataBaseConnectionStr);
                         
                     }
                     addProjectf();
@@ -297,55 +300,35 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "project-list":
                 {
                     const getProjectListF = async ()=>{
-                        db.loadDb(dataBaseConnectionStr);
-                        await db.getProjectList().then( 
-                            (v:any)=>{
-                              
-                                res.status(200).json({projectList: v});
-                                res.end();
-                                db.closeDb(dataBaseConnectionStr);
-                            } 
-                        );
-                    }
-
-                    getProjectListF();
-
-                    break;
-                }
-            case "project-list-e":
-                {
-                    const getProjectListF = async ()=>{
-                        db.loadDb(dataBaseConnectionStr);
-                        await db.getProjectList().then( 
-                            (v:any)=>{
-                              
-                                res.status(200).json({projectList: v});
-                                res.end();
-                                db.closeDb(dataBaseConnectionStr);
-                            } 
-                        );
                         
+                        await dbTest.getProjectList().then( 
+                            (v:any)=>{
+                              
+                                res.status(200).json({projectList: v});
+                                res.end();
+                                // db.closeDb(dataBaseConnectionStr);
+                            } 
+                        );
                     }
 
                     getProjectListF();
 
                     break;
-                    
                 }
             case "project-delete":
                 {
 
                     const deleteProject = async () => {
                         
-                        db.loadDb(dataBaseConnectionStr);
-                        await db.deleteProject(body.id).then(
+                        // db.loadDb(dataBaseConnectionStr);
+                        await dbTest.deleteProject(body.id).then(
                          
                             (v:any)=>{
-                                db.cleanProjectMembers(body.id);
-                                db.cleanProjectSagyouNaiyou(body.id);
+                                dbTest.cleanProjectMembers(body.id);
+                                dbTest.cleanProjectSagyouNaiyou(body.id);
                                 res.status(200).json({deleted: true});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
 
                             } 
                         )
@@ -357,19 +340,19 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "project-get":
                 {
                     const getProject = async () => {
-                        db.loadDb(dataBaseConnectionStr);
-                        const project = await db.getProject(body.id).then( 
+                        
+                        const project = await dbTest.getProject(body.id).then( 
                             (v:any)=>{
                                 return v;
                             } 
                         );
-                        const members = await db.getProjectMembers(body.id).then( 
+                        const members = await dbTest.getProjectMembers(body.id).then( 
                             (v:any)=>{
                                 return v;
                             } 
                         );
                         
-                        const sagyouNaiyou = await db.getProjectSagyouNaiyou(body.id).then( 
+                        const sagyouNaiyou = await dbTest.getProjectSagyouNaiyou(body.id).then( 
                             (v:any)=>{
                                 return v;
                             } 
@@ -377,8 +360,6 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
 
                         res.status(200).json({project: project, members: members, sagyouNaiyou: sagyouNaiyou});
                         res.end();
-                        db.closeDb(dataBaseConnectionStr);
-
                     }
                     getProject();
                     break; 
@@ -387,73 +368,83 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
                 {
                     const updateProject = async () => {
                         db.loadDb(dataBaseConnectionStr);
-                        const project = await db.updateProject(body.project).then( 
+                        await dbTest.updateProject(body.project).then( 
                             (v:any)=>{
                                 return v;
                             } 
                         );
 
+                        if( body.mbList.length > 0){
+                            body.mbList.forEach( (el:any)=>{
+                                if(body.members.find( (ell:any)=>ell.projectMember == el ) == undefined){
+                                    const deleteMember = async () => {
+                                        await dbTest.deleteProjectMembers( el, body.project.id ) 
+                                    }
+                                    deleteMember();
+                                }
+                            } )
+                        }
+                        
                         if(body.members.length > 0){
-                            
-                            let deleteList = body.mbList.filter( (el:any)=>{
-                                return (body.members.find( (ell:any)=>ell.mb_id == el ) == undefined)
-                            } ) 
-                            
                             await body.members.forEach( (element:any, index:number) => {
 
                                 const addMembers = async () => {
                                     
-                                    if(element.mb_id == 0){
-                                        await db.addProjectMember( {shainId: element.projectMember}, body.project.id)
-                                    }else{
-                                        await db.updateProjectMember( {mb_id: element.mb_id, shainId: element.projectMember})
+                                    if(body.mbList.find( (ell:any)=> element.projectMember == ell) == undefined){
+                                        await dbTest.addProjectMember( {shainId: element.projectMember}, body.project.id)
                                     }
-                                  
+                                    
                                 }
                                 addMembers();
                             });
-
-                            await deleteList.forEach((element:any) => {
-                                const deleteMember = async () => {
-                                    await db.deleteProjectMembers( element ) 
-                                }
-                                deleteMember()
-                            });
-
                         }
-                       
-                        if(body.tasks.length > 0){       
-                            
-                            let deleteList = body.snList.filter( (el:any)=>{
-                                return (body.tasks.find( (ell:any)=>ell.sn_id == el ) == undefined)
-                            } ) 
+   
+                        // let deleteList = body.snList.filter( (el:any)=>{
+                        //     return (body.tasks.find( (ell:any)=>ell.sn_id == el ) == undefined)
+                        // } ) 
+                     
 
-                            // console.log(deleteList);
-                            
+                        if( body.snList.length > body.tasks.length  ){
+                            await  body.snList.forEach((element:any, index:number) =>{ 
+                                
+                                if( index > (body.tasks.length - 1) ){
+                                    console.log(index + 1);
+                                    const deleteTasks = async () => {
+                                        await dbTest.deleteProjectSagyouNaiyou( index + 1, body.project.id) 
+                                    }
+                                    deleteTasks()
+                                }
+                            })
+                        }
+                        if(body.tasks.length > 0){       
+
                             await body.tasks.forEach( (element:any, index:number) =>{    
                                 const addTasks = async () => {
-                                    if(element.sn_id == 0){
-                                        await db.addProjectSagyouNaiyou( element, body.project.id)
+                                    if(index > (body.snList.length - 1) ){
+                                        
+                                        await dbTest.addProjectSagyouNaiyou( element, body.project.id, index + 1)
+
                                     }else{
-                                        await db.updateProjectSagyouNaiyou( element )
+                                        element.sn_id = index + 1;
+                                        await dbTest.updateProjectSagyouNaiyou( element, body.project.id)
                                     }
-                                    
                                 }
                                 addTasks();
                             } )
 
-                            await deleteList.forEach((element:any) => {
-                                const deleteTasks = async () => {
-                                    await db.deleteProjectSagyouNaiyou( element ) 
-                                }
-                                deleteTasks()
-                            });
+                           
 
                         }
 
+                        // await deleteList.forEach((element:any) => {
+                        //     const deleteTasks = async () => {
+                        //         await dbTest.deleteProjectSagyouNaiyou( element, body.project.id) 
+                        //     }
+                        //     deleteTasks()
+                        // });
                         res.status(200).json({updated: true});
                         res.end();
-                        db.closeDb(dataBaseConnectionStr);
+                        // db.closeDb(dataBaseConnectionStr);
                     }
                     updateProject()
 
@@ -462,12 +453,12 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "project-list-kinmu":
                 {
                     const getProjectListF = async ()=>{
-                        db.loadDb(dataBaseConnectionStr);
-                        await db.getProjectListKinmu().then( 
+                        // db.loadDb(dataBaseConnectionStr);
+                        await dbTest.getProjectListKinmu().then( 
                             (v:any)=>{
                                 res.status(200).json({projectList: v});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             } 
                         );
                         
