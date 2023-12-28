@@ -241,13 +241,13 @@ export default function handler(req:NextApiRequest, res:NextApiResponse){
             case "shain-delete":
                 {
                     const deleteShain = async () => {
-                        db.loadDb(dataBaseConnectionStr);
+                        // db.loadDb(dataBaseConnectionStr);
                         
-                        const ser = await db.deleteShain(body.id).then( 
+                        const ser = await dbTest.deleteShain(body.id).then( 
                             (v:any)=>{
                                 res.status(200).json({deleted: true});
                                 res.end();
-                                db.closeDb(dataBaseConnectionStr);
+                                // db.closeDb(dataBaseConnectionStr);
                             } 
                         );
                     }
