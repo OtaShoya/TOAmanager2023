@@ -1055,23 +1055,26 @@ const updateProjectSagyouNaiyou = (sagyouNaiyou:any, projectId:number)=>{
                     "UPDATE" 
                     +" プロジェクト明細"
                     +" SET"
-                    +" タスクＩＤ = $1 "
-                    +",作業内容 = $2 "
-                    +",開始予定日 = $3 "
-                    +",終了予定日 = $4"
-                    +",予定工数 = $5"
-                    +",作業内容インデックス =$6"
+                    +",開始予定日 = $1 "
+                    +",終了予定日 = $2"
+                    +",予定工数 = $3"
+
+                    // +" タスクＩＤ = $4 "
+                    // +",作業内容 = $5 "
+                    // +",作業内容インデックス =$6"
+                    
                     +" WHERE"
-                    +" 連番 = $7"
+                    +" 連番 = $4"
                     +" AND"
-                    +" プロジェクトＩＤ = $8",
+                    +" プロジェクトＩＤ = $5",
                     [
-                        sagyouNaiyou.task,
-                        sagyouNaiyou.work,
+                       
                         sagyouNaiyou.start,
                         sagyouNaiyou.finish,
-                        sagyouNaiyou.costs,-
-                        sagyouNaiyou.task + "" + sagyouNaiyou.work,
+                        sagyouNaiyou.costs,
+                        // sagyouNaiyou.task,
+                        // sagyouNaiyou.work,
+                        // sagyouNaiyou.task + "" + sagyouNaiyou.work,
                         sagyouNaiyou.sn_id,
                         projectId,
                     ]

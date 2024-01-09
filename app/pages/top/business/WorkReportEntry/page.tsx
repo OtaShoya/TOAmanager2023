@@ -82,7 +82,7 @@ const buttonDesign =
 
 const today = new Date();
 const year = today.getFullYear();
-const month = today.getMonth();
+const month = today.getMonth() + 1;
 
 const WorkReportEntry = () => {
   const [state, setState] = React.useState(false);
@@ -176,7 +176,7 @@ const WorkReportEntry = () => {
 
   const handleChange = (newValue: Dayjs | null) => {
     setValue(newValue);
-    setDate(newValue?.year() + "-" + (newValue?.month()?newValue?.month() + 1: 0))
+    setDate(newValue?.year() + "-" + (newValue?.month()?newValue?.month() + 1: 1))
   };
 
   const entryDate = () => {};
@@ -186,6 +186,7 @@ const WorkReportEntry = () => {
   const Rows = () => {
     let beginingDateArray = beginingDate.split("-");
     let nBeginingDate  = new Date(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
+    console.log(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
     let endDate = new Date(nBeginingDate.toString());
     endDate.setMonth(endDate.getMonth() + 1);
     var rows: Array<any> = [];
