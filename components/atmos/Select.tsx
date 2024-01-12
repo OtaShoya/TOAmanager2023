@@ -1,34 +1,24 @@
-import * as React from "react";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import { useState } from "react";
+import Select from "react-select";
 
-type PropsType = {
-  label: string;
-  items: string[];
-  width?: number;
-};
+const menbers = [
+  { value: 1, label: "太田翔哉" },
+  { value: 2, label: "チアゴ" },
+];
 
-const BasicSelect = ({ label, items, width = 240 }: PropsType) => {
-  const [value, setValue] = React.useState("");
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value as string);
-  };
+const UserSelect = () => {
+  const [selectedValue, setSelectedValue] = useState(menbers);
 
   return (
-    <FormControl sx={{ width: { width } }}>
-      <InputLabel>{label}</InputLabel>
-      <Select value={value} label={label} onChange={handleChange}>
-        {items?.map((item, i) => (
-          <MenuItem value={i} key={i}>
-            {item}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    <Select
+      options={menbers}
+      defaultValue={selectedValue}
+      onChange={(value) => {
+        value ? setSelectedValue([...value]) : null;
+      }}
+      isMulti
+    />
   );
 };
 
-export default BasicSelect;
+export default UserSelect;

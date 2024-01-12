@@ -1,18 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import * as React from "react";
 
-type PropType = {
-  subTitles: SubTitleType[];
-};
-
-type SubTitleType = {
-  tabTitle: string;
-  url: string;
-};
-
-export const subTitle = [
+const subTitle = [
   { tabTitle: "通常業務", url: "/pages/top" },
   { tabTitle: "出張", url: "/pages/top/BusinessTrip" },
   { tabTitle: "各種フォルダ", url: "/pages/top/Folder" },
@@ -21,7 +11,7 @@ export const subTitle = [
   { tabTitle: "マスタ保守", url: "/pages/top/master" },
 ];
 
-const Navigation = ({ subTitles }: PropType) => {
+const Navigation = () => {
   const router = useRouter();
   const clickHandler = (url: string) => {
     location.href = url;
@@ -41,10 +31,10 @@ const Navigation = ({ subTitles }: PropType) => {
       </button>
       <div className="h-full flex items-center justify-center">
         <ul className="grid grid-cols-1 gap-y-11">
-          {subTitles.map((subTitle, index) => (
-            <button key={index} onClick={() => clickHandler(subTitle.url)}>
+          {subTitle.map((title, index) => (
+            <button key={index} onClick={() => clickHandler(title.url)}>
               <li className="text-white text-xl hover:text-indigo-400 ">
-                {subTitle.tabTitle}
+                {title.tabTitle}
               </li>
             </button>
           ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import { Socket } from "socket.io-client";
 import React, { useEffect } from "react";
 import BasicCard, { cardColors } from "@/components/atmos/Card";
@@ -34,16 +34,16 @@ const FolderPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} />
+    <div className="page-base">
+      <Navigation />
       {/* ↓2023-1019 デザイン変更 */}
-      <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">各種フォルダ</h1>
+      <div className="page-main_area">
+        <div className="flex justify-between">
+          <h1 className="page-title">各種フォルダ</h1>
           <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         <div className="flex flex-col space-y-14">
-          <div className="flex flex-row space-x-14">
+          <div className="flex space-x-14">
             {pageTitles1.map((page, index) => (
               <BasicCard
                 key={index}
@@ -57,7 +57,7 @@ const FolderPage = () => {
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14 whitespace-pre">
+          <div className="flex space-x-14 whitespace-pre">
             {pageTitles2.map((page, index) => (
               <BasicCard
                 key={index}
@@ -71,7 +71,7 @@ const FolderPage = () => {
               />
             ))}
           </div>
-          <div className="flex flex-row space-x-14">
+          <div className="flex space-x-14">
             {pageTitles3.map((page, index) => (
               <BasicCard
                 key={index}

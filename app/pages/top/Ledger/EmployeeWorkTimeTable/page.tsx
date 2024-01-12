@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import LoginAvatar from "@/components/atmos/Avatar";
 import { Socket } from "socket.io-client";
 
@@ -15,10 +15,6 @@ type DataType = {
   Date2: string;
 };
 
-const labelDesign = "text-white text-2xl justify-self-end";
-const formDesign =
-  "border rounded-full h-12 w-64 ml-4 p-5 text-center text-[#556593] bg-white";
-
 const Page = () => {
   const { register, handleSubmit } = useForm<DataType>();
 
@@ -27,14 +23,12 @@ const Page = () => {
   };
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} />
+    <div className="page-base">
+      <Navigation />
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">
-            社員別作業時間集計表
-          </h1>
+          <h1 className="page-title">社員別作業時間集計表</h1>
           <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         {/* ↓フォーム */}

@@ -2,9 +2,9 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Button } from "@mui/material";
 import { Socket } from "socket.io-client";
 import React, { useEffect, useState } from "react";
+import { AnyAaaaRecord } from "dns";
 
 type DataType = {
   ID: string;
@@ -95,13 +95,10 @@ const AddPage = ({ socket, onClose }: any) => {
   const [telephoneValue, setTelephoneValue] = useState("");
 
   return (
-    <form
-      className="bg-[#556593] min-[1940px]:h-screen h-max px-24 pb-10"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className="edit-base" onSubmit={handleSubmit(onSubmit)}>
       <h1 className="edit-title">社員登録</h1>
       {/* ↓社員番号、パスワード */}
-      <div className="flex gap-x-4">
+      <div className="flex justify-between">
         <label className="text-white flex flex-col">
           社員番号
           <input
@@ -277,7 +274,6 @@ const AddPage = ({ socket, onClose }: any) => {
             onChange={(e) => setHomePhoneValue(e.target.value)}
           />
         </label>
-
         <label className="text-white flex flex-col">
           携帯番号
           <input
@@ -292,7 +288,7 @@ const AddPage = ({ socket, onClose }: any) => {
       {/* ↓ボタン */}
       <div className="flex justify-center">
         <button
-          className="mt-2 text-[#556593] hover:text-white bg-white hover:bg-[#556593] border hover:border-white rounded-lg w-20 py-2"
+          className="mt-10 text-[#556593] hover:text-white bg-white hover:bg-[#556593] border hover:border-white rounded-lg w-20 py-2"
           type="submit"
         >
           登録

@@ -1,7 +1,7 @@
 "use client";
 
 import LoginAvatar from "@/components/atmos/Avatar";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import { useForm } from "react-hook-form";
 import { Socket } from "socket.io-client";
 
@@ -33,8 +33,8 @@ const Page = () => {
   };
 
   return (
-    <div className="flex h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} />
+    <div className="page-base">
+      <Navigation />
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex flex-row justify-between">

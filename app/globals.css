@@ -3,6 +3,27 @@
 @tailwind utilities;
 
 @layer components {
+  /* ベースカラー */
+  .base-coler {
+    @apply bg-[#556593];
+  }
+
+  .page-base {
+    @apply flex h-screen p-10 bg-[#556593];
+  }
+
+  .page-main_area {
+    @apply w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07];
+  }
+
+  .page-title {
+    @apply text-4xl text-white font-bold;
+  }
+
+  .edit-base {
+    @apply bg-[#556593] min-[1940px]:h-screen h-max px-24 pb-10;
+  }
+
   .edit-title {
     @apply text-center min-[1940px]:text-5xl text-3xl text-white font-bold min-[1940px]:my-24 my-10;
   }
@@ -15,9 +36,14 @@
   }
 
   .edit-form {
-    @apply border min-[1940px]:h-14 h-10 text-black rounded p-1;
+    @apply min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black;
   }
 }
+
+.column-back_color {
+  @apply bg-sky-600;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./Edit";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import LoginAvatar from "@/components/atmos/Avatar";
 import { Socket } from "socket.io-client";
 import CheckBox from "@/components/atmos/CheckBox";
@@ -51,8 +51,8 @@ const ProjectReportEntryPage = () => {
   }, [condition1, condition2, condition3]);
 
   return (
-    <div className="flex h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} />
+    <div className="page-base">
+      <Navigation />
       <div className="w-full mx-5 p-12 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex justify-between">

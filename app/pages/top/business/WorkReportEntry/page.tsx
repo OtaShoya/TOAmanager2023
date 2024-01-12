@@ -11,11 +11,11 @@ import Paper from "@mui/material/Paper";
 import { Drawer, IconButton, ThemeProvider, createTheme } from "@mui/material";
 import CreateIcon from "@mui/icons-material/Create";
 import EditPage from "./Edit";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import LoginAvatar from "@/components/atmos/Avatar";
 import io, { Socket } from "socket.io-client";
 import ReloadButton from "@/components/molecule/RelodeButton";
-import "./style.css"
+import "./style.css";
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -99,12 +99,11 @@ const WorkReportEntry = () => {
     },
   ]);
 
-  const [kyujitsuGroup, setKyujitsuGroup] = React.useState(0);
+  const [kyujitsuGroup, setKyujitsuGroup] = React.useState<any | null>(0);
   // var beginingDate = new Date("2023-08-21");
   // const [beginingDate, setBeginingDate] = React.useState( new Date("2023-08-21"))
   const [kinmuDate, setKinmuDate] = React.useState(new Date());
-  const [kinmuData, setKinmuData] = React.useState<any|null>( null )
-
+  const [kinmuData, setKinmuData] = React.useState<any | null>(null);
 
   async function fetchListData() {
     const res = await fetch("/api/db/", {
@@ -124,12 +123,16 @@ const WorkReportEntry = () => {
 
   React.useEffect(() => {
     //@ts-ignore
-    setKyujitsuGroup( localStorage.getItem("kyujitsuGroup") !== null?localStorage.getItem("kyujitsuGroup"):0 )
+    setKyujitsuGroup(
+      localStorage.getItem("kyujitsuGroup") !== null
+        ? localStorage.getItem("kyujitsuGroup")
+        : 0
+    );
 
     if (loaded) {
       return;
     }
-   
+
     socket = sessions.connectSession();
     sessions.socketInitializer(socket);
 
@@ -154,8 +157,8 @@ const WorkReportEntry = () => {
     setKinmuDate(date);
     setState(open);
 
-    const fetchData = async ()=>{
-      if(open && first){
+    const fetchData = async () => {
+      if (open && first) {
         const res2 = await fetch("/api/db/", {
           method: "POST",
           body: JSON.stringify({
@@ -168,15 +171,15 @@ const WorkReportEntry = () => {
         setProjects(d2.projectList);
         first = false;
       }
-     
-    }
+    };
     fetchData();
-
   };
 
   const handleChange = (newValue: Dayjs | null) => {
     setValue(newValue);
-    setDate(newValue?.year() + "-" + (newValue?.month()?newValue?.month() + 1: 1))
+    setDate(
+      newValue?.year() + "-" + (newValue?.month() ? newValue?.month() + 1 : 0)
+    );
   };
 
   const entryDate = () => {};
@@ -185,8 +188,9 @@ const WorkReportEntry = () => {
 
   const Rows = () => {
     let beginingDateArray = beginingDate.split("-");
-    let nBeginingDate  = new Date(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
-    console.log(beginingDateArray[0] +"-"+ beginingDateArray[1] + "-21")
+    let nBeginingDate = new Date(
+      beginingDateArray[0] + "-" + beginingDateArray[1] + "-21"
+    );
     let endDate = new Date(nBeginingDate.toString());
     endDate.setMonth(endDate.getMonth() + 1);
     var rows: Array<any> = [];
@@ -235,15 +239,15 @@ const WorkReportEntry = () => {
       var shusshaJikokuJikan =
         new Date(val.shusshaJikoku).getUTCHours() +
         new Date(val.shusshaJikoku).getUTCMinutes() / 60;
-      
-      if(taishaJikokuJikan  >= 19 && taishaJikokuJikan <= 19.5){
+
+      if (taishaJikokuJikan >= 19 && taishaJikokuJikan <= 19.5) {
         taishaJikokuJikan = 19;
       }
-      if(taishaJikokuJikan >= 22 && taishaJikokuJikan <= 22.5){
+      if (taishaJikokuJikan >= 22 && taishaJikokuJikan <= 22.5) {
         taishaJikokuJikan = 22;
       }
 
-      if(taishaJikokuJikan  > 19.5){
+      if (taishaJikokuJikan > 19.5) {
         taishaJikokuJikan -= 0.5;
       }
 
@@ -251,7 +255,7 @@ const WorkReportEntry = () => {
         (taishaJikokuJikan >= 13
           ? taishaJikokuJikan - kyuukeiJikan
           : taishaJikokuJikan) - shusshaJikokuJikan;
-     
+
       var zangyouJikan = kinmuJikan - sagyouJikan;
       var zangyouJikanShinya =
         taishaJikokuJikan -
@@ -280,19 +284,23 @@ const WorkReportEntry = () => {
 
       var isOyasumi = false;
 
-      if(wd == 6){
-        isOyasumi = true
-        var monthDayN = Math.floor( (new Date(val.hidsuke).getDate() - 1)  / 7 );
-        if( (kyujitsuGroup == 2 && monthDayN == 0) || (kyujitsuGroup == 1 && monthDayN == 3) ||  monthDayN == 4 ){
-          isOyasumi = false
+      if (wd == 6) {
+        isOyasumi = true;
+        var monthDayN = Math.floor((new Date(val.hidsuke).getDate() - 1) / 7);
+        if (
+          (kyujitsuGroup == 2 && monthDayN == 0) ||
+          (kyujitsuGroup == 1 && monthDayN == 3) ||
+          monthDayN == 4
+        ) {
+          isOyasumi = false;
         }
       }
 
-      if(wd == 0){
-        isOyasumi = true
+      if (wd == 0) {
+        isOyasumi = true;
       }
 
-      var wdClass = (isOyasumi)? "oyasumi": "";
+      var wdClass = isOyasumi ? "oyasumi" : "";
 
       return (
         <TableRow key={index}>
@@ -304,13 +312,13 @@ const WorkReportEntry = () => {
             </IconButton>
           </TableCell>
           {/* 日付 */}
-          <TableCell className={ wdClass}> 
+          <TableCell className={wdClass}>
             {new Date(val.hidsuke).getFullYear()}/
             {format(new Date(val.hidsuke).getMonth() + 1)}/
             {format(new Date(val.hidsuke).getDate())}{" "}
           </TableCell>
           {/* 曜日*/}
-          <TableCell className={ wdClass }>{getWeekDay(wd)} </TableCell>
+          <TableCell className={wdClass}>{getWeekDay(wd)} </TableCell>
           {/* 勤務区分*/}
           <TableCell>
             {val.kinmuKubun ? Items[0][val.kinmuKubun] : Items[0][0]}{" "}
@@ -372,13 +380,13 @@ const WorkReportEntry = () => {
   });
 
   return (
-    <div className="flex h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} />
+    <div className="page-base">
+      <Navigation />
       <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
         {/* ↓ページタイトルとログイン情報 */}
         <div className="flex justify-between">
-          <h1 className="text-4xl text-white font-bold">作業報告登録</h1>
-          <LoginAvatar imgLabel="" imgUrl=""  socket={socket} />
+          <h1 className="page-title">作業報告登録</h1>
+          <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         {/* ↓年月日選択と各ボタン */}
         <div className="flex justify-between">

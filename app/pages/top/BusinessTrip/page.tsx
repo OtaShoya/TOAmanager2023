@@ -1,6 +1,6 @@
 "use client";
 
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import { Socket } from "socket.io-client";
 import React, { useEffect } from "react";
 import BasicCard, { cardColors } from "@/components/atmos/Card";
@@ -27,12 +27,12 @@ const BusinessTripPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-row h-screen p-10 bg-[#556593]">
-      <Navigation subTitles={subTitle} />
+    <div className="page-base">
+      <Navigation />
       {/* ↓2023-1019 デザイン変更 */}
-      <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-        <div className="flex flex-row justify-between">
-          <h1 className="text-4xl text-white font-bold">出張</h1>
+      <div className="page-main_area">
+        <div className="flex justify-between">
+          <h1 className="page-title">出張</h1>
           <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
         </div>
         <div className="grid grid-cols-1 gap-14">

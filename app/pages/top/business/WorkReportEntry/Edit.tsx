@@ -4,7 +4,6 @@ import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { formatN } from "@/src/lib/report";
 import type { Kinmu, KinmuSagyouNaiyou } from "@/src/lib/database";
-import { formGroupClasses } from "@mui/material";
 
 type FormType = {
   work_class: string;
@@ -73,6 +72,7 @@ const EditPage = ({
         forms: [],
         start_time: "08:30",
         end_time: "17:30",
+        work_time: 8,
       },
     });
 
@@ -189,7 +189,6 @@ const EditPage = ({
 
         setValue("memo", d.kinmu.memo);
         if (d.sagyouNaiyouList?.length > 0) {
-       
           remove();
           let snList = new Array<any>();
           d.sagyouNaiyouList.forEach((element: any, index: number) => {
@@ -373,6 +372,7 @@ const EditPage = ({
       case "5":
         setValue("start_time", "");
         setValue("end_time", "");
+        setValue("work_time", 0);
         setDisable(true);
         break;
       case "3":
@@ -387,18 +387,14 @@ const EditPage = ({
   };
 
   return (
-    <form
-      className="bg-[#556593] min-[1940px]:h-screen h-max px-24 pb-10"
-      onSubmit={handleSubmit(onSubmit)}
-    >
+    <form className="edit-base" onSubmit={handleSubmit(onSubmit)}>
       <h1 className="edit-title">作業報告登録</h1>
-      {/* フォーム */}
-      <div className="space-y-3">
+      <div className="grid gap-y-5">
         <div className="flex gap-x-8">
           <label className="text-white flex flex-col">
             勤務区分
             <select
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form"
               {...register("work_class")}
               onChange={(e) => changeView(e.target.value)}
             >
@@ -412,7 +408,7 @@ const EditPage = ({
           <label className="text-white flex flex-col">
             勤務形態
             <select
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form"
               {...register("work_status")}
               disabled={disable}
             >
@@ -428,7 +424,7 @@ const EditPage = ({
           <label className="text-white flex flex-col">
             出社時間
             <select
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form"
               {...register("start_time")}
               onChange={(e) => getStartTimes(e.target.value)}
               disabled={disable}
@@ -447,7 +443,7 @@ const EditPage = ({
           <label className="text-white flex flex-col">
             退社時間
             <select
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form"
               {...register("end_time")}
               onChange={(e) => getEndTimes(e.target.value)}
               disabled={disable}
@@ -467,67 +463,66 @@ const EditPage = ({
             控除時間
             <input
               type="text"
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black disabled:bg-gray-300 disabled:border-gray-300"
               {...register("deduction_time")}
               disabled={disable}
             />
           </label>
         </div>
-        <div className="grid gap-y-5">
-          <label className="text-white flex flex-col">
-            休暇種別
-            <select
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
-              {...register("rest_class")}
-            >
-              {Items[2].map((item: string, i) => (
-                <option value={i} key={i}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-white flex flex-col">
-            控除時間
-            <input
-              type="text"
-              className="w-[750px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
-              {...register("reason")}
-              disabled={disable}
-            />
-          </label>
-        </div>
+        <label className="text-white flex flex-col">
+          休暇種別
+          <select className="w-[240px] edit-form" {...register("rest_class")}>
+            {Items[2].map((item: string, i) => (
+              <option value={i} key={i}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-white flex flex-col">
+          控除時間
+          <input
+            type="text"
+            className="w-[775px] edit-form"
+            {...register("reason")}
+            disabled={disable}
+          />
+        </label>
         <div className="flex gap-x-8">
           <label className="text-white flex flex-col">
             勤務時間
             <input
               type="text"
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form disabled:bg-gray-300 disabled:border-gray-300"
               {...register("work_time")}
+              disabled={disable}
             />
           </label>
           <label className="text-white flex flex-col">
             残業時間
             <input
               type="text"
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form disabled:bg-gray-300 disabled:border-gray-300"
               {...register("overtime")}
+              disabled={disable}
             />
           </label>
           <label className="text-white flex flex-col">
             残業時間（深夜）
             <input
               type="text"
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form disabled:bg-gray-300 disabled:border-gray-300"
               {...register("overtime_late")}
+              disabled={disable}
             />
           </label>
           <label className="text-white flex flex-col">
             休出時間
             <input
               type="text"
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black disabled:bg-gray-300 disabled:border-gray-300"
               {...register("deduction_time")}
+              disabled={disable}
             />
           </label>
         </div>
@@ -537,13 +532,13 @@ const EditPage = ({
             <table className="border-spacing-0 border-collapse">
               <thead className="block">
                 <tr>
-                  <th className="border w-[350px] text-white bg-sky-600">
+                  <th className="border w-[350px] text-white column-back_color">
                     プロジェクト
                   </th>
-                  <th className="border w-[350px] text-white bg-sky-600">
+                  <th className="border w-[350px] text-white column-back_color">
                     作業内容
                   </th>
-                  <th className="border w-[200px] text-white bg-sky-600">
+                  <th className="border w-[200px] text-white column-back_color">
                     作業時間
                   </th>
                   <th className="w-10"></th>
@@ -660,7 +655,7 @@ const EditPage = ({
             メモ
             <input
               type="text"
-              className="w-[750px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[750px] edit-form"
               {...register("memo")}
             />
           </label>
@@ -668,15 +663,16 @@ const EditPage = ({
             会計
             <input
               type="text"
-              className="w-[240px] min-[1940px]:h-14 h-10 px-2 border border-white rounded bg-slate-50 text-black"
+              className="w-[240px] edit-form"
               {...register("deduction_time")}
             />
           </label>
         </div>
-        {/* 登録ボタン */}
-        <button type="submit" className="edit-entry-button">
-          登録
-        </button>
+        <div className="flex justify-center space-x-8 mt-10">
+          <button type="submit" className="edit-entry-button">
+            登録
+          </button>
+        </div>
       </div>
     </form>
   );

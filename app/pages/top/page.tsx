@@ -1,5 +1,5 @@
 "use client";
-import Navigation, { subTitle } from "@/components/atmos/Drawer";
+import Navigation from "@/components/atmos/Sidebar";
 import React, { useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import BasicCard, { cardColors } from "@/components/atmos/Card";
@@ -63,17 +63,13 @@ const TopPage = () => {
 
   if (data?.session_found === true) {
     return (
-      <div className="flex h-screen p-10 bg-[#556593]">
-        <Navigation subTitles={subTitle} />
+      <div className="page-base">
+        <Navigation />
         {/* ↓2023-1019 デザイン変更 */}
-        <div className="w-full ml-5 p-12 space-y-10 rounded-lg bg-white/[.07]">
-          <div className="flex flex-row justify-between">
-            <h1 className="text-4xl text-white font-bold">通常業務</h1>
-            <LoginAvatar
-              imgLabel=""
-              imgUrl=""
-              socket={socket}
-            />
+        <div className="page-main_area">
+          <div className="flex justify-between">
+            <h1 className="page-title">通常業務</h1>
+            <LoginAvatar imgLabel="" imgUrl="" socket={socket} />
           </div>
           <div className="grid grid-cols-1 gap-14">
             <div className="flex space-x-14">
